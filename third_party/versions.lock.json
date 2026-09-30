@@ -1,0 +1,31 @@
+﻿{
+    "schema_version":  1,
+    "recorded_at_utc":  "2026-09-30T16:00:37.9239598Z",
+    "compatibility_verified":  false,
+    "repositories":  [
+                         {
+                             "name":  "ygopro-core",
+                             "path":  "third_party/ygopro-core",
+                             "remote":  "https://github.com/edo9300/ygopro-core.git",
+                             "commit":  "efc21aa433b88cd35b7c37db4072a35c58d9d435",
+                             "clean":  true
+                         },
+                         {
+                             "name":  "CardScripts",
+                             "path":  "third_party/CardScripts",
+                             "remote":  "https://github.com/ProjectIgnis/CardScripts.git",
+                             "commit":  "33fa38cdd39ddb92851fe613c1aa34533d1cca92",
+                             "clean":  true
+                         },
+                         {
+                             "name":  "BabelCDB",
+                             "path":  "third_party/BabelCDB",
+                             "remote":  "https://github.com/ProjectIgnis/BabelCDB.git",
+                             "commit":  "b20871e24ec0edda78f42f7e115d4deef0184889",
+                             "clean":  true
+                         }
+                     ],
+    "core_submodules":  [
+                            " 6e22fedb74cf0c9b6656e9fce8b7331db847c605 lua/src (v5.4-beta-336-g6e22fedb)"
+                        ]
+}

@@ -1,0 +1,22 @@
+# Local tools and third-party checkouts (versions tracked separately).
+/tools/
+/third_party/*
+!/third_party/versions.lock.json
+
+# Generated presentation files.
+/output/
+
+# Godot generated cache and imported resources.
+.godot/
+
+# Local builds and editor files.
+/build/
+/dist/
+.vs/
+*.user
+*.suo
+
+# Local secrets.
+.env
+.env.*
+!.env.example
