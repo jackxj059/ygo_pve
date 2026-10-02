@@ -67,9 +67,17 @@ foreach ($tool in $lock.build_tools) {
     & "$env:SystemRoot\System32\tar.exe" -xf $zip -C $tmp
     if ($LASTEXITCODE -ne 0) { throw "$($tool.name): extracting $zip failed" }
     if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
-    # Each archive holds a single top-level folder.
-    Move-Item (Get-ChildItem $tmp -Directory | Select-Object -First 1).FullName $dest
-    Remove-Item -Recurse -Force $tmp
+    # Take the archive's "subdir" if the lock names one, else its single top-level
+    # folder if it has exactly one and nothing else, else the whole archive.
+    $top = @(Get-ChildItem $tmp)
+    if ($tool.PSObject.Properties['subdir']) {
+        Move-Item (Join-Path $tmp $tool.subdir) $dest
+    } elseif ($top.Count -eq 1 -and $top[0].PSIsContainer) {
+        Move-Item $top[0].FullName $dest
+    } else {
+        Move-Item $tmp $dest
+    }
+    if (Test-Path $tmp) { Remove-Item -Recurse -Force $tmp }
     Set-Content -Path $stamp -Value $tool.sha256 -Encoding ascii
 }
 Write-Host 'bootstrap complete'

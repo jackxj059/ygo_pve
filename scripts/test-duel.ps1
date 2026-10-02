@@ -4,6 +4,7 @@
 #   tests/duel/*.duel           must print PASS
 #   tests/duel/prompts/*.duel   must print PASS (one real-card scenario per prompt type)
 #   tests/duel/negative/*.duel  must FAIL with the text given in its "# expect-fail:" line
+#   game/tests/smoke_test.gd    Godot (headless) loads the GDExtension and plays a duel: must print PASS
 # Exit code is non-zero if any scenario does not behave as expected.
 [CmdletBinding()]
 param([switch]$Build)
@@ -48,6 +49,17 @@ try {
         if (-not $ok) { Write-Host $output }
         $results += [pscustomobject]@{ Scenario = $rel; Exit = $code; Result = $status }
     }
+    # Godot: the GDExtension loads and GDScript can drive a whole duel and the battle screen.
+    $godot = Join-Path $root 'tools/godot/Godot_v4.7.2-stable_win64_console.exe'
+    & $godot --headless --path game --import 2>&1 | Out-Null
+    $output = & $godot --headless --path game --script res://tests/smoke_test.gd 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    $output | Set-Content -Encoding utf8 (Join-Path $records 'godot_smoke.log')
+    $status = if ($code -eq 0 -and $output.TrimEnd().EndsWith('PASS')) { 'ok' } else { 'UNEXPECTED' }
+    Write-Host ("[{0}] game/tests/smoke_test.gd (exit {1})" -f $status, $code)
+    if ($status -ne 'ok') { Write-Host $output }
+    $results += [pscustomobject]@{ Scenario = 'game/tests/smoke_test.gd'; Exit = $code; Result = $status }
+
     $summary = @(
         "run_at_utc: $([DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'))"
         "harness: build/duel_harness.exe, core: build/ocgcore.dll"

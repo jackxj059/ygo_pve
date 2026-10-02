@@ -22,7 +22,7 @@ struct CardData {
 	uint64_t race = 0;
 	int32_t attack = 0, defense = 0;
 	std::vector<uint16_t> setcodes; // zero-terminated, as the core expects
-	std::string name;
+	std::string name, text; // text: the card's effect / flavor text
 	bool found = false;
 };
 
@@ -35,6 +35,9 @@ public:
 	Content& operator=(const Content&) = delete;
 	const CardData& card(uint32_t code);           // cached; .found is false for unknown codes
 	std::string label(uint32_t code);              // "Name(code)"
+	// Card-specific string for an effect/option description id (aux.Stringid: code << 20 | index);
+	// empty for the client's generic system strings, which are not in the card databases.
+	std::string description(uint64_t desc);
 	const std::string* script_path(const std::string& name) const;
 
 private:

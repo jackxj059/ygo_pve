@@ -1,0 +1,12 @@
+﻿Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  ok: content opened []
+  ok: card_info reads the database
+  ok: duel started
+  ok: all scripted actions used (0 left)
+  ok: p0 wins by LP: { "winner": 0, "reason": 1, "error": "" }
+  ok: final LP 7000 / 0
+  ok: screen shows the first prompt
+  ok: detaching the screen keeps the duel alive
+PASS
+

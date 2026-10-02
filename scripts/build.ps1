@@ -99,4 +99,20 @@ foreach ($name in 'duel_harness', 'battle_tests') {
     if ($LASTEXITCODE -ne 0) { throw "linking $name.exe failed" }
 }
 
-Write-Host "build complete: $out"
+# Godot GDExtension: battle module + core linked statically into one DLL, built through
+# godot-cpp's SCons setup so compiler flags match the godot-cpp library.
+$static = Join-Path $out 'libygo_battle.a'
+if (Test-Path $static) { Remove-Item $static }
+Write-Host '[archive] libygo_battle.a'
+& (Join-Path $root 'tools/llvm-mingw/bin/llvm-ar.exe') rcs $static $appObj.battle $appObj.deck $sqliteObj @coreObjs
+if ($LASTEXITCODE -ne 0) { throw 'creating libygo_battle.a failed' }
+$python = Join-Path $root 'tools/python/python.exe'
+if (-not (Test-Path $python)) { throw "missing $python - run scripts/bootstrap.ps1 first" }
+Write-Host '[scons] ygo_battle GDExtension (first run also builds godot-cpp, several minutes)'
+$env:PYTHONPATH = Join-Path $root 'tools/scons'
+& $python -c 'from SCons.Script import main; main()' -Q -C (Join-Path $root 'native/gdextension') `
+    platform=windows arch=x86_64 use_mingw=yes use_llvm=yes "mingw_prefix=$(Join-Path $root 'tools/llvm-mingw')" `
+    api_version=4.7 target=template_debug disable_exceptions=no lto=none "-j$([Environment]::ProcessorCount)"
+if ($LASTEXITCODE -ne 0) { throw 'building the GDExtension failed' }
+
+Write-Host "build complete: $out, game/addons/ygo_battle/bin"

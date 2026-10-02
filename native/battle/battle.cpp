@@ -166,7 +166,7 @@ const CardData& Content::card(uint32_t code) {
 	cd.code = code;
 	for(auto* db : dbs_) {
 		sqlite3_stmt* st = nullptr;
-		const char* sql = "SELECT d.alias,d.setcode,d.type,d.atk,d.def,d.level,d.race,d.attribute,t.name "
+		const char* sql = "SELECT d.alias,d.setcode,d.type,d.atk,d.def,d.level,d.race,d.attribute,t.name,t.desc "
 		                  "FROM datas d JOIN texts t ON t.id=d.id WHERE d.id=?";
 		if(sqlite3_prepare_v2(db, sql, -1, &st, nullptr) != SQLITE_OK)
 			fail(std::string("card database query failed: ") + sqlite3_errmsg(db));
@@ -193,6 +193,8 @@ const CardData& Content::card(uint32_t code) {
 			}
 			if(auto* name = sqlite3_column_text(st, 8))
 				cd.name = reinterpret_cast<const char*>(name);
+			if(auto* text = sqlite3_column_text(st, 9))
+				cd.text = reinterpret_cast<const char*>(text);
 		}
 		sqlite3_finalize(st);
 		if(cd.found)
@@ -205,6 +207,29 @@ const CardData& Content::card(uint32_t code) {
 std::string Content::label(uint32_t code) {
 	const auto& cd = card(code);
 	return (cd.found ? cd.name : std::string("?")) + "(" + std::to_string(code) + ")";
+}
+
+std::string Content::description(uint64_t desc) {
+	const auto code = desc >> 20;
+	const auto index = desc & 0xfffff;
+	if(code == 0 || index >= 16)
+		return "";
+	const std::string sql = "SELECT str" + std::to_string(index + 1) + " FROM texts WHERE id=?";
+	for(auto* db : dbs_) {
+		sqlite3_stmt* st = nullptr;
+		if(sqlite3_prepare_v2(db, sql.c_str(), -1, &st, nullptr) != SQLITE_OK)
+			continue;
+		sqlite3_bind_int64(st, 1, static_cast<sqlite3_int64>(code));
+		std::string out;
+		const bool found = sqlite3_step(st) == SQLITE_ROW;
+		if(found)
+			if(auto* text = sqlite3_column_text(st, 0))
+				out = reinterpret_cast<const char*>(text);
+		sqlite3_finalize(st);
+		if(found)
+			return out;
+	}
+	return "";
 }
 
 const std::string* Content::script_path(const std::string& name) const {

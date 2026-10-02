@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+# Builds the ygo_battle GDExtension with godot-cpp's compiler settings. Run through
+# scripts/build.ps1, which first packs build/libygo_battle.a (battle module + ygopro-core
+# + Lua + SQLite) and passes godot-cpp's options (platform, api_version, ...) on the
+# command line. Output: game/addons/ygo_battle/bin/ygo_battle<suffix>.dll
+import os
+
+root = os.path.abspath(os.path.join(Dir("#").abspath, "..", ".."))
+build = os.path.join(root, "build", "gdext")
+SConsignFile(os.path.join(build, "sconsign"))
+
+env = SConscript(os.path.join(root, "third_party", "godot-cpp", "SConstruct"))
+env.Append(CPPPATH=[os.path.join(root, "native", "battle"), os.path.join(root, "build", "core-src")])
+env.Append(LIBS=[File(os.path.join(root, "build", "libygo_battle.a"))])
+
+obj = env.SharedObject(os.path.join(build, "ygo_battle" + env["suffix"]), "ygo_battle.cpp")
+lib = env.SharedLibrary(
+    os.path.join(root, "game", "addons", "ygo_battle", "bin", "ygo_battle" + env["suffix"] + env["SHLIBSUFFIX"]),
+    obj,
+)
+Default(lib)

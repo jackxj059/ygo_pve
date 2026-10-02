@@ -23,6 +23,14 @@
                              "remote":  "https://github.com/ProjectIgnis/BabelCDB.git",
                              "commit":  "b20871e24ec0edda78f42f7e115d4deef0184889",
                              "clean":  true
+                         },
+                         {
+                             "name":  "godot-cpp",
+                             "path":  "third_party/godot-cpp",
+                             "remote":  "https://github.com/godotengine/godot-cpp.git",
+                             "commit":  "507ed9d840c01a3c5b2a39af8bb4000bfac30bf5",
+                             "note":  "tag 10.0.0-stable, built with api_version=4.7",
+                             "clean":  true
                          }
                      ],
     "core_submodules":  [
@@ -42,6 +50,30 @@
                             "url":  "https://sqlite.org/2026/sqlite-amalgamation-3530400.zip",
                             "sha256":  "1e71ddf93849c6a6ecf58b827c0692073d2dd7ee40196158068f7b29f422e87d",
                             "path":  "tools/sqlite"
+                        },
+                        {
+                            "name":  "godot",
+                            "version":  "4.7.2-stable",
+                            "url":  "https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_win64.exe.zip",
+                            "sha256":  "731980f9608d61333e5baf54a2ef17210acc7a538446c0cb9969f002aca1e953",
+                            "path":  "tools/godot"
+                        },
+                        {
+                            "name":  "python",
+                            "version":  "3.14.8",
+                            "url":  "https://api.nuget.org/v3-flatcontainer/python/3.14.8/python.3.14.8.nupkg",
+                            "sha256":  "ce85f674d9a63029f709cbff7a3da1c6bc5bfcfaefdd9999f98fa0290470c454",
+                            "path":  "tools/python",
+                            "subdir":  "tools",
+                            "note":  "portable CPython from NuGet; only used to run SCons for godot-cpp"
+                        },
+                        {
+                            "name":  "scons",
+                            "version":  "4.11.1",
+                            "url":  "https://files.pythonhosted.org/packages/8e/43/d6285848e893c19682c06e92679dc1a07d37ff7ea148747b1df681ec496c/scons-4.11.1-py3-none-any.whl",
+                            "sha256":  "454cef364348053422696e3d2ecb4fa593c96a624f955842eaaea64f95c8d11d",
+                            "path":  "tools/scons",
+                            "note":  "wheel unpacked as-is; run as tools/python/python.exe -c 'from SCons.Script import main; main()'"
                         }
                     ]
 }

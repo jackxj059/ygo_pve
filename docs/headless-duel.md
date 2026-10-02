@@ -19,6 +19,18 @@ powershell -ExecutionPolicy Bypass -File scripts/build.ps1       # 產生 build/
 powershell -ExecutionPolicy Bypass -File scripts/test-duel.ps1   # 跑模組自測與全部情境，紀錄寫到 tests/records/latest/
 ```
 
+卡圖不是決鬥所需的資料，另外用這支腳本下載（約 1.5 萬張、2 GB，不進 repo）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/fetch-card-images.ps1                 # 完整卡圖 -> third_party/card_images/full/<卡號>.jpg
+powershell -ExecutionPolicy Bypass -File scripts/fetch-card-images.ps1 -Kind cropped   # 只有卡圖插畫 -> third_party/card_images/cropped/
+```
+
+- **來源**：YGOPRODeck。
+- **對方的規定**：每張圖只下載一次並存在本機，高頻率抓圖會被封鎖 IP。所以腳本依序下載、每次間隔 0.1 秒，已經存在的檔案會跳過，中斷後重跑會從斷點繼續。
+- **結果紀錄**：每次執行的結果寫在 `third_party/card_images/source-<kind>.txt`，失敗的卡號寫在 `failed-<kind>.txt`。
+- **沒有圖的卡**：卡號以 YGOPRODeck 的卡片清單為準，所以先行卡、動畫原創卡等可能沒有圖。
+
 `build.ps1` 會把核心原始碼複製到 `build/core-src/`，套用 `patches/ygopro-core/` 的補丁後再編譯，`third_party` 的 checkout 本身不會被修改（見 [battle-module.md](battle-module.md#對核心的修改)）。
 
 `battle_tests.exe` 是戰鬥模組的自測程式，必須在 repo 根目錄執行。它檢查情境檔表達不了的部分：`.ydk` 解析、提示的生命週期、洗牌，以及重建決鬥。

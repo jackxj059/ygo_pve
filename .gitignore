@@ -20,3 +20,6 @@
 .env
 .env.*
 !.env.example
+
+# GDExtension build output (scripts/build.ps1).
+/game/addons/ygo_battle/bin/
