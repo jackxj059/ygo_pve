@@ -1,0 +1,13 @@
+# ANNOUNCE_CARD: Prohibition declares a card name. The answer is a card code, not an option index.
+start_draw 0 0
+start_draw 1 0
+card 0 hand 43711255        # Prohibition
+card 0 hand 83764718        # Monster Reborn
+card 0 grave 89631139       # Blue-Eyes White Dragon (a legal Monster Reborn target)
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+0 idle activate 43711255
+0 announce 83764718         # declare Monster Reborn
+expect count 0 szone 1      # Prohibition stays on the field
+stop                        # the next idle prompt no longer offers "activate Monster Reborn"

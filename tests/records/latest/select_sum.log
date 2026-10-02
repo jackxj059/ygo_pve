@@ -1,0 +1,64 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\prompts\select_sum.duel
+== duel created
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] sset Ferret Flames(31044787)@p0.hand[0]#2 [1] end
+  > 0 idle sset 31044787
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Ferret Flames(31044787) p0.hand[0]#2 -> p0.szone[0]#2 reason=0x0
+  set Ferret Flames(31044787) at p0.szone[0]#2
+? p0 SELECT_IDLECMD: [0] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Alexandrite Dragon(43096270)@p1.hand[0]#8 [1] summon Mystical Elf(15025844)@p1.hand[1]#13 [2] mset Alexandrite Dragon(43096270)@p1.hand[0]#8 [3] mset Mystical Elf(15025844)@p1.hand[1]#13 [4] battle [5] end [6] shuffle
+  > 1 idle summon 43096270
+? p1 SELECT_PLACE pick 1-1: [0] zone p1.mzone[0] [1] zone p1.mzone[1] [2] zone p1.mzone[2] [3] zone p1.mzone[3] [4] zone p1.mzone[4]
+  > default: first free zone
+  move Alexandrite Dragon(43096270) p1.hand[0]#8 -> p1.mzone[0]#8 reason=0x0
+  normal summon Alexandrite Dragon(43096270) at p1.mzone[0]#8
+? p0 SELECT_CHAIN: [0] activate Ferret Flames(31044787)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_IDLECMD: [0] battle [1] end
+  > 1 idle end
+? p0 SELECT_CHAIN: [0] activate Ferret Flames(31044787)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase end
+? p0 SELECT_CHAIN: [0] activate Ferret Flames(31044787)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+? p0 SELECT_CHAIN: [0] activate Ferret Flames(31044787)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate Ferret Flames(31044787)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p0 SELECT_CHAIN: [0] activate Ferret Flames(31044787)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#7 [1] mset Mystical Elf(15025844)@p0.hand[0]#7 [2] activate Ferret Flames(31044787)@p0.szone[0]#2 [3] battle [4] end
+  > 0 idle activate 31044787
+  CHAIN LINK 1: Ferret Flames(31044787) from p0.szone[0]#2 (chosen by player)
+  resolve link 1: Ferret Flames(31044787)
+? p1 SELECT_SUM reaching 1000: [0] card Alexandrite Dragon(43096270)@p1.mzone[0]#8 (2000)
+  > 1 select 43096270
+  move Alexandrite Dragon(43096270) p1.mzone[0]#8 -> p1.deck[4]#8 reason=0x400
+  move Ferret Flames(31044787) p0.szone[0]#2 -> p0.grave[0]#2 reason=0x400
+  chain end
+  ok: expect count 1 mzone 0
+  ok: expect count 1 deck 5
+== scenario stopped at: ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#7 [1] mset Mystical Elf(15025844)@p0.hand[0]#7 [2] battle [3] end
+PASS
+

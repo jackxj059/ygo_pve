@@ -1,0 +1,16 @@
+# ANNOUNCE_NUMBER: Side Effects? (Normal Trap) lets the opponent choose to draw 1, 2 or 3;
+# the activator gains 2000 LP per card drawn. Set on turn 1, activated on turn 3.
+start_draw 0 0
+start_draw 1 0
+card 0 hand 30922149        # Side Effects?
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+0 idle sset 30922149
+0 idle end
+1 idle end
+0 idle activate 30922149
+1 announce 2                # p1 draws 2 (plus 1 from turn 2)
+expect count 1 hand 3
+expect lp 0 12000
+stop

@@ -1,5 +1,7 @@
-# Builds build/ocgcore.dll (ygopro-core + Lua) and build/duel_harness.exe with the
-# pinned llvm-mingw toolchain. Run scripts/bootstrap.ps1 first.
+# Builds build/ocgcore.dll (ygopro-core + Lua), build/duel_harness.exe and
+# build/battle_tests.exe with the pinned llvm-mingw toolchain. Run scripts/bootstrap.ps1 first.
+# The core is compiled from a copy (build/core-src) with patches/ygopro-core/*.patch
+# applied, so the third_party checkout itself stays at the clean locked commit.
 [CmdletBinding()]
 param()
 $ErrorActionPreference = 'Stop'
@@ -9,12 +11,27 @@ $cc = Join-Path $root 'tools/llvm-mingw/bin/x86_64-w64-mingw32-clang.exe'
 foreach ($tool in $cxx, $cc) {
     if (-not (Test-Path $tool)) { throw "missing $tool - run scripts/bootstrap.ps1 first" }
 }
-$core = Join-Path $root 'third_party/ygopro-core'
-$lua = Join-Path $core 'lua'
 $sqlite = Join-Path $root 'tools/sqlite'
 $out = Join-Path $root 'build'
 $obj = Join-Path $out 'obj'
 New-Item -ItemType Directory -Force $obj | Out-Null
+
+$core = Join-Path $out 'core-src'
+if (Test-Path $core) { Remove-Item -Recurse -Force $core }
+New-Item -ItemType Directory $core | Out-Null
+$upstream = Join-Path $root 'third_party/ygopro-core'
+Get-ChildItem $upstream -Exclude '.git' | Copy-Item -Destination $core -Recurse
+Push-Location $root
+try {
+    foreach ($patch in Get-ChildItem (Join-Path $root 'patches/ygopro-core') -Filter *.patch | Sort-Object Name) {
+        Write-Host "[patch] $($patch.Name)"
+        & git apply --unsafe-paths --directory=build/core-src $patch.FullName
+        if ($LASTEXITCODE -ne 0) { throw "patch $($patch.Name) does not apply to the locked ygopro-core" }
+    }
+} finally {
+    Pop-Location
+}
+$lua = Join-Path $core 'lua'
 
 # Compiles each (compiler, source, args) job in parallel; throws on the first failure.
 function Invoke-Compile($jobs) {
@@ -56,8 +73,15 @@ foreach ($name in $coreSources) {
 }
 $sqliteObj = Join-Path $obj 'sqlite3.o'
 $jobs += @{ Exe = $cc; Src = 'sqlite3.c'; Out = $sqliteObj; Args = $common + @('-w', '-DSQLITE_OMIT_LOAD_EXTENSION', '-DSQLITE_THREADSAFE=0', '-c', (Join-Path $sqlite 'sqlite3.c'), '-o', $sqliteObj) }
-$harnessObj = Join-Path $obj 'duel_harness.o'
-$jobs += @{ Exe = $cxx; Src = 'duel_harness/main.cpp'; Out = $harnessObj; Args = $common + @('-std=c++17', '-Wall', '-Wextra', '-I', $core, '-I', $sqlite, '-c', (Join-Path $root 'native/duel_harness/main.cpp'), '-o', $harnessObj) }
+# Battle module (shared by every host) and the two test programs that use it.
+$battle = Join-Path $root 'native/battle'
+$appSources = [ordered]@{ battle = 'battle/battle.cpp'; deck = 'battle/deck.cpp'; duel_harness = 'duel_harness/main.cpp'; battle_tests = 'battle_tests/main.cpp' }
+$appObj = @{}
+foreach ($name in $appSources.Keys) {
+    $o = Join-Path $obj "app_$name.o"
+    $appObj[$name] = $o
+    $jobs += @{ Exe = $cxx; Src = $appSources[$name]; Out = $o; Args = $common + @('-std=c++17', '-Wall', '-Wextra', '-I', $core, '-I', $sqlite, '-I', $battle, '-c', (Join-Path $root "native/$($appSources[$name])"), '-o', $o) }
+}
 
 Write-Host "[compile] $($jobs.Count) translation units"
 Invoke-Compile $jobs
@@ -69,9 +93,10 @@ Write-Host '[link] ocgcore.dll'
 & $cxx -shared -static -o $dll @coreObjs "-Wl,--out-implib,$implib"
 if ($LASTEXITCODE -ne 0) { throw 'linking ocgcore.dll failed' }
 
-$exe = Join-Path $out 'duel_harness.exe'
-Write-Host '[link] duel_harness.exe'
-& $cxx -static -o $exe $harnessObj $sqliteObj $implib
-if ($LASTEXITCODE -ne 0) { throw 'linking duel_harness.exe failed' }
+foreach ($name in 'duel_harness', 'battle_tests') {
+    Write-Host "[link] $name.exe"
+    & $cxx -static -o (Join-Path $out "$name.exe") $appObj[$name] $appObj.battle $appObj.deck $sqliteObj $implib
+    if ($LASTEXITCODE -ne 0) { throw "linking $name.exe failed" }
+}
 
-Write-Host "build complete: $dll, $exe"
+Write-Host "build complete: $out"

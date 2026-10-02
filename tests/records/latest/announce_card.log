@@ -1,0 +1,22 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\prompts\announce_card.duel
+== duel created
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] sset Prohibition(43711255)@p0.hand[0]#2 [1] sset Monster Reborn(83764718)@p0.hand[1]#3 [2] activate Prohibition(43711255)@p0.hand[0]#2 [3] activate Monster Reborn(83764718)@p0.hand[1]#3 [4] end [5] shuffle
+  > 0 idle activate 43711255
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Prohibition(43711255) p0.hand[0]#2 -> p0.szone[0]#2 reason=0x0
+  CHAIN LINK 1: Prohibition(43711255) from p0.szone[0]#2 (chosen by player)
+? p0 ANNOUNCE_CARD (submit a card code; filter of 2 opcodes):
+  > 0 announce 83764718
+  resolve link 1: Prohibition(43711255)
+  chain end
+  ok: expect count 0 szone 1
+== scenario stopped at: ? p0 SELECT_IDLECMD: [0] end
+PASS
+

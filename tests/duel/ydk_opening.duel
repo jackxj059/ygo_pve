@@ -1,0 +1,20 @@
+# .ydk deck loading: both players use tests/decks/test_basic.ydk (40 main, 2 extra,
+# 2 side). The battle module shuffles the main deck from the seed; the core draws
+# 5 each. The exact opening hand below is the golden result for this seed.
+
+seed 20261002 7 8 9
+deck 0 tests/decks/test_basic.ydk
+deck 1 tests/decks/test_basic.ydk
+
+expect count 0 hand 5
+expect count 0 deck 35
+expect count 0 extra 2       # side deck is not part of the duel
+expect count 1 hand 5
+expect count 1 deck 35
+# Unshuffled, the hand would be the file's last five (3 Luster Dragon, 2 Giant Soldier).
+expect cards 0 hand 15025844 13039848 6368038 24068492 24068492
+expect cards 1 hand 15025844 70781052 97590747 89631139 83764718
+0 idle end
+expect count 1 hand 6        # p1 drew for turn 2
+expect count 1 deck 34
+stop

@@ -1,0 +1,4 @@
+# expect-fail: p0 main deck: unknown card code 99999999
+# The file format is valid; the code does not exist in the card database.
+deck 0 tests/decks/bad_unknown_card.ydk
+0 idle end

@@ -1,0 +1,23 @@
+# MSG_RETRY: the battle module only checks the shape of an answer; whether one tribute is enough
+# is a game rule the core checks. One tribute for Blue-Eyes is rejected, the core asks again
+# (new prompt id, retry flag), and two tributes are accepted.
+start_draw 0 0
+start_draw 1 0
+card 0 hand 25259669        # Goblindbergh
+card 0 hand 43096270        # Alexandrite Dragon
+card 0 hand 89631139        # Blue-Eyes White Dragon (needs 2 tributes)
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+0 idle summon 25259669
+0 yesno yes
+0 select 43096270
+0 idle end
+1 idle end
+0 idle summon 89631139
+0 select 25259669           # only one tribute
+expect retry
+0 select 25259669 43096270
+expect count 0 mzone 1
+expect count 0 grave 2
+stop

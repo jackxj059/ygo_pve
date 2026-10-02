@@ -1,12 +1,11 @@
-﻿== ocgcore API 11.0 (harness built against 11.0)
+﻿== ocgcore API 11.0
 == scenario .\tests\duel\negative\card_not_offered.duel
-== loaded 26 support scripts
-== 11 cards placed, starting duel
+== duel created
 
---- turn 1 (player 0)
+--- new turn (p0)
   phase draw
   phase standby
   phase main1
-? p0 idle: summon[Alexandrite Dragon(43096270)@p0.hand[0]] mset[Alexandrite Dragon(43096270)@p0.hand[0]] end
+? p0 SELECT_IDLECMD: [0] summon Alexandrite Dragon(43096270)@p0.hand[0]#2 [1] mset Alexandrite Dragon(43096270)@p0.hand[0]#2 [2] end
 FAIL: line 10: Monster Reborn(83764718) is not among the offered choices
 

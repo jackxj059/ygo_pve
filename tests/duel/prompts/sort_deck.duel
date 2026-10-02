@@ -1,0 +1,21 @@
+# SORT_CARD with a custom order: Fruits of Kozaky's Studies (Normal Trap) rearranges the top 3
+# cards of the deck. `sort` lists the cards from the new top down. Set on turn 1, activated on
+# turn 3; the extra Mystical Elf on top is the card p0 draws on turn 3.
+start_draw 0 0
+start_draw 1 0
+card 0 hand 49998907        # Fruits of Kozaky's Studies
+card 0 deck 15025844        # Mystical Elf (bottom)
+card 0 deck 26202165        # Sangan
+card 0 deck 43096270        # Alexandrite Dragon
+card 0 deck 89631139        # Blue-Eyes White Dragon
+card 0 deck 15025844        # Mystical Elf (top, drawn on turn 3)
+card 1 deck 15025844 x5
+
+0 idle sset 49998907
+0 idle end
+1 idle end
+expect cards 0 deck 15025844 26202165 43096270 89631139   # bottom -> top before sorting
+0 idle activate 49998907
+0 sort 26202165 89631139 43096270   # new top: Sangan, then Blue-Eyes, then Alexandrite
+expect cards 0 deck 15025844 43096270 89631139 26202165   # bottom -> top
+stop

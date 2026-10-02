@@ -1,0 +1,24 @@
+# SELECT_COUNTER: Anti-Spell's cost removes 2 Spell Counters from your side of the field. With two
+# Breakers holding one each, the core asks which cards to take them from.
+start_draw 0 0
+start_draw 1 0
+card 0 hand 71413901        # Breaker the Magical Warrior (gets 1 Spell Counter when Normal Summoned)
+card 0 hand 71413901
+card 0 hand 53112492        # Anti-Spell (Counter Trap)
+card 0 hand 83764718        # Monster Reborn
+card 0 grave 89631139       # Blue-Eyes White Dragon
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+0 idle summon 71413901
+0 idle sset 53112492
+0 idle end
+1 idle end
+0 idle summon 71413901
+0 idle activate 83764718
+0 select 89631139
+0 chain 53112492            # negate own Monster Reborn, just to pay the counter cost
+0 counter 71413901 71413901 # one counter from each Breaker
+expect count 0 mzone 2      # Monster Reborn was negated: no Blue-Eyes
+expect count 0 grave 3      # Blue-Eyes, Monster Reborn, Anti-Spell
+stop

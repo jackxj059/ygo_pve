@@ -1,0 +1,64 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\prompts\sort_deck.duel
+== duel created
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] sset Fruits of Kozaky's Studies(49998907)@p0.hand[0]#2 [1] end
+  > 0 idle sset 49998907
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Fruits of Kozaky's Studies(49998907) p0.hand[0]#2 -> p0.szone[0]#2 reason=0x0
+  set Fruits of Kozaky's Studies(49998907) at p0.szone[0]#2
+? p0 SELECT_IDLECMD: [0] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+? p0 SELECT_CHAIN: [0] activate Fruits of Kozaky's Studies(49998907)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate Fruits of Kozaky's Studies(49998907)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p0 SELECT_CHAIN: [0] activate Fruits of Kozaky's Studies(49998907)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#12 [1] mset Mystical Elf(15025844)@p1.hand[0]#12 [2] battle [3] end
+  > 1 idle end
+? p0 SELECT_CHAIN: [0] activate Fruits of Kozaky's Studies(49998907)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase end
+? p0 SELECT_CHAIN: [0] activate Fruits of Kozaky's Studies(49998907)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+? p0 SELECT_CHAIN: [0] activate Fruits of Kozaky's Studies(49998907)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate Fruits of Kozaky's Studies(49998907)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p0 SELECT_CHAIN: [0] activate Fruits of Kozaky's Studies(49998907)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#7 [1] mset Mystical Elf(15025844)@p0.hand[0]#7 [2] activate Fruits of Kozaky's Studies(49998907)@p0.szone[0]#2 [3] battle [4] end
+  ok: expect cards 0 deck 15025844 26202165 43096270 89631139
+  > 0 idle activate 49998907
+  CHAIN LINK 1: Fruits of Kozaky's Studies(49998907) from p0.szone[0]#2 (chosen by player)
+  resolve link 1: Fruits of Kozaky's Studies(49998907)
+? p0 SORT_CARD: [0] card Blue-Eyes White Dragon(89631139)@p0.deck[3]#6 [1] card Alexandrite Dragon(43096270)@p0.deck[2]#5 [2] card Sangan(26202165)@p0.deck[1]#4
+  > 0 sort 26202165 89631139 43096270
+  move ?(0) p0.deck[2]#4 -> p0.deck[3]#4 reason=0x0
+  move ?(0) p0.deck[2]#4 -> p0.deck[3]#4 reason=0x0
+  move ?(0) p0.deck[1]#4 -> p0.deck[3]#4 reason=0x0
+  move Fruits of Kozaky's Studies(49998907) p0.szone[0]#2 -> p0.grave[0]#2 reason=0x400
+  chain end
+  ok: expect cards 0 deck 15025844 43096270 89631139 26202165
+== scenario stopped at: ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#7 [1] mset Mystical Elf(15025844)@p0.hand[0]#7 [2] battle [3] end
+PASS
+

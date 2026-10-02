@@ -1,0 +1,5 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\negative\ydk_unknown_card.duel
+== p0 deck tests/decks/bad_unknown_card.ydk: main 2, extra 0, side 0
+FAIL: p0 main deck: unknown card code 99999999
+

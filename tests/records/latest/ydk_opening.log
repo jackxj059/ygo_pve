@@ -1,0 +1,33 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\ydk_opening.duel
+== p0 deck tests/decks/test_basic.ydk: main 40, extra 2, side 2
+== p1 deck tests/decks/test_basic.ydk: main 40, extra 2, side 2
+== duel created
+  p0 draws Mystical Elf(15025844) Giant Soldier of Stone(13039848) Gaia The Fierce Knight(6368038) Just Desserts(24068492) Just Desserts(24068492)
+  p1 draws Mystical Elf(15025844) Summoned Skull(70781052) La Jinn the Mystical Genie of the Lamp(97590747) Blue-Eyes White Dragon(89631139) Monster Reborn(83764718)
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#41 [1] summon Giant Soldier of Stone(13039848)@p0.hand[1]#40 [2] mset Mystical Elf(15025844)@p0.hand[0]#41 [3] mset Giant Soldier of Stone(13039848)@p0.hand[1]#40 [4] sset Just Desserts(24068492)@p0.hand[3]#38 [5] sset Just Desserts(24068492)@p0.hand[4]#37 [6] end [7] shuffle
+  ok: expect count 0 hand 5
+  ok: expect count 0 deck 35
+  ok: expect count 0 extra 2
+  ok: expect count 1 hand 5
+  ok: expect count 1 deck 35
+  ok: expect cards 0 hand 15025844 13039848 6368038 24068492 24068492
+  ok: expect cards 1 hand 15025844 70781052 97590747 89631139 83764718
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Sangan(26202165)
+  phase standby
+  phase main1
+  ok: expect count 1 hand 6
+  ok: expect count 1 deck 34
+== scenario stopped at: ? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#83 [1] summon La Jinn the Mystical Genie of the Lamp(97590747)@p1.hand[2]#81 [2] summon Sangan(26202165)@p1.hand[5]#78 [3] mset Mystical Elf(15025844)@p1.hand[0]#83 [4] mset La Jinn the Mystical Genie of the Lamp(97590747)@p1.hand[2]#81 [5] mset Sangan(26202165)@p1.hand[5]#78 [6] sset Monster Reborn(83764718)@p1.hand[4]#79 [7] battle [8] end [9] shuffle
+PASS
+

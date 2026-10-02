@@ -1,17 +1,17 @@
-﻿== ocgcore API 11.0 (harness built against 11.0)
+﻿== ocgcore API 11.0
 == scenario .\tests\duel\negative\unscripted_optional_trigger.duel
-== loaded 26 support scripts
-== 12 cards placed, starting duel
+== duel created
 
---- turn 1 (player 0)
+--- new turn (p0)
   phase draw
   phase standby
   phase main1
-? p0 idle: summon[Goblindbergh(25259669)@p0.hand[0] Alexandrite Dragon(43096270)@p0.hand[1]] mset[Goblindbergh(25259669)@p0.hand[0] Alexandrite Dragon(43096270)@p0.hand[1]] end
+? p0 SELECT_IDLECMD: [0] summon Goblindbergh(25259669)@p0.hand[0]#2 [1] summon Alexandrite Dragon(43096270)@p0.hand[1]#3 [2] mset Goblindbergh(25259669)@p0.hand[0]#2 [3] mset Alexandrite Dragon(43096270)@p0.hand[1]#3 [4] end [5] shuffle
   > 0 idle summon 25259669
-? p0 place -> default p0.mzone[0]
-  move Goblindbergh(25259669) p0.hand[0] -> p0.mzone[0] reason=0x0
-  normal summon Goblindbergh(25259669) at p0.mzone[0] pos=0x1
-? p0 optional effect of Goblindbergh(25259669) at p0.mzone[0]: activate?
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.mzone[0] [1] zone p0.mzone[1] [2] zone p0.mzone[2] [3] zone p0.mzone[3] [4] zone p0.mzone[4]
+  > default: first free zone
+  move Goblindbergh(25259669) p0.hand[0]#2 -> p0.mzone[0]#2 reason=0x0
+  normal summon Goblindbergh(25259669) at p0.mzone[0]#2
+? p0 SELECT_EFFECTYN for Goblindbergh(25259669): [0] yes Goblindbergh(25259669)@p0.mzone[0]#2 [1] no Goblindbergh(25259669)@p0.mzone[0]#2
 FAIL: got SELECT_EFFECTYN for p0 but scenario line 13 expects: 0 idle end
 

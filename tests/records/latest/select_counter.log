@@ -1,0 +1,74 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\prompts\select_counter.duel
+== duel created
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Breaker the Magical Warrior(71413901)@p0.hand[0]#2 [1] summon Breaker the Magical Warrior(71413901)@p0.hand[1]#3 [2] mset Breaker the Magical Warrior(71413901)@p0.hand[0]#2 [3] mset Breaker the Magical Warrior(71413901)@p0.hand[1]#3 [4] sset Anti-Spell(53112492)@p0.hand[2]#4 [5] sset Monster Reborn(83764718)@p0.hand[3]#5 [6] activate Monster Reborn(83764718)@p0.hand[3]#5 [7] end [8] shuffle
+  > 0 idle summon 71413901
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.mzone[0] [1] zone p0.mzone[1] [2] zone p0.mzone[2] [3] zone p0.mzone[3] [4] zone p0.mzone[4]
+  > default: first free zone
+  move Breaker the Magical Warrior(71413901) p0.hand[0]#2 -> p0.mzone[0]#2 reason=0x0
+  normal summon Breaker the Magical Warrior(71413901) at p0.mzone[0]#2
+  CHAIN LINK 1: Breaker the Magical Warrior(71413901) from p0.mzone[0]#2 (activated without a player prompt)
+  resolve link 1: Breaker the Magical Warrior(71413901)
+  chain end
+? p0 SELECT_IDLECMD: [0] sset Anti-Spell(53112492)@p0.hand[1]#4 [1] sset Monster Reborn(83764718)@p0.hand[2]#5 [2] activate Monster Reborn(83764718)@p0.hand[2]#5 [3] end [4] shuffle
+  > 0 idle sset 53112492
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Anti-Spell(53112492) p0.hand[1]#4 -> p0.szone[0]#4 reason=0x0
+  set Anti-Spell(53112492) at p0.szone[0]#4
+? p0 SELECT_IDLECMD: [0] sset Monster Reborn(83764718)@p0.hand[1]#5 [1] activate Monster Reborn(83764718)@p0.hand[1]#5 [2] activate Breaker the Magical Warrior(71413901)@p0.mzone[0]#2 [3] end [4] shuffle
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#16 [1] mset Mystical Elf(15025844)@p1.hand[0]#16 [2] battle [3] end
+  > 1 idle end
+  phase end
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Breaker the Magical Warrior(71413901)@p0.hand[0]#3 [1] summon Mystical Elf(15025844)@p0.hand[2]#11 [2] repos Breaker the Magical Warrior(71413901)@p0.mzone[0]#2 [3] mset Breaker the Magical Warrior(71413901)@p0.hand[0]#3 [4] mset Mystical Elf(15025844)@p0.hand[2]#11 [5] sset Monster Reborn(83764718)@p0.hand[1]#5 [6] activate Monster Reborn(83764718)@p0.hand[1]#5 [7] activate Breaker the Magical Warrior(71413901)@p0.mzone[0]#2 [8] battle [9] end [10] shuffle
+  > 0 idle summon 71413901
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.mzone[1] [1] zone p0.mzone[2] [2] zone p0.mzone[3] [3] zone p0.mzone[4]
+  > default: first free zone
+  move Breaker the Magical Warrior(71413901) p0.hand[0]#3 -> p0.mzone[1]#3 reason=0x0
+  normal summon Breaker the Magical Warrior(71413901) at p0.mzone[1]#3
+  CHAIN LINK 1: Breaker the Magical Warrior(71413901) from p0.mzone[1]#3 (activated without a player prompt)
+  resolve link 1: Breaker the Magical Warrior(71413901)
+  chain end
+? p0 SELECT_IDLECMD: [0] repos Breaker the Magical Warrior(71413901)@p0.mzone[0]#2 [1] sset Monster Reborn(83764718)@p0.hand[0]#5 [2] activate Monster Reborn(83764718)@p0.hand[0]#5 [3] activate Breaker the Magical Warrior(71413901)@p0.mzone[0]#2 [4] activate Breaker the Magical Warrior(71413901)@p0.mzone[1]#3 [5] battle [6] end [7] shuffle
+  > 0 idle activate 83764718
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[1] [1] zone p0.szone[2] [2] zone p0.szone[3] [3] zone p0.szone[4]
+  > default: first free zone
+  move Monster Reborn(83764718) p0.hand[0]#5 -> p0.szone[1]#5 reason=0x0
+  CHAIN LINK 1: Monster Reborn(83764718) from p0.szone[1]#5 (chosen by player)
+? p0 SELECT_CARD pick 1-1: [0] card Blue-Eyes White Dragon(89631139)@p0.grave[0]#6
+  > 0 select 89631139
+? p0 SELECT_CHAIN: [0] activate Anti-Spell(53112492)@p0.szone[0]#4 [1] pass
+  > 0 chain 53112492
+  CHAIN LINK 2: Anti-Spell(53112492) from p0.szone[0]#4 (chosen by player)
+? p0 SELECT_COUNTER x2: [0] card Breaker the Magical Warrior(71413901)@p0.mzone[0]#2 (1) [1] card Breaker the Magical Warrior(71413901)@p0.mzone[1]#3 (1)
+  > 0 counter 71413901 71413901
+  resolve link 2: Anti-Spell(53112492)
+  link 1 activation negated
+  move Monster Reborn(83764718) p0.szone[1]#5 -> p0.grave[1]#5 reason=0x41
+  resolve link 1: Monster Reborn(83764718)
+  move Anti-Spell(53112492) p0.szone[0]#4 -> p0.grave[2]#4 reason=0x400
+  chain end
+  ok: expect count 0 mzone 2
+  ok: expect count 0 grave 3
+== scenario stopped at: ? p0 SELECT_IDLECMD: [0] repos Breaker the Magical Warrior(71413901)@p0.mzone[0]#2 [1] battle [2] end
+PASS
+

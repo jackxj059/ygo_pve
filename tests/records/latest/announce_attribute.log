@@ -1,0 +1,59 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\prompts\announce_attribute.duel
+== duel created
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] sset DNA Transplant(56769674)@p0.hand[0]#2 [1] end
+  > 0 idle sset 56769674
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move DNA Transplant(56769674) p0.hand[0]#2 -> p0.szone[0]#2 reason=0x0
+  set DNA Transplant(56769674) at p0.szone[0]#2
+? p0 SELECT_IDLECMD: [0] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+? p0 SELECT_CHAIN: [0] activate DNA Transplant(56769674)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate DNA Transplant(56769674)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p0 SELECT_CHAIN: [0] activate DNA Transplant(56769674)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#12 [1] mset Mystical Elf(15025844)@p1.hand[0]#12 [2] battle [3] end
+  > 1 idle end
+? p0 SELECT_CHAIN: [0] activate DNA Transplant(56769674)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase end
+? p0 SELECT_CHAIN: [0] activate DNA Transplant(56769674)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+? p0 SELECT_CHAIN: [0] activate DNA Transplant(56769674)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate DNA Transplant(56769674)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p0 SELECT_CHAIN: [0] activate DNA Transplant(56769674)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#7 [1] mset Mystical Elf(15025844)@p0.hand[0]#7 [2] activate DNA Transplant(56769674)@p0.szone[0]#2 [3] battle [4] end
+  > 0 idle activate 56769674
+  CHAIN LINK 1: DNA Transplant(56769674) from p0.szone[0]#2 (chosen by player)
+? p0 ANNOUNCE_ATTRIB x1: [0] attribute 0x1 [1] attribute 0x2 [2] attribute 0x4 [3] attribute 0x8 [4] attribute 0x10 [5] attribute 0x20 [6] attribute 0x40
+  > 0 announce 0x10
+  resolve link 1: DNA Transplant(56769674)
+  chain end
+  ok: expect count 0 szone 1
+== scenario stopped at: ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#7 [1] mset Mystical Elf(15025844)@p0.hand[0]#7 [2] battle [3] end
+PASS
+

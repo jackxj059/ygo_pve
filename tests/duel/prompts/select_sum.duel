@@ -1,0 +1,19 @@
+# SELECT_SUM ("at least" mode): Ferret Flames makes the opponent return monsters whose total ATK
+# reaches the difference between their monsters' ATK and the activator's LP (2000 - 1000).
+lp 0 1000                   # test setting: Ferret Flames needs opposing ATK above own LP
+start_draw 0 0
+start_draw 1 0
+card 0 hand 31044787        # Ferret Flames (Normal Trap)
+card 0 deck 15025844 x5
+card 1 hand 43096270        # Alexandrite Dragon (2000)
+card 1 deck 15025844 x5
+
+0 idle sset 31044787
+0 idle end
+1 idle summon 43096270
+1 idle end
+0 idle activate 31044787
+1 select 43096270           # 2000 >= 1000
+expect count 1 mzone 0
+expect count 1 deck 5       # 5 left after drawing 1 on turn 2, plus Alexandrite shuffled back
+stop

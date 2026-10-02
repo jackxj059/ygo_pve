@@ -1,0 +1,63 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\prompts\announce_number.duel
+== duel created
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] sset Side Effects?(30922149)@p0.hand[0]#2 [1] end
+  > 0 idle sset 30922149
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Side Effects?(30922149) p0.hand[0]#2 -> p0.szone[0]#2 reason=0x0
+  set Side Effects?(30922149) at p0.szone[0]#2
+? p0 SELECT_IDLECMD: [0] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+? p0 SELECT_CHAIN: [0] activate Side Effects?(30922149)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate Side Effects?(30922149)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p0 SELECT_CHAIN: [0] activate Side Effects?(30922149)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#12 [1] mset Mystical Elf(15025844)@p1.hand[0]#12 [2] battle [3] end
+  > 1 idle end
+? p0 SELECT_CHAIN: [0] activate Side Effects?(30922149)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase end
+? p0 SELECT_CHAIN: [0] activate Side Effects?(30922149)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+? p0 SELECT_CHAIN: [0] activate Side Effects?(30922149)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate Side Effects?(30922149)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p0 SELECT_CHAIN: [0] activate Side Effects?(30922149)@p0.szone[0]#2 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#7 [1] mset Mystical Elf(15025844)@p0.hand[0]#7 [2] activate Side Effects?(30922149)@p0.szone[0]#2 [3] battle [4] end
+  > 0 idle activate 30922149
+  CHAIN LINK 1: Side Effects?(30922149) from p0.szone[0]#2 (chosen by player)
+  resolve link 1: Side Effects?(30922149)
+? p1 ANNOUNCE_NUMBER: [0] number 1 [1] number 2 [2] number 3
+  > 1 announce 2
+  p1 draws Mystical Elf(15025844) Mystical Elf(15025844)
+  p0 recovers 4000
+  move Side Effects?(30922149) p0.szone[0]#2 -> p0.grave[0]#2 reason=0x400
+  chain end
+  ok: expect count 1 hand 3
+  ok: expect lp 0 12000
+== scenario stopped at: ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#7 [1] mset Mystical Elf(15025844)@p0.hand[0]#7 [2] battle [3] end
+PASS
+

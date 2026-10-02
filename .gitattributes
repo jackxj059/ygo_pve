@@ -9,3 +9,4 @@
 *.lua text eol=lf
 *.pptx binary
 *.png binary
+*.patch -text

@@ -1,5 +1,8 @@
-# Runs every headless duel scenario and writes logs to tests/records/latest/.
+# Runs the battle module self-checks and every headless duel scenario, writing
+# logs to tests/records/latest/.
+#   build/battle_tests.exe      must print PASS
 #   tests/duel/*.duel           must print PASS
+#   tests/duel/prompts/*.duel   must print PASS (one real-card scenario per prompt type)
 #   tests/duel/negative/*.duel  must FAIL with the text given in its "# expect-fail:" line
 # Exit code is non-zero if any scenario does not behave as expected.
 [CmdletBinding()]
@@ -17,7 +20,17 @@ Get-ChildItem $records -Filter *.log | Remove-Item
 Push-Location $root
 try {
     $results = @()
-    $scenarios = @(Get-ChildItem tests/duel -Filter *.duel) + @(Get-ChildItem tests/duel/negative -Filter *.duel)
+    # Battle module self-checks (ydk parsing, prompt lifecycle, shuffling, recreate).
+    $output = & (Join-Path $root 'build/battle_tests.exe') 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    $output | Set-Content -Encoding utf8 (Join-Path $records 'battle_tests.log')
+    $status = if ($code -eq 0 -and $output.TrimEnd().EndsWith('PASS')) { 'ok' } else { 'UNEXPECTED' }
+    Write-Host ("[{0}] build/battle_tests.exe (exit {1})" -f $status, $code)
+    if ($status -ne 'ok') { Write-Host $output }
+    $results += [pscustomobject]@{ Scenario = 'build/battle_tests.exe'; Exit = $code; Result = $status }
+
+    $scenarios = @(Get-ChildItem tests/duel -Filter *.duel) + @(Get-ChildItem tests/duel/prompts -Filter *.duel) +
+        @(Get-ChildItem tests/duel/negative -Filter *.duel)
     foreach ($s in $scenarios) {
         $rel = Resolve-Path -Relative $s.FullName
         $negative = $s.Directory.Name -eq 'negative'

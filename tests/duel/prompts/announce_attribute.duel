@@ -1,0 +1,14 @@
+# ANNOUNCE_ATTRIB: DNA Transplant (Continuous Trap) declares an Attribute. Set on turn 1, activated on turn 3.
+start_draw 0 0
+start_draw 1 0
+card 0 hand 56769674        # DNA Transplant
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+0 idle sset 56769674
+0 idle end
+1 idle end
+0 idle activate 56769674
+0 announce 0x10             # ATTRIBUTE_LIGHT
+expect count 0 szone 1
+stop

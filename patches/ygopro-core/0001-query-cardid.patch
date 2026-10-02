@@ -1,0 +1,24 @@
+diff --git a/card.cpp b/card.cpp
+index 526af70..0925564 100644
+--- a/card.cpp
++++ b/card.cpp
+@@ -204,6 +204,7 @@ void card::get_infos(uint32_t query_flag) {
+ 		insert_value<uint32_t>(pduel->query_buffer, get_link_marker());
+ 	}
+ 	CHECK_AND_INSERT_T(QUERY_IS_HIDDEN, is_affected_by_effect(EFFECT_DARKNESS_HIDE) ? 1 : 0, uint8_t);
++	CHECK_AND_INSERT(QUERY_YGOPVE_CARDID, cardid);
+ 	insert_value<uint16_t>(pduel->query_buffer, sizeof(uint32_t));
+ 	insert_value<uint32_t>(pduel->query_buffer, QUERY_END);
+ }
+diff --git a/ocgapi_constants.h b/ocgapi_constants.h
+index cdc0f4c..299e7c5 100644
+--- a/ocgapi_constants.h
++++ b/ocgapi_constants.h
+@@ -191,6 +191,7 @@
+ #define QUERY_LINK         0x800000
+ #define QUERY_IS_HIDDEN	   0x1000000
+ #define QUERY_COVER        0x2000000
++#define QUERY_YGOPVE_CARDID 0x40000000 /* YGO_PVE patch: card::cardid, stable for the card's lifetime */
+ #define QUERY_END          0x80000000
+ 
+ /* Link Markers */

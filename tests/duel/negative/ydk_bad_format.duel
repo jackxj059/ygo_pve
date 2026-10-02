@@ -1,0 +1,3 @@
+# expect-fail: tests/decks/bad_format.ydk:4: expected a card code, got '15025844 x2'
+deck 0 tests/decks/bad_format.ydk
+0 idle end

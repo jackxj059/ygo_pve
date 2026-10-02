@@ -1,0 +1,69 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\prompts\rock_paper_scissors.duel
+== duel created
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Alexandrite Dragon(43096270)@p0.hand[0]#2 [1] mset Alexandrite Dragon(43096270)@p0.hand[0]#2 [2] end
+  > 0 idle summon 43096270
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.mzone[0] [1] zone p0.mzone[1] [2] zone p0.mzone[2] [3] zone p0.mzone[3] [4] zone p0.mzone[4]
+  > default: first free zone
+  move Alexandrite Dragon(43096270) p0.hand[0]#2 -> p0.mzone[0]#2 reason=0x0
+  normal summon Alexandrite Dragon(43096270) at p0.mzone[0]#2
+? p0 SELECT_IDLECMD: [0] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#8 [1] summon Mystical Elf(15025844)@p1.hand[2]#14 [2] mset Mystical Elf(15025844)@p1.hand[0]#8 [3] mset Mystical Elf(15025844)@p1.hand[2]#14 [4] sset Transmission Gear(58297729)@p1.hand[1]#9 [5] battle [6] end [7] shuffle
+  > 1 idle summon 15025844
+? p1 SELECT_PLACE pick 1-1: [0] zone p1.mzone[0] [1] zone p1.mzone[1] [2] zone p1.mzone[2] [3] zone p1.mzone[3] [4] zone p1.mzone[4]
+  > default: first free zone
+  move Mystical Elf(15025844) p1.hand[0]#8 -> p1.mzone[0]#8 reason=0x0
+  normal summon Mystical Elf(15025844) at p1.mzone[0]#8
+? p1 SELECT_IDLECMD: [0] sset Transmission Gear(58297729)@p1.hand[0]#9 [1] battle [2] end [3] shuffle
+  > 1 idle sset 58297729
+? p1 SELECT_PLACE pick 1-1: [0] zone p1.szone[0] [1] zone p1.szone[1] [2] zone p1.szone[2] [3] zone p1.szone[3] [4] zone p1.szone[4]
+  > default: first free zone
+  move Transmission Gear(58297729) p1.hand[0]#9 -> p1.szone[0]#9 reason=0x0
+  set Transmission Gear(58297729) at p1.szone[0]#9
+? p1 SELECT_IDLECMD: [0] battle [1] end
+  > 1 idle end
+  phase end
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#7 [1] repos Alexandrite Dragon(43096270)@p0.mzone[0]#2 [2] mset Mystical Elf(15025844)@p0.hand[0]#7 [3] battle [4] end
+  > 0 idle battle
+  phase battle-start
+? p0 SELECT_BATTLECMD: [0] attack Alexandrite Dragon(43096270)@p0.mzone[0]#2 [1] main2 [2] end
+  > 0 battle attack 43096270
+? p0 SELECT_CARD pick 1-1: [0] card Mystical Elf(15025844)@p1.mzone[0]#8
+  > 0 select 15025844
+  attack p0.mzone[0]#2 -> p1.mzone[0]#8
+? p1 SELECT_CHAIN: [0] activate Transmission Gear(58297729)@p1.szone[0]#9 [1] pass
+  > 1 chain 58297729
+  CHAIN LINK 1: Transmission Gear(58297729) from p1.szone[0]#9 (chosen by player)
+  resolve link 1: Transmission Gear(58297729)
+? p0 ROCK_PAPER_SCISSORS: [0] scissors [1] rock [2] paper
+  > 0 rps rock
+? p1 ROCK_PAPER_SCISSORS: [0] scissors [1] rock [2] paper
+  > 1 rps scissors
+  move Mystical Elf(15025844) p1.mzone[0]#8 -> p1.removed[0]#8 reason=0x400
+  move Transmission Gear(58297729) p1.szone[0]#9 -> p1.grave[0]#9 reason=0x400
+  chain end
+  ok: expect count 1 mzone 0
+  ok: expect count 1 removed 1
+  ok: expect count 0 mzone 1
+== scenario stopped at: ? p0 SELECT_BATTLECMD: [0] main2 [1] end
+PASS
+

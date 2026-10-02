@@ -1,0 +1,4 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\negative\ydk_bad_format.duel
+FAIL: .\tests\duel\negative\ydk_bad_format.duel:2: tests/decks/bad_format.ydk:4: expected a card code, got '15025844 x2'
+

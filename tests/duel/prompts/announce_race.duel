@@ -1,0 +1,11 @@
+# ANNOUNCE_RACE: Array of Revealing Light (Field Spell) declares a monster Type.
+start_draw 0 0
+start_draw 1 0
+card 0 hand 69296555        # Array of Revealing Light
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+0 idle activate 69296555
+0 announce 0x2000           # RACE_DRAGON
+expect count 0 szone 1
+stop
