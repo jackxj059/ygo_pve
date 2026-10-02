@@ -1,0 +1,10 @@
+# expect-fail: Monster Reborn(83764718) is not among the offered choices
+# Monster Reborn is not in hand, so the core never offers it.
+seed 1 2 3 4
+start_draw 0 0
+start_draw 1 0
+card 0 hand 43096270
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+0 idle activate 83764718

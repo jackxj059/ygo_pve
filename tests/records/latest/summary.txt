@@ -1,0 +1,6 @@
+﻿run_at_utc: 2026-10-02T03:06:11Z
+harness: build/duel_harness.exe, core: build/ocgcore.dll
+card_db: third_party/BabelCDB/cards.cdb, scripts: third_party/CardScripts
+ok exit=0 .\tests\duel\basic_chain_win.duel
+ok exit=1 .\tests\duel\negative\card_not_offered.duel
+ok exit=1 .\tests\duel\negative\unscripted_optional_trigger.duel

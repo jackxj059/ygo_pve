@@ -1,0 +1,49 @@
+# P2 smoke test: summon, optional + mandatory triggers, targeting, a 2-link chain
+# and an LP win, using the real core, cards.cdb and CardScripts.
+# Test-only settings (not product rules): P1 starts at 4000 LP, nobody draws an
+# opening hand; hands are placed explicitly so the flow is deterministic.
+
+seed 20261001 1 2 3
+lp 0 8000
+lp 1 4000
+start_draw 0 0
+start_draw 1 0
+
+card 0 hand 25259669        # Goblindbergh (optional summon trigger, TRIGGER_O)
+card 0 hand 43096270        # Alexandrite Dragon (normal monster, no script)
+card 0 hand 83764718        # Monster Reborn
+card 0 grave 89631139       # Blue-Eyes White Dragon
+card 0 deck 15025844 x10    # Mystical Elf (filler)
+card 1 hand 26202165        # Sangan (mandatory trigger, TRIGGER_F)
+card 1 hand 24068492        # Just Desserts
+card 1 deck 15025844 x10    # Mystical Elf (Sangan can search it: ATK 800)
+
+# --- turn 1, player 0
+0 idle summon 25259669      # Normal Summon Goblindbergh
+0 yesno yes                 # optional trigger: player is asked
+0 select 43096270           # Special Summon Alexandrite Dragon from hand
+expect count 0 mzone 2
+expect count 0 hand 1
+0 idle end
+
+# --- turn 2, player 1
+1 idle summon 26202165      # Normal Summon Sangan
+1 idle sset 24068492        # Set Just Desserts
+1 idle end
+
+# --- turn 3, player 0
+0 idle activate 83764718    # Monster Reborn (chain link 1)
+0 select 89631139           # target Blue-Eyes in own GY
+1 chain 24068492            # Just Desserts (chain link 2): 500 x 2 monsters
+expect chain 24068492 83764718   # resolves link 2 first, then link 1
+expect lp 0 7000
+expect count 0 mzone 3
+0 idle battle
+0 battle attack 43096270    # Alexandrite Dragon (2000) attacks
+0 select 26202165           # ... Sangan (1000)
+1 select 15025844           # Sangan's mandatory trigger searches Mystical Elf
+expect lp 1 3000
+expect count 1 mzone 0
+0 battle attack 89631139    # Blue-Eyes (3000) attacks directly
+expect win 0 1              # player 0 wins by LP
+expect lp 1 0

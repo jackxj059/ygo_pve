@@ -27,5 +27,21 @@
                      ],
     "core_submodules":  [
                             " 6e22fedb74cf0c9b6656e9fce8b7331db847c605 lua/src (v5.4-beta-336-g6e22fedb)"
-                        ]
+                        ],
+    "build_tools":  [
+                        {
+                            "name":  "llvm-mingw",
+                            "version":  "20260922",
+                            "url":  "https://github.com/mstorsjo/llvm-mingw/releases/download/20260922/llvm-mingw-20260922-ucrt-x86_64.zip",
+                            "sha256":  "e3ad77d117a4bea19a7a3b333341824d79a5a371004a10e25b8504e7b3047666",
+                            "path":  "tools/llvm-mingw"
+                        },
+                        {
+                            "name":  "sqlite-amalgamation",
+                            "version":  "3530400",
+                            "url":  "https://sqlite.org/2026/sqlite-amalgamation-3530400.zip",
+                            "sha256":  "1e71ddf93849c6a6ecf58b827c0692073d2dd7ee40196158068f7b29f422e87d",
+                            "path":  "tools/sqlite"
+                        }
+                    ]
 }

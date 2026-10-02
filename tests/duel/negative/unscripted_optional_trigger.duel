@@ -1,0 +1,13 @@
+# expect-fail: got SELECT_EFFECTYN for p0 but scenario line
+# The scenario forgets to answer Goblindbergh's optional trigger; the harness
+# must stop with a clear error instead of guessing.
+seed 1 2 3 4
+start_draw 0 0
+start_draw 1 0
+card 0 hand 25259669
+card 0 hand 43096270
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+0 idle summon 25259669
+0 idle end

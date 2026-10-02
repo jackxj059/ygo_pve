@@ -1,0 +1,109 @@
+﻿== ocgcore API 11.0 (harness built against 11.0)
+== scenario .\tests\duel\basic_chain_win.duel
+== loaded 26 support scripts
+== 26 cards placed, starting duel
+
+--- turn 1 (player 0)
+  phase draw
+  phase standby
+  phase main1
+? p0 idle: summon[Goblindbergh(25259669)@p0.hand[0] Alexandrite Dragon(43096270)@p0.hand[1]] mset[Goblindbergh(25259669)@p0.hand[0] Alexandrite Dragon(43096270)@p0.hand[1]] sset[Monster Reborn(83764718)@p0.hand[2]] activate[Monster Reborn(83764718)@p0.hand[2]] end
+  > 0 idle summon 25259669
+? p0 place -> default p0.mzone[0]
+  move Goblindbergh(25259669) p0.hand[0] -> p0.mzone[0] reason=0x0
+  normal summon Goblindbergh(25259669) at p0.mzone[0] pos=0x1
+? p0 optional effect of Goblindbergh(25259669) at p0.mzone[0]: activate?
+  > 0 yesno yes
+  CHAIN LINK 1: Goblindbergh(25259669) from p0.mzone[0] (chosen by player)
+  resolve link 1: Goblindbergh(25259669)
+? p0 select 1-1 of: Alexandrite Dragon(43096270)@p0.hand[0]
+  > 0 select 43096270
+? p0 place -> default p0.mzone[1]
+? p0 position for Alexandrite Dragon(43096270) (allowed 0x5) -> 0x1 [default]
+  move Alexandrite Dragon(43096270) p0.hand[0] -> p0.mzone[1] reason=0x800
+  special summon Alexandrite Dragon(43096270) at p0.mzone[1] pos=0x1
+  chain end
+? p0 idle: sset[Monster Reborn(83764718)@p0.hand[0]] activate[Monster Reborn(83764718)@p0.hand[0]] end
+  ok: expect count 0 mzone 2
+  ok: expect count 0 hand 1
+  > 0 idle end
+  phase end
+
+--- turn 2 (player 1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p1 idle: summon[Sangan(26202165)@p1.hand[0] Mystical Elf(15025844)@p1.hand[2]] mset[Sangan(26202165)@p1.hand[0] Mystical Elf(15025844)@p1.hand[2]] sset[Just Desserts(24068492)@p1.hand[1]] battle end
+  > 1 idle summon 26202165
+? p1 place -> default p1.mzone[0]
+  move Sangan(26202165) p1.hand[0] -> p1.mzone[0] reason=0x0
+  normal summon Sangan(26202165) at p1.mzone[0] pos=0x1
+? p1 idle: sset[Just Desserts(24068492)@p1.hand[0]] battle end
+  > 1 idle sset 24068492
+? p1 place -> default p1.szone[0]
+  move Just Desserts(24068492) p1.hand[0] -> p1.szone[0] reason=0x0
+  set Just Desserts(24068492) at p1.szone[0]
+? p1 idle: battle end
+  > 1 idle end
+  phase end
+
+--- turn 3 (player 0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+? p1 chain window: Just Desserts(24068492)@p1.szone[0] -> pass (not scripted)
+? p1 chain window: Just Desserts(24068492)@p1.szone[0] -> pass (not scripted)
+  phase standby
+? p1 chain window: Just Desserts(24068492)@p1.szone[0] -> pass (not scripted)
+  phase main1
+? p0 idle: summon[Mystical Elf(15025844)@p0.hand[1]] repos[Goblindbergh(25259669)@p0.mzone[0] Alexandrite Dragon(43096270)@p0.mzone[1]] mset[Mystical Elf(15025844)@p0.hand[1]] sset[Monster Reborn(83764718)@p0.hand[0]] activate[Monster Reborn(83764718)@p0.hand[0]] battle end
+  > 0 idle activate 83764718
+? p0 place -> default p0.szone[0]
+  move Monster Reborn(83764718) p0.hand[0] -> p0.szone[0] reason=0x0
+  CHAIN LINK 1: Monster Reborn(83764718) from p0.szone[0] (chosen by player)
+? p0 select 1-1 of: Blue-Eyes White Dragon(89631139)@p0.grave[0]
+  > 0 select 89631139
+? p1 chain window: Just Desserts(24068492)@p1.szone[0]
+  > 1 chain 24068492
+  CHAIN LINK 2: Just Desserts(24068492) from p1.szone[0] (chosen by player)
+  resolve link 2: Just Desserts(24068492)
+  p0 takes damage 1000
+  resolve link 1: Monster Reborn(83764718)
+? p0 place -> default p0.mzone[2]
+? p0 position for Blue-Eyes White Dragon(89631139) (allowed 0x5) -> 0x1 [default]
+  move Blue-Eyes White Dragon(89631139) p0.grave[0] -> p0.mzone[2] reason=0x800
+  special summon Blue-Eyes White Dragon(89631139) at p0.mzone[2] pos=0x1
+  move Monster Reborn(83764718) p0.szone[0] -> p0.grave[0] reason=0x400
+  move Just Desserts(24068492) p1.szone[0] -> p1.grave[0] reason=0x400
+  chain end
+? p0 idle: summon[Mystical Elf(15025844)@p0.hand[0]] repos[Goblindbergh(25259669)@p0.mzone[0] Alexandrite Dragon(43096270)@p0.mzone[1]] mset[Mystical Elf(15025844)@p0.hand[0]] battle end
+  ok: expect chain 24068492 83764718
+  ok: expect lp 0 7000
+  ok: expect count 0 mzone 3
+  > 0 idle battle
+  phase battle-start
+? p0 battle: attack[Alexandrite Dragon(43096270)@p0.mzone[1] Blue-Eyes White Dragon(89631139)@p0.mzone[2]] main2 end
+  > 0 battle attack 43096270
+? p0 select 1-1 of: Sangan(26202165)@p1.mzone[0]
+  > 0 select 26202165
+  attack p0.mzone[1] -> p1.mzone[0]
+  p1 takes damage 1000
+  move Sangan(26202165) p1.mzone[0] -> p1.grave[1] reason=0x21
+  CHAIN LINK 1: Sangan(26202165) from p1.grave[1] (activated without a player prompt)
+  resolve link 1: Sangan(26202165)
+? p1 select 1-1 of: Mystical Elf(15025844)@p1.deck[8] Mystical Elf(15025844)@p1.deck[7] Mystical Elf(15025844)@p1.deck[6] Mystical Elf(15025844)@p1.deck[5] Mystical Elf(15025844)@p1.deck[4] Mystical Elf(15025844)@p1.deck[3] Mystical Elf(15025844)@p1.deck[2] Mystical Elf(15025844)@p1.deck[1] Mystical Elf(15025844)@p1.deck[0]
+  > 1 select 15025844
+  move Mystical Elf(15025844) p1.deck[8] -> p1.hand[1] reason=0x40
+  chain end
+? p0 battle: attack[Blue-Eyes White Dragon(89631139)@p0.mzone[2]] main2 end
+  ok: expect lp 1 3000
+  ok: expect count 1 mzone 0
+  > 0 battle attack 89631139
+  attack p0.mzone[2] -> direct
+  p1 takes damage 3000
+WIN player=0 reason=1 (LP)
+== duel ended
+  ok: expect win 0 1
+  ok: expect lp 1 0
+PASS
+
