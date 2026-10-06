@@ -1,0 +1,13 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\negative\ap_not_enough.duel
+== duel created
+
+--- new turn (p0)
+  p0 AP refilled to 1
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] sset Premature Burial(70828912)@p0.hand[0]#2 [1] activate Premature Burial(70828912)@p0.hand[0]#2 {AP 2} {blocked: not enough AP (needs 2, has 1)} [2] end
+  > 0 idle activate 70828912
+FAIL: battle module rejected the answer: not enough AP (needs 2, has 1)
+

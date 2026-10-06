@@ -1,0 +1,19 @@
+# AP: an action p0 cannot afford is offered but blocked, so its own cost (Premature Burial's
+# 800 LP) is never paid. TEST VALUES, not balance decisions.
+start_draw 0 0
+start_draw 1 0
+ap 0 1 1
+ap_cost 0 activate 2
+card 0 hand 70828912        # Premature Burial (pay 800 LP to activate)
+card 0 grave 89631139       # a target for it
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+expect ap 0 1
+expect cost activate 70828912 2
+expect blocked activate 70828912
+expect lp 0 8000
+0 idle end
+expect ap 0 1
+expect lp 0 8000
+stop

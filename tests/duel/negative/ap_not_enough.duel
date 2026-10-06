@@ -1,0 +1,12 @@
+# expect-fail: battle module rejected the answer: not enough AP (needs 2, has 1)
+# Choosing a blocked option is refused by the battle module itself, not just hidden by a GUI.
+start_draw 0 0
+start_draw 1 0
+ap 0 1 1
+ap_cost 0 activate 2
+card 0 hand 70828912        # Premature Burial
+card 0 grave 89631139
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+0 idle activate 70828912

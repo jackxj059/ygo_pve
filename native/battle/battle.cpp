@@ -90,6 +90,45 @@ void shuffle(std::vector<uint32_t>& cards, const uint64_t seed[4], uint8_t playe
 		std::swap(cards[i - 1], cards[next() % i]); // ponytail: modulo bias is negligible for deck sizes
 }
 
+// AP cost kind for a prompt option, or "" if choosing it costs nothing. Only choices a
+// player makes freely cost AP: forced chains (mandatory effects) and everything that
+// happens while an effect resolves are free.
+std::string ap_kind(PromptType type, bool forced, const std::string& action) {
+	switch(type) {
+	case PromptType::Idle:
+		if(action == "mset" || action == "sset")
+			return "set";
+		if(action == "summon" || action == "spsummon" || action == "repos" || action == "activate")
+			return action;
+		return "";
+	case PromptType::Battle:
+		return action == "activate" || action == "attack" ? action : "";
+	case PromptType::Chain:
+		return !forced && action == "activate" ? "activate" : "";
+	case PromptType::EffectYesNo:
+		return action == "yes" ? "activate" : "";
+	default:
+		return "";
+	}
+}
+
+// The core message that confirms an action of this kind actually happened.
+bool confirms(const std::string& kind, uint8_t message) {
+	if(kind == "summon")
+		return message == MSG_SUMMONING;
+	if(kind == "spsummon")
+		return message == MSG_SPSUMMONING;
+	if(kind == "set")
+		return message == MSG_SET;
+	if(kind == "repos")
+		return message == MSG_POS_CHANGE || message == MSG_FLIPSUMMONING;
+	if(kind == "activate")
+		return message == MSG_CHAINING;
+	if(kind == "attack")
+		return message == MSG_ATTACK;
+	return false;
+}
+
 std::string loc_name(uint32_t loc) {
 	switch(loc) {
 	case LOCATION_DECK: return "deck";
@@ -240,6 +279,10 @@ const std::string* Content::script_path(const std::string& name) const {
 // --------------------------------------------------------------------- Duel
 
 Duel::Duel(Content& content, const DuelConfig& config) : content_(content) {
+	for(int p = 0; p < 2; ++p) {
+		ap_[p].rules = config.players[p].ap;
+		ap_[p].current = ap_[p].rules.initial;
+	}
 	OCG_DuelOptions opt{};
 	std::memcpy(opt.seed, config.seed, sizeof(opt.seed));
 	opt.flags = config.flags ? config.flags : DUEL_MODE_MR5;
@@ -409,6 +452,7 @@ Status Duel::advance() {
 				if(o.card.code)
 					fill_instance(o.card);
 			fill_instance(prompt_.card);
+			price_options();
 		}
 	} catch(const std::exception& e) {
 		set_error(e.what());
@@ -484,9 +528,20 @@ bool Duel::parse_message(uint8_t type, const uint8_t* data, size_t size) {
 		win_reason_ = ev.value;
 		status_ = Status::Ended;
 		return emit(EventType::Win);
-	case MSG_NEW_TURN:
+	case MSG_NEW_TURN: {
 		ev.player = r.get<uint8_t>();
-		return emit(EventType::NewTurn);
+		emit(EventType::NewTurn);
+		auto& ap = ap_[ev.player & 1];
+		if(ap.rules.enabled) { // refill at the start of the player's own turn only
+			ap.current = ap.rules.max;
+			Event refill;
+			refill.type = EventType::Ap;
+			refill.player = ev.player;
+			refill.value = ap.current;
+			events_.push_back(refill);
+		}
+		return false;
+	}
 	case MSG_NEW_PHASE:
 		ev.value = r.get<uint16_t>();
 		return emit(EventType::NewPhase);
@@ -513,16 +568,27 @@ bool Duel::parse_message(uint8_t type, const uint8_t* data, size_t size) {
 	case MSG_SET: {
 		const auto code = r.get<uint32_t>();
 		ev.card = read_loc(r, code);
-		return emit(type == MSG_SUMMONING ? EventType::Summon : type == MSG_SPSUMMONING ? EventType::SpSummon
-		            : type == MSG_FLIPSUMMONING ? EventType::FlipSummon : EventType::Set);
+		emit(type == MSG_SUMMONING ? EventType::Summon : type == MSG_SPSUMMONING ? EventType::SpSummon
+		     : type == MSG_FLIPSUMMONING ? EventType::FlipSummon : EventType::Set);
+		charge_pending(type, ev.card.controller);
+		return false;
+	}
+	case MSG_POS_CHANGE: {
+		r.get<uint32_t>(); // code
+		const auto controller = r.get<uint8_t>();
+		charge_pending(type, controller);
+		return false;
 	}
 	case MSG_CHAINING: {
 		const auto code = r.get<uint32_t>();
 		ev.card = read_loc(r, code);
-		r.skip(1 + 1 + 4 + 8); // triggering controller/location/sequence, description
+		const auto activator = r.get<uint8_t>();
+		r.skip(1 + 4 + 8); // triggering location/sequence, description
 		ev.value = r.get<uint32_t>();
 		chain_.push_back(code);
-		return emit(EventType::Chaining);
+		emit(EventType::Chaining);
+		charge_pending(type, activator);
+		return false;
 	}
 	case MSG_CHAIN_SOLVING:
 		ev.value = r.get<uint8_t>();
@@ -546,7 +612,9 @@ bool Duel::parse_message(uint8_t type, const uint8_t* data, size_t size) {
 	case MSG_ATTACK:
 		ev.from = read_loc(r);
 		ev.to = read_loc(r);
-		return emit(EventType::Attack);
+		emit(EventType::Attack);
+		charge_pending(type, ev.from.controller);
+		return false;
 
 	case MSG_SELECT_IDLECMD: {
 		begin(PromptType::Idle);
@@ -796,6 +864,38 @@ bool Duel::parse_message(uint8_t type, const uint8_t* data, size_t size) {
 	}
 }
 
+void Duel::price_options() {
+	auto& ap = ap_[prompt_.player & 1];
+	const bool decision = prompt_.type == PromptType::Idle || prompt_.type == PromptType::Battle ||
+	                      prompt_.type == PromptType::Chain || prompt_.type == PromptType::EffectYesNo;
+	// Back at a decision point without the confirming message: the action was cancelled.
+	if(decision && pending_.active && pending_.player == prompt_.player)
+		pending_.active = false;
+	if(!ap.rules.enabled)
+		return;
+	for(auto& o : prompt_.options) {
+		const auto kind = ap_kind(prompt_.type, prompt_.forced, o.action);
+		auto it = ap.rules.costs.find(kind);
+		o.cost = kind.empty() || it == ap.rules.costs.end() ? 0 : it->second;
+		if(o.cost > ap.current)
+			o.blocked = "not enough AP (needs " + std::to_string(o.cost) + ", has " + std::to_string(ap.current) + ")";
+	}
+}
+
+void Duel::charge_pending(uint8_t message, uint8_t player) {
+	if(!pending_.active || pending_.player != (player & 1) || !confirms(pending_.kind, message))
+		return;
+	pending_.active = false;
+	auto& ap = ap_[player & 1];
+	ap.current -= std::min(ap.current, pending_.cost);
+	Event spent;
+	spent.type = EventType::Ap;
+	spent.player = player & 1;
+	spent.value = ap.current;
+	spent.reason = pending_.cost;
+	events_.push_back(spent);
+}
+
 bool Duel::submit(uint64_t prompt_id, const std::vector<uint32_t>& picks, std::string& error) {
 	if(status_ != Status::Awaiting) {
 		error = "no prompt is waiting for an answer";
@@ -903,10 +1003,16 @@ bool Duel::submit(uint64_t prompt_id, const std::vector<uint32_t>& picks, std::s
 		for(uint32_t rank = 0; rank < n; ++rank) // the core wants each card's rank, 0 = first/top
 			resp[picks[rank]] = static_cast<uint8_t>(rank);
 		break;
-	default:
+	default: {
 		if(picks.size() != 1)
 			return reject("this prompt takes exactly one option");
+		const auto& chosen = prompt_.options[picks[0]];
+		if(!chosen.blocked.empty())
+			return reject(chosen.blocked);
+		if(chosen.cost > 0)
+			pending_ = {true, prompt_.player, chosen.cost, ap_kind(prompt_.type, prompt_.forced, chosen.action)};
 		resp = encoded_[picks[0]];
+	}
 	}
 	return send(resp);
 }
@@ -1078,6 +1184,9 @@ std::string describe(Content& content, const Event& e) {
 	case EventType::Win:
 		return "WIN player=" + std::to_string(e.player) + " reason=" + std::to_string(e.value) +
 		       (e.value == 1 ? " (LP)" : e.value == 2 ? " (deck-out)" : " (card effect/other)");
+	case EventType::Ap:
+		return e.reason ? "  " + p + " spends " + std::to_string(e.reason) + " AP (" + std::to_string(e.value) + " left)"
+		                : "  " + p + " AP refilled to " + std::to_string(e.value);
 	}
 	return "?";
 }
@@ -1116,6 +1225,10 @@ std::string describe(Content& content, const Prompt& pr) {
 		}
 		if(pr.type == PromptType::SelectSum || pr.type == PromptType::Counter)
 			s += " (" + std::to_string(o.param) + ")";
+		if(o.cost)
+			s += " {AP " + std::to_string(o.cost) + "}";
+		if(!o.blocked.empty())
+			s += " {blocked: " + o.blocked + "}";
 	}
 	return s;
 }

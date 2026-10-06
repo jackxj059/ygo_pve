@@ -65,6 +65,8 @@ build/duel_harness.exe --scripts third_party/CardScripts --db third_party/BabelC
 | `draw_per_turn n` | 每回合抽牌數 |
 | `deck P path.ydk` | 載入牌組：主牌組依種子洗牌後放入牌庫，額外牌組放入額外牌組區，備牌不放入決鬥 |
 | `card P hand/deck/grave/removed/extra CODE [xN]` | 依指定順序放置卡片，不洗牌；用於固定開場的規則測試 |
+| `ap P MAX INITIAL` | 啟用玩家 P 的 AP（沒寫就不啟用，沿用原規則） |
+| `ap_cost P KIND N` | 動作費用：KIND 可以是 `summon`、`spsummon`、`set`、`activate`、`attack`、`repos` |
 
 操作行的開頭是玩家編號，依序對應核心送出的選擇提示。
 
@@ -92,6 +94,9 @@ build/duel_harness.exe --scripts third_party/CardScripts --db third_party/BabelC
 | `expect cards P LOC CODE...` | 指定區域依序的卡號；怪獸區、魔陷區的空格以 0 表示 |
 | `expect chain CODE...` | 最近一次完成的連鎖中，各連鎖鏈結的實際處理順序 |
 | `expect win P [reason]` | 勝方；reason 1 為 LP 歸零，2 為抽乾牌組 |
+| `expect ap P n` | 玩家 P 目前的 AP |
+| `expect cost ACTION CODE n` | 目前提示中，該選項的 AP 費用 |
+| `expect blocked ACTION CODE` | 目前提示中，該選項因為 AP 不足被擋下 |
 | `expect retry` | 上一個回答被核心以 `MSG_RETRY` 拒絕，現在是同一個提示重問。沒寫這行時，核心拒絕回答一律視為失敗 |
 
 ### 預設處理的提示

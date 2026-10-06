@@ -1,0 +1,21 @@
+# AP: an activation that gets negated (Solemn Judgment) is not refunded. TEST VALUES.
+start_draw 0 0
+start_draw 1 0
+ap 0 1 1
+ap_cost 0 activate 1
+card 0 hand 83764718        # Monster Reborn
+card 0 grave 89631139
+card 0 deck 15025844 x5
+card 1 hand 41420027        # Solemn Judgment
+card 1 deck 15025844 x5
+
+0 idle end
+1 idle sset 41420027
+1 idle end
+expect ap 0 1
+0 idle activate 83764718    # 1 -> 0
+0 select 89631139
+1 chain 41420027            # negate Monster Reborn
+expect ap 0 0               # no refund
+expect count 0 mzone 0      # Blue-Eyes was not summoned
+stop

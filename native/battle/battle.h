@@ -48,9 +48,21 @@ private:
 
 // ------------------------------------------------------------------- config
 
+// Action points: an extra resource on top of the normal summon/attack limits. Every value
+// comes from the host (no defaults are game rules). Disabled players (e.g. enemies) are not limited.
+struct ApRules {
+	bool enabled = false;
+	uint32_t max = 0;     // refilled to this at the start of the player's own turn
+	uint32_t initial = 0; // before the player's first turn
+	// Cost per action kind: summon, spsummon, set, activate, attack, repos (flip summons count
+	// as repos). Kinds missing here cost 0.
+	std::map<std::string, uint32_t> costs;
+};
+
 struct PlayerConfig {
 	uint32_t lp = 8000, start_draw = 5, draw_per_turn = 1;
 	std::vector<uint32_t> main, extra; // main is shuffled from the duel seed before the duel starts
+	ApRules ap;
 };
 
 struct Placement { // exact, unshuffled placement (fixed rule tests)
@@ -86,7 +98,8 @@ struct CardOrigin {
 enum class EventType {
 	NewTurn, NewPhase, Draw, Move, Summon, SpSummon, FlipSummon, Set,
 	Chaining, ChainSolving, ChainEnd, ChainNegated, ChainDisabled,
-	Damage, Recover, PayLp, Attack, Win
+	Damage, Recover, PayLp, Attack, Win,
+	Ap // player's AP changed: value = new AP, reason = AP spent (0 = refilled at turn start)
 };
 
 struct Event {
@@ -113,6 +126,8 @@ struct Option {
 	uint64_t desc = 0;  // effect/option description id (tells several effects of one card apart);
 	                    // race/attribute bit; announced number
 	uint32_t param = 0; // tribute release value; SelectSum value (low 16 bits, alt value in high 16); counters on card
+	uint32_t cost = 0;   // AP this choice costs once the core confirms the action
+	std::string blocked; // non-empty: why it cannot be chosen now (submit() rejects it)
 };
 
 struct Prompt {
@@ -169,6 +184,9 @@ public:
 	uint32_t count(uint8_t player, uint32_t location);
 	std::vector<CardRef> cards(uint8_t player, uint32_t location); // zones include empty slots (code 0)
 	const CardOrigin* origin(uint32_t instance) const;              // nullptr for tokens / unknown ids
+	bool ap_enabled(uint8_t player) const { return ap_[player & 1].rules.enabled; }
+	uint32_t ap(uint8_t player) const { return ap_[player & 1].current; }
+	uint32_t ap_max(uint8_t player) const { return ap_[player & 1].rules.max; }
 	int winner() const { return winner_; }                         // -1 until a MSG_WIN
 	uint32_t win_reason() const { return win_reason_; }            // 1 = LP, 2 = deck-out
 
@@ -195,6 +213,22 @@ private:
 	std::string error_;
 	std::set<std::string> missing_scripts_;
 	std::map<uint32_t, CardOrigin> origins_;
+
+	// AP: costs are attached to prompt options, checked in submit(), and charged when the core
+	// confirms the chosen action with its message (summoning, set, chaining, attack, position
+	// change). A new decision prompt for that player before then means it was cancelled.
+	void price_options();
+	void charge_pending(uint8_t message, uint8_t player);
+	struct ApState {
+		ApRules rules;
+		uint32_t current = 0;
+	} ap_[2];
+	struct PendingCost {
+		bool active = false;
+		uint8_t player = 0;
+		uint32_t cost = 0;
+		std::string kind;
+	} pending_;
 	int winner_ = -1;
 	uint32_t win_reason_ = 0;
 };

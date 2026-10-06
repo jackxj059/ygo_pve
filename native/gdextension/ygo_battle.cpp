@@ -78,6 +78,7 @@ const char* event_name(battle::EventType t) {
 	case E::PayLp: return "pay_lp";
 	case E::Attack: return "attack";
 	case E::Win: return "win";
+	case E::Ap: return "ap";
 	}
 	return "?";
 }
@@ -176,6 +177,7 @@ protected:
 		ClassDB::bind_method(D_METHOD("count", "player", "location"), &YgoDuel::count);
 		ClassDB::bind_method(D_METHOD("cards", "player", "location"), &YgoDuel::cards);
 		ClassDB::bind_method(D_METHOD("origin", "instance"), &YgoDuel::origin);
+		ClassDB::bind_method(D_METHOD("ap", "player"), &YgoDuel::ap);
 		ClassDB::bind_method(D_METHOD("get_error"), &YgoDuel::get_error);
 		ClassDB::bind_method(D_METHOD("winner"), &YgoDuel::winner);
 		ClassDB::bind_method(D_METHOD("win_reason"), &YgoDuel::win_reason);
@@ -200,7 +202,8 @@ protected:
 
 public:
 	// config: {seed: [a,b,c,d] or int, flags: int,
-	//          players: [{lp, start_draw, draw_per_turn, main: [codes], extra: [codes]}, {...}],
+	//          players: [{lp, start_draw, draw_per_turn, main: [codes], extra: [codes],
+	//                     ap: {max, initial, costs: {kind: n}} (optional)}, {...}],
 	//          placements: [{player, location, code}, ...]}
 	String start(const Ref<YgoContent>& content, const Dictionary& config) {
 		duel_.reset();
@@ -226,6 +229,18 @@ public:
 			out.draw_per_turn = static_cast<uint32_t>(static_cast<int64_t>(p.get("draw_per_turn", out.draw_per_turn)));
 			out.main = codes_from(p.get("main", Array()));
 			out.extra = codes_from(p.get("extra", Array()));
+			// ap: {max, initial, costs: {summon, spsummon, set, activate, attack, repos}}; absent = no AP
+			const Variant ap = p.get("ap", Variant());
+			if(ap.get_type() == Variant::DICTIONARY) {
+				const Dictionary apd = ap;
+				out.ap.enabled = true;
+				out.ap.max = static_cast<uint32_t>(static_cast<int64_t>(apd.get("max", 0)));
+				out.ap.initial = static_cast<uint32_t>(static_cast<int64_t>(apd.get("initial", out.ap.max)));
+				const Dictionary costs = apd.get("costs", Dictionary());
+				const Array kinds = costs.keys();
+				for(int64_t k = 0; k < kinds.size(); ++k)
+					out.ap.costs[std_str(kinds[k])] = static_cast<uint32_t>(static_cast<int64_t>(costs[kinds[k]]));
+			}
 		}
 		const Array placements = config.get("placements", Array());
 		for(int64_t i = 0; i < placements.size(); ++i) {
@@ -293,6 +308,8 @@ public:
 			od["card"] = card_dict(o.card);
 			od["desc"] = static_cast<int64_t>(o.desc);
 			od["param"] = static_cast<int64_t>(o.param);
+			od["cost"] = static_cast<int64_t>(o.cost);
+			od["blocked"] = str(o.blocked);
 			options.push_back(od);
 		}
 		d["options"] = options;
@@ -321,6 +338,15 @@ public:
 			for(const auto& c : duel_->cards(static_cast<uint8_t>(player), static_cast<uint32_t>(location)))
 				out.push_back(card_dict(c));
 		return out;
+	}
+
+	Dictionary ap(int64_t player) {
+		Dictionary d;
+		const auto p = static_cast<uint8_t>(player);
+		d["enabled"] = duel_ ? duel_->ap_enabled(p) : false;
+		d["current"] = duel_ ? static_cast<int64_t>(duel_->ap(p)) : 0;
+		d["max"] = duel_ ? static_cast<int64_t>(duel_->ap_max(p)) : 0;
+		return d;
 	}
 
 	Dictionary origin(int64_t instance) {

@@ -1,0 +1,59 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\ap\ap_negated.duel
+== duel created
+
+--- new turn (p0)
+  p0 AP refilled to 1
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] sset Monster Reborn(83764718)@p0.hand[0]#2 [1] activate Monster Reborn(83764718)@p0.hand[0]#2 {AP 1} [2] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[1]#14 [1] mset Mystical Elf(15025844)@p1.hand[1]#14 [2] sset Solemn Judgment(41420027)@p1.hand[0]#9 [3] battle [4] end [5] shuffle
+  > 1 idle sset 41420027
+? p1 SELECT_PLACE pick 1-1: [0] zone p1.szone[0] [1] zone p1.szone[1] [2] zone p1.szone[2] [3] zone p1.szone[3] [4] zone p1.szone[4]
+  > default: first free zone
+  move Solemn Judgment(41420027) p1.hand[0]#9 -> p1.szone[0]#9 reason=0x0
+  set Solemn Judgment(41420027) at p1.szone[0]#9
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#14 [1] mset Mystical Elf(15025844)@p1.hand[0]#14 [2] battle [3] end
+  > 1 idle end
+  phase end
+
+--- new turn (p0)
+  p0 AP refilled to 1
+  phase draw
+  p0 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[1]#8 [1] mset Mystical Elf(15025844)@p0.hand[1]#8 [2] sset Monster Reborn(83764718)@p0.hand[0]#2 [3] activate Monster Reborn(83764718)@p0.hand[0]#2 {AP 1} [4] battle [5] end [6] shuffle
+  ok: expect ap 0 1
+  > 0 idle activate 83764718
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Monster Reborn(83764718) p0.hand[0]#2 -> p0.szone[0]#2 reason=0x0
+  CHAIN LINK 1: Monster Reborn(83764718) from p0.szone[0]#2 (chosen by player)
+  p0 spends 1 AP (0 left)
+? p0 SELECT_CARD pick 1-1: [0] card Blue-Eyes White Dragon(89631139)@p0.grave[0]#3
+  > 0 select 89631139
+? p1 SELECT_CHAIN: [0] activate Solemn Judgment(41420027)@p1.szone[0]#9 [1] pass
+  > 1 chain 41420027
+  CHAIN LINK 2: Solemn Judgment(41420027) from p1.szone[0]#9 (chosen by player)
+  p1 pays LP 4000
+  resolve link 2: Solemn Judgment(41420027)
+  link 1 activation negated
+  move Monster Reborn(83764718) p0.szone[0]#2 -> p0.grave[1]#2 reason=0x41
+  resolve link 1: Monster Reborn(83764718)
+  move Solemn Judgment(41420027) p1.szone[0]#9 -> p1.grave[0]#9 reason=0x400
+  chain end
+  ok: expect ap 0 0
+  ok: expect count 0 mzone 0
+== scenario stopped at: ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#8 [1] mset Mystical Elf(15025844)@p0.hand[0]#8 [2] battle [3] end
+PASS
+

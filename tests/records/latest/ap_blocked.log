@@ -1,0 +1,27 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\ap\ap_blocked.duel
+== duel created
+
+--- new turn (p0)
+  p0 AP refilled to 1
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] sset Premature Burial(70828912)@p0.hand[0]#2 [1] activate Premature Burial(70828912)@p0.hand[0]#2 {AP 2} {blocked: not enough AP (needs 2, has 1)} [2] end
+  ok: expect ap 0 1
+  ok: expect cost activate 70828912 2
+  ok: expect blocked activate 70828912
+  ok: expect lp 0 8000
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+  ok: expect ap 0 1
+  ok: expect lp 0 8000
+== scenario stopped at: ? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#13 [1] mset Mystical Elf(15025844)@p1.hand[0]#13 [2] battle [3] end
+PASS
+

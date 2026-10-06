@@ -1,0 +1,25 @@
+# AP: cancelling an action before the core confirms it (backing out of the tribute choice)
+# costs nothing; doing it for real costs once. TEST VALUES.
+start_draw 0 0
+start_draw 1 0
+ap 0 3 3
+ap_cost 0 summon 1
+card 0 hand 25259669        # Goblindbergh
+card 0 hand 43096270        # Alexandrite Dragon
+card 0 hand 89631139        # Blue-Eyes White Dragon (2 tributes)
+card 0 deck 15025844 x5
+card 1 deck 15025844 x5
+
+0 idle summon 25259669      # 3 -> 2 (its trigger costs nothing in this test)
+0 yesno yes
+0 select 43096270
+0 idle end
+1 idle end
+expect ap 0 3
+0 idle summon 89631139
+0 select                    # pick no tributes = cancel
+expect ap 0 3               # not charged
+0 idle summon 89631139
+0 select 25259669 43096270
+expect ap 0 2               # charged once
+stop

@@ -1,4 +1,4 @@
-﻿run_at_utc: 2026-10-02T07:05:43Z
+﻿run_at_utc: 2026-10-06T03:34:59Z
 harness: build/duel_harness.exe, core: build/ocgcore.dll
 card_db: third_party/BabelCDB/cards.cdb, scripts: third_party/CardScripts
 ok exit=0 build/battle_tests.exe
@@ -13,6 +13,13 @@ ok exit=0 .\tests\duel\prompts\select_counter.duel
 ok exit=0 .\tests\duel\prompts\select_sum.duel
 ok exit=0 .\tests\duel\prompts\sort_deck.duel
 ok exit=0 .\tests\duel\prompts\tribute_retry.duel
+ok exit=0 .\tests\duel\ap\ap_basic.duel
+ok exit=0 .\tests\duel\ap\ap_blocked.duel
+ok exit=0 .\tests\duel\ap\ap_cancel.duel
+ok exit=0 .\tests\duel\ap\ap_chain.duel
+ok exit=0 .\tests\duel\ap\ap_mandatory_free.duel
+ok exit=0 .\tests\duel\ap\ap_negated.duel
+ok exit=1 .\tests\duel\negative\ap_not_enough.duel
 ok exit=1 .\tests\duel\negative\card_not_offered.duel
 ok exit=1 .\tests\duel\negative\unscripted_optional_trigger.duel
 ok exit=1 .\tests\duel\negative\ydk_bad_format.duel

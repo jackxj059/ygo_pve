@@ -1,0 +1,34 @@
+# AP: p0 keeps AP from its own turn and spends it on the opponent's turn, once per chain link,
+# never more than it has; AP only refills at the start of p0's next turn. TEST VALUES.
+start_draw 0 0
+start_draw 1 0
+ap 0 2 2
+ap_cost 0 activate 1
+card 0 hand 83968380 x3     # Jar of Greed (Normal Trap, draw 1)
+card 0 deck 15025844 x5
+card 1 hand 83764718        # Monster Reborn
+card 1 grave 89631139
+card 1 deck 15025844 x5
+
+# --- turn 1, p0: set three traps (setting costs 0 here), end with 2 AP
+0 idle sset 83968380
+0 idle sset 83968380
+0 idle sset 83968380
+0 idle end
+# --- turn 2, p1 activates Monster Reborn; p0 answers with its leftover AP
+expect ap 0 2               # no refill on the opponent's turn
+1 idle activate 83764718
+1 select 89631139
+0 chain 83968380            # chain link 2: 2 -> 1
+expect ap 0 1
+0 chain 83968380            # chain link 3: 1 -> 0
+expect ap 0 0
+expect blocked activate 83968380   # the third Jar of Greed cannot be paid for
+0 chain pass
+expect chain 83968380 83968380 83764718
+expect ap 0 0
+1 idle end
+# --- turn 3, p0
+expect ap 0 2               # refilled
+0 idle end
+stop

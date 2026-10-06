@@ -1,0 +1,71 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\ap\ap_mandatory_free.duel
+== duel created
+
+--- new turn (p0)
+  p0 AP refilled to 0
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Goblindbergh(25259669)@p0.hand[0]#2 [1] summon Alexandrite Dragon(43096270)@p0.hand[1]#3 [2] mset Goblindbergh(25259669)@p0.hand[0]#2 [3] mset Alexandrite Dragon(43096270)@p0.hand[1]#3 [4] end [5] shuffle
+  > 0 idle summon 25259669
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.mzone[0] [1] zone p0.mzone[1] [2] zone p0.mzone[2] [3] zone p0.mzone[3] [4] zone p0.mzone[4]
+  > default: first free zone
+  move Goblindbergh(25259669) p0.hand[0]#2 -> p0.mzone[0]#2 reason=0x0
+  normal summon Goblindbergh(25259669) at p0.mzone[0]#2
+? p0 SELECT_EFFECTYN for Goblindbergh(25259669): [0] yes Goblindbergh(25259669)@p0.mzone[0]#2 {AP 1} {blocked: not enough AP (needs 1, has 0)} [1] no Goblindbergh(25259669)@p0.mzone[0]#2
+  ok: expect blocked yes 25259669
+  > 0 yesno no
+? p0 SELECT_IDLECMD: [0] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  p1 AP refilled to 0
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Sangan(26202165)@p1.hand[0]#9 [1] summon Mystical Elf(15025844)@p1.hand[1]#14 [2] mset Sangan(26202165)@p1.hand[0]#9 [3] mset Mystical Elf(15025844)@p1.hand[1]#14 [4] battle [5] end [6] shuffle
+  > 1 idle summon 26202165
+? p1 SELECT_PLACE pick 1-1: [0] zone p1.mzone[0] [1] zone p1.mzone[1] [2] zone p1.mzone[2] [3] zone p1.mzone[3] [4] zone p1.mzone[4]
+  > default: first free zone
+  move Sangan(26202165) p1.hand[0]#9 -> p1.mzone[0]#9 reason=0x0
+  normal summon Sangan(26202165) at p1.mzone[0]#9
+? p1 SELECT_IDLECMD: [0] battle [1] end
+  > 1 idle end
+  phase end
+
+--- new turn (p0)
+  p0 AP refilled to 0
+  phase draw
+  p0 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Alexandrite Dragon(43096270)@p0.hand[0]#3 [1] summon Mystical Elf(15025844)@p0.hand[1]#8 [2] repos Goblindbergh(25259669)@p0.mzone[0]#2 [3] mset Alexandrite Dragon(43096270)@p0.hand[0]#3 [4] mset Mystical Elf(15025844)@p0.hand[1]#8 [5] battle [6] end [7] shuffle
+  > 0 idle summon 43096270
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.mzone[1] [1] zone p0.mzone[2] [2] zone p0.mzone[3] [3] zone p0.mzone[4]
+  > default: first free zone
+  move Alexandrite Dragon(43096270) p0.hand[0]#3 -> p0.mzone[1]#3 reason=0x0
+  normal summon Alexandrite Dragon(43096270) at p0.mzone[1]#3
+? p0 SELECT_IDLECMD: [0] repos Goblindbergh(25259669)@p0.mzone[0]#2 [1] battle [2] end
+  > 0 idle battle
+  phase battle-start
+? p0 SELECT_BATTLECMD: [0] attack Goblindbergh(25259669)@p0.mzone[0]#2 [1] attack Alexandrite Dragon(43096270)@p0.mzone[1]#3 [2] main2 [3] end
+  > 0 battle attack 43096270
+? p0 SELECT_CARD pick 1-1: [0] card Sangan(26202165)@p1.mzone[0]#9
+  > 0 select 26202165
+  attack p0.mzone[1]#3 -> p1.mzone[0]#9
+  p1 takes damage 1000
+  move Sangan(26202165) p1.mzone[0]#9 -> p1.grave[0]#9 reason=0x21
+  CHAIN LINK 1: Sangan(26202165) from p1.grave[0]#9 (activated without a player prompt)
+  resolve link 1: Sangan(26202165)
+? p1 SELECT_CARD pick 1-1: [0] card Mystical Elf(15025844)@p1.deck[3]#13 [1] card Mystical Elf(15025844)@p1.deck[2]#12 [2] card Mystical Elf(15025844)@p1.deck[1]#11 [3] card Mystical Elf(15025844)@p1.deck[0]#10
+  > 1 select 15025844
+  move Mystical Elf(15025844) p1.deck[3]#13 -> p1.hand[1]#13 reason=0x40
+  chain end
+  ok: expect ap 1 0
+  ok: expect count 1 hand 2
+== scenario stopped at: ? p0 SELECT_BATTLECMD: [0] attack Goblindbergh(25259669)@p0.mzone[0]#2 [1] main2 [2] end
+PASS
+

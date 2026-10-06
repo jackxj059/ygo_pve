@@ -31,7 +31,7 @@ try {
     $results += [pscustomobject]@{ Scenario = 'build/battle_tests.exe'; Exit = $code; Result = $status }
 
     $scenarios = @(Get-ChildItem tests/duel -Filter *.duel) + @(Get-ChildItem tests/duel/prompts -Filter *.duel) +
-        @(Get-ChildItem tests/duel/negative -Filter *.duel)
+        @(Get-ChildItem tests/duel/ap -Filter *.duel) + @(Get-ChildItem tests/duel/negative -Filter *.duel)
     foreach ($s in $scenarios) {
         $rel = Resolve-Path -Relative $s.FullName
         $negative = $s.Directory.Name -eq 'negative'
@@ -49,16 +49,25 @@ try {
         if (-not $ok) { Write-Host $output }
         $results += [pscustomobject]@{ Scenario = $rel; Exit = $code; Result = $status }
     }
-    # Godot: the GDExtension loads and GDScript can drive a whole duel and the battle screen.
+    # Godot (headless): the GDExtension loads and GDScript drives duels and the screen.
+    # A script that fails to compile never calls quit(), so each run has a timeout.
     $godot = Join-Path $root 'tools/godot/Godot_v4.7.2-stable_win64_console.exe'
     & $godot --headless --path game --import 2>&1 | Out-Null
-    $output = & $godot --headless --path game --script res://tests/smoke_test.gd 2>&1 | Out-String
-    $code = $LASTEXITCODE
-    $output | Set-Content -Encoding utf8 (Join-Path $records 'godot_smoke.log')
-    $status = if ($code -eq 0 -and $output.TrimEnd().EndsWith('PASS')) { 'ok' } else { 'UNEXPECTED' }
-    Write-Host ("[{0}] game/tests/smoke_test.gd (exit {1})" -f $status, $code)
-    if ($status -ne 'ok') { Write-Host $output }
-    $results += [pscustomobject]@{ Scenario = 'game/tests/smoke_test.gd'; Exit = $code; Result = $status }
+    foreach ($test in @('smoke_test')) {
+        $out = Join-Path $records "godot_$test.log"
+        $err = "$out.stderr"
+        $p = Start-Process -FilePath $godot -ArgumentList '--headless', '--path', 'game', '--script', "res://tests/$test.gd" `
+            -NoNewWindow -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+        $null = $p.Handle
+        if (-not $p.WaitForExit(120000)) { $p.Kill(); $code = 'timeout' } else { $code = $p.ExitCode }
+        $output = (Get-Content -Raw $out) + (Get-Content -Raw $err)
+        Remove-Item $err
+        $output | Set-Content -Encoding utf8 $out
+        $status = if ($code -eq 0 -and (Get-Content -Raw $out).Contains("`nPASS")) { 'ok' } else { 'UNEXPECTED' }
+        Write-Host ("[{0}] game/tests/$test.gd (exit {1})" -f $status, $code)
+        if ($status -ne 'ok') { Write-Host $output }
+        $results += [pscustomobject]@{ Scenario = "game/tests/$test.gd"; Exit = $code; Result = $status }
+    }
 
     $summary = @(
         "run_at_utc: $([DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'))"

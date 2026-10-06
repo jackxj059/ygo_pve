@@ -8,6 +8,7 @@
 #include <deque>
 #include <fstream>
 #include <iterator>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -64,6 +65,16 @@ Scenario load_scenario(const std::string& path) {
 				cfg.players[to_u32(tok[1]) & 1].lp = to_u32(tok[2]);
 			} else if(kw == "start_draw" && setup && tok.size() == 3) {
 				cfg.players[to_u32(tok[1]) & 1].start_draw = to_u32(tok[2]);
+			} else if(kw == "ap" && setup && tok.size() == 4) {
+				auto& ap = cfg.players[to_u32(tok[1]) & 1].ap;
+				ap.enabled = true;
+				ap.max = to_u32(tok[2]);
+				ap.initial = to_u32(tok[3]);
+			} else if(kw == "ap_cost" && setup && tok.size() == 4) {
+				static const std::set<std::string> kinds = {"summon", "spsummon", "set", "activate", "attack", "repos"};
+				if(!kinds.count(tok[2]))
+					fail("unknown AP cost kind '" + tok[2] + "'");
+				cfg.players[to_u32(tok[1]) & 1].ap.costs[tok[2]] = to_u32(tok[3]);
 			} else if(kw == "draw_per_turn" && setup && tok.size() == 2) {
 				cfg.players[0].draw_per_turn = cfg.players[1].draw_per_turn = to_u32(tok[1]);
 			} else if(kw == "deck" && setup && tok.size() == 3) {
@@ -404,6 +415,22 @@ private:
 				got = duel_->winner() < 0 ? "none" : std::to_string(duel_->winner()) + (act.args.size() > 1 ? " " + std::to_string(duel_->win_reason()) : "");
 				for(const auto& a : act.args)
 					want += (want.empty() ? "" : " ") + a;
+			} else if(act.verb == "ap") {
+				got = std::to_string(duel_->ap(to_u32(arg(act, 0)) & 1));
+				want = arg(act, 1);
+			} else if(act.verb == "blocked" || act.verb == "cost") {
+				// About an option of the prompt being answered right now.
+				const auto* pr = duel_->prompt();
+				if(!pr)
+					fail("line " + std::to_string(act.line) + ": no prompt is pending");
+				const battle::Option* found = nullptr;
+				for(const auto& o : pr->options)
+					if(o.action == arg(act, 0) && o.card.code == to_u32(arg(act, 1)))
+						found = &o;
+				if(!found)
+					fail("line " + std::to_string(act.line) + ": the current prompt has no such option");
+				got = act.verb == "cost" ? std::to_string(found->cost) : (found->blocked.empty() ? "allowed" : "blocked");
+				want = act.verb == "cost" ? arg(act, 2) : "blocked";
 			} else if(act.verb == "retry") {
 				fail("line " + std::to_string(act.line) + ": expected the core to reject the previous answer, but it was accepted");
 			} else {

@@ -8,11 +8,9 @@ extends Control
 signal leave_requested
 signal finished(result: Dictionary)
 
-const CARD_SIZE := Vector2(68, 99)
+const CARD_SIZE := YgoCardArt.SIZE
 const POS_FACEDOWN := 0xA
 const POS_DEFENSE := 0xC
-const TYPE_MONSTER := 0x1
-const TYPE_LINK := 0x4000000
 
 const LOCATION_NAMES := {1: "牌組", 2: "手牌", 4: "怪獸區", 8: "魔陷區", 16: "墓地", 32: "除外", 64: "額外"}
 const PHASE_NAMES := {1: "抽牌階段", 2: "準備階段", 4: "主要階段1", 8: "戰鬥階段", 16: "戰鬥步驟",
@@ -49,7 +47,6 @@ var _turn := 0
 var _turn_player := 0
 var _phase := ""
 var _infos := {} ## code -> card info Dictionary
-var _textures := {} ## code -> Texture2D, or null when there is no image
 
 var _rows := {} ## "p<player>_<location>" -> HBoxContainer
 var _info_labels := {} ## player -> Label
@@ -206,8 +203,10 @@ func _refresh_board() -> void:
 	for player in [0, 1]:
 		var grave := duel.cards(player, YgoDuel.LOCATION_GRAVE)
 		var top := ("，墓地最上面：%s" % _name(grave[-1].code)) if not grave.is_empty() else ""
-		_info_labels[player].text = "P%d　LP %d　牌組 %d　額外 %d　墓地 %d　除外 %d%s" % [
-			player, duel.lp(player), duel.count(player, YgoDuel.LOCATION_DECK),
+		var ap: Dictionary = duel.ap(player)
+		var ap_text := ("　AP %d/%d" % [ap.current, ap.max]) if ap.enabled else ""
+		_info_labels[player].text = "P%d　LP %d%s　牌組 %d　額外 %d　墓地 %d　除外 %d%s" % [
+			player, duel.lp(player), ap_text, duel.count(player, YgoDuel.LOCATION_DECK),
 			duel.count(player, YgoDuel.LOCATION_EXTRA), grave.size(),
 			duel.count(player, YgoDuel.LOCATION_REMOVED), top]
 	_phase_label.text = "第 %d 回合（P%d）　%s" % [_turn, _turn_player, _phase]
@@ -226,22 +225,7 @@ func _card_view(c: Dictionary) -> Control:
 	if code == 0:
 		box.modulate = Color(1, 1, 1, 0.25)
 		return box
-	var tex = _texture(code)
-	var face: Control
-	if tex != null:
-		var rect := TextureRect.new()
-		rect.texture = tex
-		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		face = rect
-	else:
-		var label := Label.new()
-		label.text = _text_face(code)
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.add_theme_font_size_override("font_size", 10)
-		face = label
-	face.size = CARD_SIZE
-	face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var face := YgoCardArt.face(_info(code), resources.get("images_dir", ""))
 	box.add_child(face)
 	# Position only means something on the field; hand cards are always "face-down" to the core.
 	var on_field: bool = c.location == YgoDuel.LOCATION_MZONE or c.location == YgoDuel.LOCATION_SZONE
@@ -255,16 +239,6 @@ func _card_view(c: Dictionary) -> Control:
 	box.tooltip_text = "%s%s" % [_name(code), "（裡側）" if pos & POS_FACEDOWN else ""]
 	box.mouse_entered.connect(_show_detail.bind(code))
 	return box
-
-
-func _text_face(code: int) -> String:
-	var info := _info(code)
-	var s: String = info.get("name", str(code))
-	var type: int = info.get("type", 0)
-	if type & TYPE_MONSTER:
-		var level := "LINK-%d" % info.level if type & TYPE_LINK else "★%d" % info.level
-		s += "\n%s\n%s/%s" % [level, info.attack, "-" if type & TYPE_LINK else str(info.defense)]
-	return s
 
 
 func _show_detail(code: int) -> void:
@@ -281,19 +255,6 @@ func _info(code: int) -> Dictionary:
 
 func _name(code: int) -> String:
 	return _info(code).get("name", str(code))
-
-
-func _texture(code: int):
-	if not _textures.has(code):
-		var tex = null
-		var path := String(resources.get("images_dir", "")).path_join("%d.jpg" % code)
-		if FileAccess.file_exists(path):
-			var image := Image.load_from_file(path)
-			if image != null:
-				image.resize(int(CARD_SIZE.x * 2), int(CARD_SIZE.y * 2), Image.INTERPOLATE_BILINEAR)
-				tex = ImageTexture.create_from_image(image)
-		_textures[code] = tex
-	return _textures[code]
 
 
 func _on_event(e: Dictionary) -> void:
@@ -337,7 +298,13 @@ func _show_prompt(p: Dictionary) -> void:
 			_card_code_pick(p)
 		_:
 			for i in p.options.size():
-				_add_button(_option_label(p, p.options[i]), _submit.bind(PackedInt64Array([i])))
+				var b := _add_button(_option_label(p, p.options[i]), _submit.bind(PackedInt64Array([i])))
+				# The battle module refuses blocked options anyway; this only explains why.
+				if p.options[i].get("blocked", "") != "":
+					b.disabled = true
+					var ap: Dictionary = session.duel.ap(p.player)
+					b.text += "　【AP 不足：需要 %d，剩 %d】" % [p.options[i].cost, ap.current]
+					b.tooltip_text = p.options[i].blocked
 
 
 func _option_label(p: Dictionary, o: Dictionary) -> String:
@@ -366,6 +333,8 @@ func _option_label(p: Dictionary, o: Dictionary) -> String:
 			parts.append("「%s」" % text)
 	if p.type in ["SELECT_SUM", "SELECT_COUNTER"]:
 		parts.append("(%d)" % (int(o.param) & 0xffff))
+	if o.get("cost", 0) > 0:
+		parts.append("（AP %d）" % o.cost)
 	return " ".join(parts)
 
 

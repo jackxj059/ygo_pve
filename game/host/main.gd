@@ -1,8 +1,10 @@
 extends Control
 ## Minimal test host: starts battles, leaves the battle screen and comes back to the same
-## duel, and shows results. The battle module only gets resource paths and a config.
+## duel, and shows results. AP values come from host/test_settings.gd (test values); the
+## battle module only gets them as config.
 
 const TestBattles := preload("res://host/test_battles.gd")
+const TestSettings := preload("res://host/test_settings.gd")
 
 var content: YgoContent
 var session: YgoBattleSession
@@ -10,6 +12,7 @@ var screen: Control
 var menu: VBoxContainer
 var status: Label
 var resume_button: Button
+var ap_check: CheckBox
 
 
 func _ready() -> void:
@@ -21,6 +24,10 @@ func _ready() -> void:
 	title.text = "YGO PvE 戰鬥測試宿主"
 	title.add_theme_font_size_override("font_size", 28)
 	menu.add_child(title)
+	ap_check = CheckBox.new()
+	ap_check.text = "P0 啟用 AP（測試值：上限 %d，每個動作 1 點）" % TestSettings.AP.max
+	ap_check.button_pressed = true
+	menu.add_child(ap_check)
 	_add_button("測試對戰：basic_chain_win 的開場（雙方手動）", func() -> void: _start(TestBattles.basic_chain_win()))
 	_add_button("牌組對戰：test_basic.ydk 對 test_basic.ydk", func() -> void:
 		_start_decks(["tests/decks/test_basic.ydk", "tests/decks/test_basic.ydk"]))
@@ -73,6 +80,8 @@ func _start_decks(files: Array) -> void:
 func _start(config: Dictionary) -> void:
 	if not _ensure_content():
 		return
+	if ap_check.button_pressed:
+		config.players[0]["ap"] = TestSettings.AP
 	session = YgoBattleSession.new()
 	var err := session.start(content, config)
 	if err != "":

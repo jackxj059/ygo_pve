@@ -1,0 +1,54 @@
+# AP: the basic_chain_win flow with AP for p0 (p1 = opponent, not AP-limited).
+# Checks: summon / optional trigger / activation / attack each cost AP once; the Special
+# Summons done by resolving effects are free; Monster Reborn is charged once, when activated;
+# AP refills at the start of p0's own turn. TEST VALUES, not balance decisions.
+seed 20261001 1 2 3
+lp 0 8000
+lp 1 4000
+start_draw 0 0
+start_draw 1 0
+ap 0 3 3
+ap_cost 0 summon 1
+ap_cost 0 activate 1
+ap_cost 0 attack 1
+
+card 0 hand 25259669        # Goblindbergh
+card 0 hand 43096270        # Alexandrite Dragon
+card 0 hand 83764718        # Monster Reborn
+card 0 grave 89631139       # Blue-Eyes White Dragon
+card 0 deck 15025844 x10
+card 1 hand 26202165        # Sangan
+card 1 hand 24068492        # Just Desserts
+card 1 deck 15025844 x10
+
+# --- turn 1, p0
+expect ap 0 3
+expect cost summon 25259669 1
+0 idle summon 25259669      # 3 -> 2
+expect ap 0 2
+expect cost yes 25259669 1
+0 yesno yes                 # optional trigger: 2 -> 1
+0 select 43096270           # Special Summon by the resolving effect: free
+expect ap 0 1
+0 idle end
+
+# --- turn 2, p1 (no AP)
+1 idle summon 26202165
+1 idle sset 24068492
+1 idle end
+
+# --- turn 3, p0
+expect ap 0 3               # refilled at the start of p0's own turn
+0 idle activate 83764718    # 3 -> 2
+0 select 89631139
+1 chain 24068492
+expect chain 24068492 83764718
+expect ap 0 2               # charged once; the Special Summon on resolution is free
+0 idle battle
+0 battle attack 43096270    # 2 -> 1
+0 select 26202165
+1 select 15025844           # Sangan's mandatory trigger (p1)
+expect ap 0 1
+0 battle attack 89631139    # 1 -> 0
+expect ap 0 0
+expect win 0 1
