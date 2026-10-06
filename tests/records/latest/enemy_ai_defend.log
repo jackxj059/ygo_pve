@@ -1,0 +1,108 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\enemy\enemy_ai_defend.duel
+== duel created
+
+--- new turn (p0)
+  撗拇挺摰?(990000001)#15 HP 3200/3200
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] sset Ookazi(19523799)@p0.hand[0]#3 [2] sset Ookazi(19523799)@p0.hand[1]#4 [3] activate Ookazi(19523799)@p0.hand[0]#3 [4] activate Ookazi(19523799)@p0.hand[1]#4 [5] end [6] shuffle
+  > 0 idle activate 19523799
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Ookazi(19523799) p0.hand[0]#3 -> p0.szone[0]#3 reason=0x0
+  CHAIN LINK 1: Ookazi(19523799) from p0.szone[0]#3 (chosen by player)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+  resolve link 1: Ookazi(19523799)
+  p1 takes damage 800
+  撗拇挺摰?(990000001)#15 HP 2400/3200
+  move Ookazi(19523799) p0.szone[0]#3 -> p0.grave[0]#3 reason=0x400
+  chain end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+? p0 SELECT_IDLECMD: [0] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] sset Ookazi(19523799)@p0.hand[0]#4 [2] activate Ookazi(19523799)@p0.hand[0]#4 [3] end
+  > 0 idle activate 19523799
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Ookazi(19523799) p0.hand[0]#4 -> p0.szone[0]#4 reason=0x0
+  CHAIN LINK 1: Ookazi(19523799) from p0.szone[0]#4 (chosen by player)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+  resolve link 1: Ookazi(19523799)
+  p1 takes damage 800
+  撗拇挺摰?(990000001)#15 HP 1600/3200
+  move Ookazi(19523799) p0.szone[0]#4 -> p0.grave[1]#4 reason=0x400
+  chain end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+? p0 SELECT_IDLECMD: [0] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] end
+  ok: expect hp 990000001 1600 3200
+  > 0 idle end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+  phase end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+
+--- new turn (p1)
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+  phase main1
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [2] battle [3] end
+  > enemy script: activate 990000001;
+  CHAIN LINK 1: 撗拇挺摰?(990000001) from p1.mzone[0]#15 (chosen by player)
+? p1 SELECT_CARD pick 1-1: [0] card Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2
+  > enemy script: card 89631139;
+  resolve link 1: 撗拇挺摰?(990000001)
+  chain end
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] battle [2] end
+  > enemy script: end;
+  phase end
+
+--- new turn (p0)
+  phase draw
+  p0 draws Celtic Guardian(91152256)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Celtic Guardian(91152256)@p0.hand[0]#14 [1] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [2] mset Celtic Guardian(91152256)@p0.hand[0]#14 [3] battle [4] end
+  ok: expect lp 0 8000
+  ok: expect hp 990000001 1600
+  > 0 idle battle
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+  phase battle-start
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: pass;
+? p0 SELECT_BATTLECMD: [0] attack Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] main2 [2] end
+  > 0 battle attack 89631139
+? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#15
+  > 0 select 990000001
+  attack p0.mzone[0]#2 -> p1.mzone[0]#15
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] pass
+  > enemy script: activate 990000001;
+  CHAIN LINK 1: 撗拇挺摰?(990000001) from p1.mzone[0]#15 (chosen by player)
+? p1 SELECT_CARD pick 1-1: [0] card Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2
+  > enemy script: card 89631139;
+  resolve link 1: 撗拇挺摰?(990000001)
+  chain end
+  撗拇挺摰?(990000001)#15 HP 1400/3200
+  ok: expect hp 990000001 1400
+== scenario stopped at: ? p0 SELECT_BATTLECMD: [0] main2 [1] end
+PASS
+

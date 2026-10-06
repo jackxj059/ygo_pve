@@ -5,10 +5,15 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <sstream>
 #include <stdexcept>
 #include "ocgapi.h"
 #include "ocgapi_constants.h"
 #include "sqlite3.h"
+// Lua is compiled as C++ (see scripts/build.ps1), so its headers are included without extern "C".
+#include "lauxlib.h"
+#include "lua.h"
+#include "lualib.h"
 
 namespace fs = std::filesystem;
 
@@ -163,7 +168,7 @@ std::string phase_name(uint32_t ph) {
 
 // ------------------------------------------------------------------ Content
 
-Content::Content(const std::string& scripts_dir, const std::vector<std::string>& db_paths) {
+Content::Content(const std::string& scripts_dir, const std::vector<std::string>& db_paths, const std::string& enemies_dir) {
 	for(const auto& path : db_paths) {
 		sqlite3* db = nullptr;
 		if(sqlite3_open_v2(path.c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK) {
@@ -190,6 +195,93 @@ Content::Content(const std::string& scripts_dir, const std::vector<std::string>&
 			sqlite3_close(d);
 		fail("no .lua scripts found under " + scripts_dir);
 	}
+	if(!enemies_dir.empty()) {
+		try {
+			load_enemies(enemies_dir);
+		} catch(...) {
+			for(auto* d : dbs_)
+				sqlite3_close(d);
+			throw;
+		}
+	}
+}
+
+// Reads s.ygopve_enemy from each c<code>.lua in a fresh Lua state that only has the base
+// libraries and constant.lua, with GetID() stubbed. Function bodies (the card's effects) are
+// defined but never run here; the core runs them in its own state.
+void Content::load_enemies(const std::string& dir) {
+	if(!fs::is_directory(dir))
+		fail("enemy directory not found: " + dir);
+	const auto* constants = script_path("constant.lua");
+	if(!constants)
+		fail("constant.lua not found; it is needed to read enemy definitions");
+	for(const auto& entry : fs::directory_iterator(dir)) {
+		const auto file = entry.path().filename().string();
+		if(!entry.is_regular_file() || entry.path().extension() != ".lua")
+			continue;
+		if(scripts_.count(file))
+			fail("enemy script " + file + " has the same name as a card script");
+		scripts_[file] = entry.path().string();
+		const auto stem = entry.path().stem().string();
+		if(stem.size() < 2 || stem[0] != 'c' || stem.find_first_not_of("0123456789", 1) != std::string::npos)
+			continue; // helper scripts such as ygopve_enemy.lua
+		const auto code = static_cast<uint32_t>(std::stoul(stem.substr(1)));
+		if(card(code).found)
+			fail("enemy " + file + ": code " + std::to_string(code) + " is already a card in the databases");
+		cache_.erase(code); // drop the "not found" entry card() just cached
+		std::unique_ptr<lua_State, void (*)(lua_State*)> state(luaL_newstate(), lua_close);
+		lua_State* L = state.get();
+		const std::pair<const char*, lua_CFunction> libs[] = {
+			{"_G", luaopen_base}, {LUA_STRLIBNAME, luaopen_string}, {LUA_MATHLIBNAME, luaopen_math}, {LUA_TABLIBNAME, luaopen_table}};
+		for(const auto& [name, open] : libs) {
+			luaL_requiref(L, name, open, 1);
+			lua_pop(L, 1);
+		}
+		// constant.lua pulls in more constant files through Duel.LoadScript; definitions only get constant.lua.
+		const std::string stub = "local s = {} ygopve_s = s function GetID() return s, " + std::to_string(code) + " end";
+		if(luaL_dostring(L, "Duel = {LoadScript = function() end}") != LUA_OK || luaL_dofile(L, constants->c_str()) != LUA_OK ||
+		   luaL_dostring(L, stub.c_str()) != LUA_OK ||
+		   luaL_dofile(L, entry.path().string().c_str()) != LUA_OK)
+			fail("enemy " + file + ": " + lua_tostring(L, -1));
+		lua_getglobal(L, "ygopve_s");
+		if(lua_getfield(L, -1, "ygopve_enemy") != LUA_TTABLE)
+			fail("enemy " + file + ": s.ygopve_enemy table missing");
+		auto integer = [&](const char* key, bool required) -> lua_Integer {
+			lua_getfield(L, -1, key);
+			int ok = 0;
+			const auto v = lua_tointegerx(L, -1, &ok);
+			const bool nil = lua_isnil(L, -1);
+			lua_pop(L, 1);
+			if(!ok && (required || !nil))
+				fail("enemy " + file + ": " + key + (required ? " (integer) is required" : " must be an integer"));
+			return ok ? v : 0;
+		};
+		auto text = [&](const char* key, bool required) -> std::string {
+			lua_getfield(L, -1, key);
+			std::string v = lua_type(L, -1) == LUA_TSTRING ? lua_tostring(L, -1) : "";
+			const bool bad = lua_type(L, -1) != LUA_TSTRING && (required || !lua_isnil(L, -1));
+			lua_pop(L, 1);
+			if(bad)
+				fail("enemy " + file + ": " + key + (required ? " (string) is required" : " must be a string"));
+			return v;
+		};
+		CardData cd;
+		cd.code = code;
+		cd.found = true;
+		cd.type = TYPE_MONSTER | TYPE_EFFECT;
+		cd.name = text("name", true);
+		cd.text = text("text", false);
+		cd.attack = static_cast<int32_t>(integer("atk", true));
+		cd.defense = static_cast<int32_t>(integer("def", true));
+		cd.level = static_cast<uint32_t>(integer("level", false));
+		cd.race = static_cast<uint64_t>(integer("race", false));
+		cd.attribute = static_cast<uint32_t>(integer("attribute", false));
+		cd.setcodes.push_back(0);
+		cache_[code] = cd;
+		enemies_.insert(code);
+	}
+	if(!enemies_.empty() && !scripts_.count("ygopve_enemy.lua"))
+		fail("ygopve_enemy.lua (enemy rules) not found in " + dir);
 }
 
 Content::~Content() {
@@ -304,12 +396,20 @@ Duel::Duel(Content& content, const DuelConfig& config) : content_(content) {
 		for(const char* name : {"constant.lua", "utility.lua"})
 			if(!on_script_request(name))
 				fail(std::string("failed to load ") + name);
+		if(content_.has_enemies() && !on_script_request("ygopve_enemy.lua"))
+			fail("failed to load ygopve_enemy.lua");
 		std::vector<std::pair<uint32_t, CardOrigin>> added; // creation order
-		auto add = [&](uint8_t player, uint32_t loc, uint32_t code, const std::string& what, CardOrigin origin) {
+		auto add = [&](uint8_t player, uint32_t loc, uint32_t code, const std::string& what, CardOrigin origin,
+		               uint32_t seq = 0, uint32_t pos = 0) {
 			if(!content_.card(code).found)
 				fail(what + ": unknown card code " + std::to_string(code));
-			const uint32_t pos = (loc == LOCATION_GRAVE || loc == LOCATION_REMOVED) ? POS_FACEUP_ATTACK : POS_FACEDOWN_DEFENSE;
-			OCG_NewCardInfo nc{player, 0, code, player, loc, 0, pos};
+			if(loc == LOCATION_GRAVE || loc == LOCATION_REMOVED)
+				pos = POS_FACEUP_ATTACK;
+			else if(loc != LOCATION_MZONE && loc != LOCATION_SZONE)
+				pos = POS_FACEDOWN_DEFENSE;
+			else if(!pos)
+				pos = POS_FACEUP_ATTACK;
+			OCG_NewCardInfo nc{player, 0, code, player, loc, seq, pos};
 			OCG_DuelNewCard(duel_, &nc);
 			added.push_back({code, origin});
 		};
@@ -329,7 +429,7 @@ Duel::Duel(Content& content, const DuelConfig& config) : content_(content) {
 		for(uint32_t i = 0; i < config.placements.size(); ++i) {
 			const auto& pl = config.placements[i];
 			add(pl.player & 1, pl.location, pl.code, "p" + std::to_string(pl.player) + " " + loc_name(pl.location) + " placement",
-			    {static_cast<uint8_t>(pl.player & 1), Source::Placement, i});
+			    {static_cast<uint8_t>(pl.player & 1), Source::Placement, i}, pl.sequence, pl.position);
 		}
 		// Normal monsters legitimately have no script; anything else must have one.
 		for(const auto& [code, origin] : added) {
@@ -401,6 +501,68 @@ int Duel::on_script_request(const char* name) {
 void Duel::on_log(const char* text, int type) {
 	if(type == OCG_LOG_TYPE_ERROR)
 		set_error(std::string("core/script error: ") + text);
+	// script_decide(): YgoEnemy.Decide answers with "YGOPVE_ANSWER <index>..." (0-based).
+	if(deciding_ && type == OCG_LOG_TYPE_FROM_SCRIPT && std::strncmp(text, "YGOPVE_ANSWER", 13) == 0) {
+		decided_ = true;
+		decision_.clear();
+		std::istringstream in(text + 13);
+		for(long v; in >> v;)
+			decision_.push_back(v < 0 ? UINT32_MAX : static_cast<uint32_t>(v)); // negative = invalid index
+		return;
+	}
+	// ygopve_enemy.lua reports HP through Debug.Message: "YGOPVE_HP <card id> <code> <hp> <max>".
+	unsigned long id = 0, code = 0, hp = 0, max = 0;
+	if(type == OCG_LOG_TYPE_FROM_SCRIPT && std::sscanf(text, "YGOPVE_HP %lu %lu %lu %lu", &id, &code, &hp, &max) == 4) {
+		hp_[id] = {static_cast<uint32_t>(hp), static_cast<uint32_t>(max)};
+		Event e;
+		e.type = EventType::Hp;
+		e.card.code = code;
+		e.card.instance = id;
+		e.value = hp;
+		e.reason = max;
+		script_events_.push_back(e);
+	}
+}
+
+bool Duel::script_decide(std::vector<uint32_t>& picks, std::string& error) {
+	if(status_ != Status::Awaiting) {
+		error = "no prompt is pending";
+		return false;
+	}
+	if(!content_.has_enemies()) {
+		error = "no enemy scripts are loaded";
+		return false;
+	}
+	// The prompt as a Lua table literal; strings are fixed identifiers, so no escaping is needed.
+	auto card_fields = [](const CardRef& c) {
+		return "code=" + std::to_string(c.code) + ",cardid=" + (c.instance ? std::to_string(c.instance) : "nil") +
+		       ",controller=" + std::to_string(c.controller) + ",location=" + std::to_string(c.location) +
+		       ",sequence=" + std::to_string(c.sequence) + ",position=" + std::to_string(c.position);
+	};
+	const auto& p = prompt_;
+	std::string lua = std::string("YgoEnemy.Decide({type=\"") + to_string(p.type) + "\",player=" + std::to_string(p.player) +
+	                  ",min=" + std::to_string(p.min) + ",max=" + std::to_string(p.max) + ",value=" + std::to_string(p.value) +
+	                  ",forced=" + (p.forced ? "true" : "false") + ",cancelable=" + (p.cancelable ? "true" : "false") +
+	                  ",desc=" + std::to_string(p.desc) + (p.card.instance ? ",cardid=" + std::to_string(p.card.instance) : "") +
+	                  ",options={";
+	for(const auto& o : p.options)
+		lua += "{action=\"" + o.action + "\"," + card_fields(o.card) + ",desc=" + std::to_string(o.desc) + ",param=" + std::to_string(o.param) + "},";
+	lua += "}})";
+	deciding_ = true;
+	decided_ = false;
+	const int ok = OCG_LoadScript(duel_, lua.data(), static_cast<uint32_t>(lua.size()), "ygopve_decide");
+	deciding_ = false;
+	if(!ok || !decided_) {
+		error = status_ == Status::Error ? error_ : "enemy decision gave no answer";
+		return false;
+	}
+	picks = decision_;
+	return true;
+}
+
+const Duel::Hp* Duel::hp(uint32_t instance) const {
+	auto it = hp_.find(instance);
+	return it == hp_.end() ? nullptr : &it->second;
 }
 
 void Duel::set_error(const std::string& msg) {
@@ -424,6 +586,8 @@ Status Duel::advance() {
 	const auto first_new_event = events_.size();
 	try {
 		prompted = parse(copy.data(), copy.size());
+		events_.insert(events_.end(), script_events_.begin(), script_events_.end());
+		script_events_.clear();
 		// Instance ids are looked up where the cards are once this batch is processed.
 		for(auto i = first_new_event; i < events_.size() && status_ != Status::Error; ++i) {
 			auto& e = events_[i];
@@ -1187,6 +1351,8 @@ std::string describe(Content& content, const Event& e) {
 	case EventType::Ap:
 		return e.reason ? "  " + p + " spends " + std::to_string(e.reason) + " AP (" + std::to_string(e.value) + " left)"
 		                : "  " + p + " AP refilled to " + std::to_string(e.value);
+	case EventType::Hp:
+		return "  " + content.label(e.card.code) + "#" + std::to_string(e.card.instance) + " HP " + std::to_string(e.value) + "/" + std::to_string(e.reason);
 	}
 	return "?";
 }

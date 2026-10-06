@@ -9,13 +9,16 @@ var content: YgoContent
 var duel: YgoDuel
 var log_lines := PackedStringArray()
 var result := {} ## empty until the duel ends or fails
+var script_players := [] ## players whose prompts the enemy scripts answer (see start())
 
 
-## resources: {scripts_dir: String, databases: PackedStringArray}. Returns null and fills `error`
+## resources: {scripts_dir: String, databases: PackedStringArray, enemies_dir: String (optional)}.
+## Returns null and fills `error`
 ## (a one-element Array) when the content cannot be opened.
 static func open_content(resources: Dictionary, error: Array) -> YgoContent:
 	var c := YgoContent.new()
-	var err := c.open(resources.get("scripts_dir", ""), PackedStringArray(resources.get("databases", [])))
+	var err := c.open(resources.get("scripts_dir", ""), PackedStringArray(resources.get("databases", [])),
+		resources.get("enemies_dir", ""))
 	if err != "":
 		error.append(err)
 		return null
@@ -34,11 +37,14 @@ static func config_from_decks(deck_paths: Array, seed: int, error: Array) -> Dic
 	return {"seed": seed, "players": players}
 
 
-## rules (optional), for battles that require a legal deck:
+## rules (optional):
 ##   {points: YgoDeckPoints, cap: int} - player 0's main + extra deck must fit the cap.
-## Opponents are not checked (enemies will not be built from decks).
+##     Opponents are not checked (enemies will not be built from decks).
+##   {script_players: [1]} - the enemy scripts (s.ai in game/data/enemies) answer every prompt of
+##     these players inside step(); hosts only ever see the other players' prompts.
 func start(with_content: YgoContent, config: Dictionary, rules := {}) -> String:
 	content = with_content
+	script_players = rules.get("script_players", [])
 	if rules.has("points"):
 		var player: Dictionary = config.get("players", [{}])[0]
 		var check: Dictionary = rules.points.evaluate(player, rules.get("cap", 0), content)
@@ -66,11 +72,32 @@ func step(max_steps := 64) -> Array:
 		events.append_array(batch)
 		if status == YgoDuel.STATUS_CONTINUE:
 			continue
+		if status == YgoDuel.STATUS_AWAITING and _answer_by_script():
+			continue
 		if status == YgoDuel.STATUS_ENDED or status == YgoDuel.STATUS_ERROR:
 			result = {"winner": duel.winner(), "reason": duel.win_reason(), "error": duel.get_error()}
 			finished.emit(result)
 		break
 	return events
+
+
+## Answers the pending prompt with the enemy scripts if it belongs to a script player.
+## A failed or rejected answer ends the battle with an error instead of guessing.
+func _answer_by_script() -> bool:
+	var p := duel.get_prompt()
+	if not int(p.player) in script_players:
+		return false
+	var err := ""
+	if p.get("retry", false):
+		err = "the core rejected the enemy scripts' previous answer"
+	else:
+		var d := duel.script_decide()
+		err = d.error if d.error != "" else duel.submit(p.id, d.picks)
+	if err != "":
+		result = {"winner": -1, "reason": 0, "error": "enemy decision failed: " + err}
+		finished.emit(result)
+		return false
+	return true
 
 
 func prompt() -> Dictionary:

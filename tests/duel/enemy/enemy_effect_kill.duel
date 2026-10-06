@@ -1,0 +1,23 @@
+# Enemy prototype: effect damage takes the enemy's HP (the enemy side has no LP); at HP 0 the
+# enemy is destroyed by effect, once. HP = ATK + DEF is a TEST VALUE.
+start_draw 0 0
+start_draw 1 0
+draw_per_turn 1 0
+card 0 hand 19523799 x4     # Ookazi: 800 damage to the opponent
+card 0 deck 15025844 x10
+card 1 mzone 990000001 fu_def
+
+0 idle activate 19523799
+expect hp 990000001 2400 3200
+expect lp 1 8000
+0 idle activate 19523799
+0 idle activate 19523799
+expect hp 990000001 800
+0 idle activate 19523799
+expect hp 990000001 0
+expect count 1 mzone 0
+expect count 1 grave 1
+expect destroyed 990000001 effect
+expect lp 1 8000
+expect win none
+stop

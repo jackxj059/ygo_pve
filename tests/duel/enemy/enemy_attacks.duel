@@ -1,0 +1,31 @@
+# Enemy prototype: the enemy attacks monsters in attack position (decided 2026-10-06).
+#   equal ATK: the player's monster is destroyed, the enemy loses that monster's ATK in HP
+#   lower ATK: the player's monster survives, the enemy loses the difference in HP
+# The enemy is destroyed by battle only at HP 0; the player takes no damage. TEST VALUES.
+start_draw 0 0
+start_draw 1 0
+draw_per_turn 1 0
+card 0 mzone 5628232        # Flying Penguin 1200 (same ATK as the enemy)
+card 0 mzone 69247929       # Gene-Warped Warwolf 2000
+card 0 deck 15025844 x10
+card 1 mzone 990000001 fu_atk
+
+0 idle end
+1 idle battle
+1 battle attack 990000001
+1 select 5628232            # 1200 vs 1200
+expect cards 0 grave 5628232
+expect hp 990000001 2000 3200
+expect count 1 mzone 1
+expect destroyed 990000001 not destroyed
+expect lp 0 8000
+1 battle end
+0 idle end
+1 idle battle
+1 battle attack 990000001
+1 select 69247929           # 1200 vs 2000: HP -800, Warwolf survives
+expect hp 990000001 1200
+expect count 0 mzone 1
+expect count 1 mzone 1
+expect lp 0 8000
+stop

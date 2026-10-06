@@ -1,0 +1,15 @@
+# Enemy prototype: removal effects work on an enemy like on any monster, whatever its HP
+# (decided 2026-10-06: Raigeki, sending to the GY etc. are effect removal).
+start_draw 0 0
+start_draw 1 0
+draw_per_turn 1 0
+card 0 hand 12580477        # Raigeki
+card 0 deck 15025844 x10
+card 1 mzone 990000001 fu_def
+
+expect hp 990000001 3200 3200
+0 idle activate 12580477
+expect count 1 mzone 0
+expect destroyed 990000001 effect
+expect hp 990000001 0 3200
+stop

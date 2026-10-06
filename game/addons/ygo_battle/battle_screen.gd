@@ -237,6 +237,20 @@ func _card_view(c: Dictionary) -> Control:
 	if pos & POS_FACEDOWN:
 		box.modulate = Color(0.55, 0.55, 0.75)
 	box.tooltip_text = "%s%s" % [_name(code), "（裡側）" if pos & POS_FACEDOWN else ""]
+	# Enemy units: HP bar text on the card (reported by the enemy rules script through the module).
+	var hp: Dictionary = session.duel.hp(c.instance) if on_field else {}
+	if not hp.is_empty():
+		var hp_label := Label.new()
+		hp_label.text = "HP %d/%d" % [hp.hp, hp.max]
+		hp_label.add_theme_font_size_override("font_size", 11)
+		hp_label.add_theme_color_override("font_color", Color(1, 0.35, 0.35))
+		hp_label.add_theme_constant_override("outline_size", 4)
+		hp_label.add_theme_color_override("font_outline_color", Color.BLACK)
+		hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		hp_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+		hp_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(hp_label)
+		box.tooltip_text += "　HP %d/%d" % [hp.hp, hp.max]
 	box.mouse_entered.connect(_show_detail.bind(code))
 	return box
 

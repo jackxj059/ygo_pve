@@ -80,7 +80,7 @@ $appObj = @{}
 foreach ($name in $appSources.Keys) {
     $o = Join-Path $obj "app_$name.o"
     $appObj[$name] = $o
-    $jobs += @{ Exe = $cxx; Src = $appSources[$name]; Out = $o; Args = $common + @('-std=c++17', '-Wall', '-Wextra', '-I', $core, '-I', $sqlite, '-I', $battle, '-c', (Join-Path $root "native/$($appSources[$name])"), '-o', $o) }
+    $jobs += @{ Exe = $cxx; Src = $appSources[$name]; Out = $o; Args = $common + @('-std=c++17', '-Wall', '-Wextra', '-I', $core, '-I', $sqlite, '-I', $battle, '-isystem', (Join-Path $lua 'src'), '-c', (Join-Path $root "native/$($appSources[$name])"), '-o', $o) }
 }
 
 Write-Host "[compile] $($jobs.Count) translation units"
@@ -93,9 +93,12 @@ Write-Host '[link] ocgcore.dll'
 & $cxx -shared -static -o $dll @coreObjs "-Wl,--out-implib,$implib"
 if ($LASTEXITCODE -ne 0) { throw 'linking ocgcore.dll failed' }
 
+# The battle module reads enemy definitions with its own Lua state, so the programs link their
+# own copy of Lua (ocgcore.dll does not export the Lua API).
+$luaObjs = $coreObjs | Where-Object { $_ -match '\\lua_[^\\]+\.o$' }
 foreach ($name in 'duel_harness', 'battle_tests') {
     Write-Host "[link] $name.exe"
-    & $cxx -static -o (Join-Path $out "$name.exe") $appObj[$name] $appObj.battle $appObj.deck $sqliteObj $implib
+    & $cxx -static -o (Join-Path $out "$name.exe") $appObj[$name] $appObj.battle $appObj.deck $sqliteObj @luaObjs $implib
     if ($LASTEXITCODE -ne 0) { throw "linking $name.exe failed" }
 }
 

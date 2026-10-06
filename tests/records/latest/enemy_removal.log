@@ -1,0 +1,27 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\enemy\enemy_removal.duel
+== duel created
+
+--- new turn (p0)
+  撗拇挺摰?(990000001)#13 HP 3200/3200
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] sset Raigeki(12580477)@p0.hand[0]#2 [1] activate Raigeki(12580477)@p0.hand[0]#2 [2] end
+  ok: expect hp 990000001 3200 3200
+  > 0 idle activate 12580477
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Raigeki(12580477) p0.hand[0]#2 -> p0.szone[0]#2 reason=0x0
+  CHAIN LINK 1: Raigeki(12580477) from p0.szone[0]#2 (chosen by player)
+  resolve link 1: Raigeki(12580477)
+  move 撗拇挺摰?(990000001) p1.mzone[0]#13 -> p1.grave[0]#13 reason=0x41
+  撗拇挺摰?(990000001)#13 HP 0/3200
+  move Raigeki(12580477) p0.szone[0]#2 -> p0.grave[0]#2 reason=0x400
+  chain end
+  ok: expect count 1 mzone 0
+  ok: expect destroyed 990000001 effect
+  ok: expect hp 990000001 0 3200
+== scenario stopped at: ? p0 SELECT_IDLECMD: [0] end
+PASS
+

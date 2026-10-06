@@ -91,5 +91,35 @@ func _initialize() -> void:
 	check(session.duel.ap(0).current == 2, "summoning spent 1 AP (now %d)" % session.duel.ap(0).current)
 	check(session.log_lines.has("p0 spends 1 AP (2 left)"), "the AP event reaches GDScript")
 
+	print("enemy prototype through the GDExtension")
+	check(content.is_enemy(990000001) and content.card_info(990000001).name == "岩殼守衛", "enemy definition read from Lua")
+	session = YgoBattleSession.new()
+	check(session.start(content, TestBattles.enemy_prototype()) == "", "enemy test battle starts")
+	session.step()
+	var enemy: Dictionary = session.duel.cards(1, YgoDuel.LOCATION_MZONE)[0]
+	var hp: Dictionary = session.duel.hp(enemy.instance)
+	check(enemy.code == 990000001 and enemy.position == YgoDuel.POS_FACEUP_DEFENSE, "enemy placed in face-up defense")
+	check(hp.get("hp") == 3200 and hp.get("max") == 3200, "HP 3200/3200 reported at the start (got %s)" % [hp])
+
+	print("enemy scripts play P1")
+	session = YgoBattleSession.new()
+	session.start(content, TestBattles.enemy_prototype(), {"script_players": [1]})
+	# P0 passes chain windows and ends turn 1; the enemy's whole turn then runs inside step().
+	var ended := false
+	for i in 50:
+		session.step()
+		p = session.prompt()
+		if p.is_empty() or (ended and p.type == "SELECT_IDLECMD"):
+			break
+		var wanted := "end" if p.type == "SELECT_IDLECMD" else "pass"
+		ended = ended or wanted == "end"
+		for j in p.options.size():
+			if p.options[j].action == wanted:
+				session.answer(p.id, PackedInt64Array([j]))
+				break
+	check(ended and p.get("player") == 0 and p.get("type") == "SELECT_IDLECMD" and session.result.is_empty(),
+		"back to P0's main phase after the enemy's turn (%s)" % [session.result])
+	check(session.duel.lp(0) == 6800, "the enemy attacked directly (P0 LP %d)" % session.duel.lp(0))
+
 	print("PASS" if failures == 0 else "FAIL: %d check(s)" % failures)
 	quit(0 if failures == 0 else 1)

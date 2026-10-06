@@ -23,5 +23,13 @@ AP through the GDExtension
   ok: summon option costs 1 AP
   ok: summoning spent 1 AP (now 2)
   ok: the AP event reaches GDScript
+enemy prototype through the GDExtension
+  ok: enemy definition read from Lua
+  ok: enemy test battle starts
+  ok: enemy placed in face-up defense
+  ok: HP 3200/3200 reported at the start (got { "hp": 3200, "max": 3200 })
+enemy scripts play P1
+  ok: back to P0's main phase after the enemy's turn ({  })
+  ok: the enemy attacked directly (P0 LP 6800)
 PASS
 

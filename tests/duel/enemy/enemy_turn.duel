@@ -1,0 +1,36 @@
+# Enemy prototype: on the enemy's turn its monster effect goes through the core's chain and the
+# player negates it (Infinite Impermanence, which also targets the enemy); its attack uses the
+# core's attack declaration and the player gets a response window. The enemy side has no AP;
+# the player's AP values are TEST VALUES. Here the enemy is in attack position, where the HP
+# rules do not apply (attack-position HP is not decided).
+start_draw 0 0
+start_draw 1 0
+draw_per_turn 1 0
+ap 0 5 5
+ap_cost 0 set 1
+ap_cost 0 activate 1
+card 0 mzone 15025844       # Mystical Elf 800/2000, attack position
+card 0 hand 10045474        # Infinite Impermanence
+card 0 hand 83968380        # Jar of Greed (something to activate at the attack declaration)
+card 0 deck 91152256 x10
+card 1 mzone 990000001 fu_atk
+
+0 idle sset 10045474
+0 idle sset 83968380
+0 idle end
+expect ap 0 3
+
+1 idle activate 990000001   # Mystical Elf ATK -800
+1 select 15025844
+0 chain 10045474            # negate the enemy's effects
+0 select 990000001
+expect chain 10045474 990000001
+expect ap 0 2
+1 idle battle
+1 battle attack 990000001
+1 select 15025844
+0 chain pass                # the player's response window to the attack declaration
+expect lp 0 7600            # 1200 - 800: the ATK drop was negated
+expect count 0 mzone 0
+expect ap 0 2               # the enemy's attack costs nobody AP
+stop

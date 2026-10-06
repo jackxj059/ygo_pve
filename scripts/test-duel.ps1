@@ -3,6 +3,7 @@
 #   build/battle_tests.exe      must print PASS
 #   tests/duel/*.duel           must print PASS
 #   tests/duel/prompts/*.duel   must print PASS (one real-card scenario per prompt type)
+#   tests/duel/enemy/*.duel     must print PASS (enemy prototype; enemies from game/data/enemies)
 #   tests/duel/negative/*.duel  must FAIL with the text given in its "# expect-fail:" line
 #   game/tests/smoke_test.gd    Godot (headless) loads the GDExtension and plays a duel: must print PASS
 # Exit code is non-zero if any scenario does not behave as expected.
@@ -31,11 +32,12 @@ try {
     $results += [pscustomobject]@{ Scenario = 'build/battle_tests.exe'; Exit = $code; Result = $status }
 
     $scenarios = @(Get-ChildItem tests/duel -Filter *.duel) + @(Get-ChildItem tests/duel/prompts -Filter *.duel) +
-        @(Get-ChildItem tests/duel/ap -Filter *.duel) + @(Get-ChildItem tests/duel/negative -Filter *.duel)
+        @(Get-ChildItem tests/duel/ap -Filter *.duel) + @(Get-ChildItem tests/duel/enemy -Filter *.duel) +
+        @(Get-ChildItem tests/duel/negative -Filter *.duel)
     foreach ($s in $scenarios) {
         $rel = Resolve-Path -Relative $s.FullName
         $negative = $s.Directory.Name -eq 'negative'
-        $output = & $exe --scripts third_party/CardScripts --db third_party/BabelCDB/cards.cdb $rel 2>&1 | Out-String
+        $output = & $exe --scripts third_party/CardScripts --db third_party/BabelCDB/cards.cdb --enemies game/data/enemies $rel 2>&1 | Out-String
         $code = $LASTEXITCODE
         $output | Set-Content -Encoding utf8 (Join-Path $records ($s.BaseName + '.log'))
         if ($negative) {

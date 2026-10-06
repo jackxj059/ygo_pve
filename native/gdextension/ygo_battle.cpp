@@ -79,6 +79,7 @@ const char* event_name(battle::EventType t) {
 	case E::Attack: return "attack";
 	case E::Win: return "win";
 	case E::Ap: return "ap";
+	case E::Hp: return "hp";
 	}
 	return "?";
 }
@@ -92,7 +93,8 @@ class YgoContent : public RefCounted {
 
 protected:
 	static void _bind_methods() {
-		ClassDB::bind_method(D_METHOD("open", "scripts_dir", "db_paths"), &YgoContent::open);
+		ClassDB::bind_method(D_METHOD("open", "scripts_dir", "db_paths", "enemies_dir"), &YgoContent::open, DEFVAL(String()));
+		ClassDB::bind_method(D_METHOD("is_enemy", "code"), &YgoContent::is_enemy);
 		ClassDB::bind_method(D_METHOD("is_open"), &YgoContent::is_open);
 		ClassDB::bind_method(D_METHOD("card_info", "code"), &YgoContent::card_info);
 		ClassDB::bind_method(D_METHOD("description", "desc"), &YgoContent::description);
@@ -102,12 +104,13 @@ protected:
 public:
 	battle::Content* get() const { return content_.get(); }
 
-	String open(const String& scripts_dir, const PackedStringArray& db_paths) {
+	// enemies_dir (optional): enemy definitions (game/data/enemies), see docs/enemies.md
+	String open(const String& scripts_dir, const PackedStringArray& db_paths, const String& enemies_dir) {
 		std::vector<std::string> dbs;
 		for(int64_t i = 0; i < db_paths.size(); ++i)
 			dbs.push_back(std_str(db_paths[i]));
 		try {
-			content_ = std::make_unique<battle::Content>(std_str(scripts_dir), dbs);
+			content_ = std::make_unique<battle::Content>(std_str(scripts_dir), dbs, std_str(enemies_dir));
 		} catch(const std::exception& e) {
 			content_.reset();
 			return str(e.what());
@@ -116,6 +119,7 @@ public:
 	}
 
 	bool is_open() const { return content_ != nullptr; }
+	bool is_enemy(int64_t code) const { return content_ && content_->is_enemy(static_cast<uint32_t>(code)); }
 
 	Dictionary card_info(int64_t code) {
 		Dictionary d;
@@ -178,6 +182,8 @@ protected:
 		ClassDB::bind_method(D_METHOD("cards", "player", "location"), &YgoDuel::cards);
 		ClassDB::bind_method(D_METHOD("origin", "instance"), &YgoDuel::origin);
 		ClassDB::bind_method(D_METHOD("ap", "player"), &YgoDuel::ap);
+		ClassDB::bind_method(D_METHOD("hp", "instance"), &YgoDuel::hp);
+		ClassDB::bind_method(D_METHOD("script_decide"), &YgoDuel::script_decide);
 		ClassDB::bind_method(D_METHOD("get_error"), &YgoDuel::get_error);
 		ClassDB::bind_method(D_METHOD("winner"), &YgoDuel::winner);
 		ClassDB::bind_method(D_METHOD("win_reason"), &YgoDuel::win_reason);
@@ -204,7 +210,8 @@ public:
 	// config: {seed: [a,b,c,d] or int, flags: int,
 	//          players: [{lp, start_draw, draw_per_turn, main: [codes], extra: [codes],
 	//                     ap: {max, initial, costs: {kind: n}} (optional)}, {...}],
-	//          placements: [{player, location, code}, ...]}
+	//          placements: [{player, location, code, sequence, position}, ...]}
+	//          (sequence/position: field placements only; position defaults to face-up attack)
 	String start(const Ref<YgoContent>& content, const Dictionary& config) {
 		duel_.reset();
 		if(content.is_null() || !content->get())
@@ -247,7 +254,9 @@ public:
 			const Dictionary pl = placements[i];
 			cfg.placements.push_back({static_cast<uint8_t>(static_cast<int64_t>(pl.get("player", 0)) & 1),
 			                          static_cast<uint32_t>(static_cast<int64_t>(pl.get("location", 0))),
-			                          static_cast<uint32_t>(static_cast<int64_t>(pl.get("code", 0)))});
+			                          static_cast<uint32_t>(static_cast<int64_t>(pl.get("code", 0))),
+			                          static_cast<uint32_t>(static_cast<int64_t>(pl.get("sequence", 0))),
+			                          static_cast<uint32_t>(static_cast<int64_t>(pl.get("position", 0)))});
 		}
 		try {
 			duel_ = std::make_unique<battle::Duel>(*content_->get(), cfg);
@@ -346,6 +355,31 @@ public:
 		d["enabled"] = duel_ ? duel_->ap_enabled(p) : false;
 		d["current"] = duel_ ? static_cast<int64_t>(duel_->ap(p)) : 0;
 		d["max"] = duel_ ? static_cast<int64_t>(duel_->ap_max(p)) : 0;
+		return d;
+	}
+
+	// Enemy scripts' answer to the pending prompt: {picks: PackedInt64Array, error: String}.
+	// The caller submits the picks (docs/enemies.md).
+	Dictionary script_decide() {
+		Dictionary d;
+		std::vector<uint32_t> picks;
+		std::string error = "duel not started";
+		const bool ok = duel_ && duel_->script_decide(picks, error);
+		PackedInt64Array out;
+		for(auto i : picks)
+			out.push_back(i);
+		d["picks"] = out;
+		d["error"] = ok ? String() : str(error);
+		return d;
+	}
+
+	// Enemy unit HP: {hp, max}; empty for cards that are not enemy units.
+	Dictionary hp(int64_t instance) {
+		Dictionary d;
+		if(const auto* h = duel_ ? duel_->hp(static_cast<uint32_t>(instance)) : nullptr) {
+			d["hp"] = static_cast<int64_t>(h->hp);
+			d["max"] = static_cast<int64_t>(h->max);
+		}
 		return d;
 	}
 

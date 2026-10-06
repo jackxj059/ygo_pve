@@ -1,0 +1,61 @@
+# Enemy prototype: 岩殼守衛 (ATK 1200 / DEF 2000, HP 3200 = ATK + DEF, TEST VALUES) in defense
+# position loses HP instead of being destroyed; HP 0 = destroyed by battle. Also checks that
+# a continuous DEF boost (Wasteland) is used in the damage but does not change the HP cap,
+# and that effect damage to the enemy side goes to HP (the side has no LP).
+start_draw 0 0
+start_draw 1 0
+draw_per_turn 1 0           # the enemy side has no deck
+card 0 mzone 89631139       # Blue-Eyes White Dragon 3000
+card 0 mzone 69247929       # Gene-Warped Warwolf 2000
+card 0 mzone 91152256       # Celtic Guardian 1400
+card 0 hand 23424603        # Wasteland: Rock monsters +200 ATK/DEF
+card 0 hand 46130346 x2     # Hinotama: 500 damage to the opponent
+card 0 deck 15025844 x10
+card 1 mzone 990000001 fu_def
+
+expect hp 990000001 3200 3200
+0 idle end
+1 idle end
+
+0 idle battle
+0 battle attack 91152256    # 1400 < DEF 2000: p0 takes 600, nothing is destroyed
+0 select 990000001
+expect lp 0 7400
+expect hp 990000001 3200
+0 battle attack 69247929    # 2000 = DEF 2000: no damage
+0 select 990000001
+expect lp 0 7400
+expect hp 990000001 3200
+0 battle attack 89631139    # 3000 > DEF 2000: HP -1000 instead of destruction
+0 select 990000001
+expect hp 990000001 2200 3200
+expect count 1 mzone 1
+expect count 1 grave 0
+expect destroyed 990000001 not destroyed
+expect lp 1 8000
+0 battle end                # ends the turn
+1 idle end
+
+0 idle activate 23424603    # Wasteland: DEF 2200
+0 idle battle
+0 battle attack 89631139    # 3000 - 2200 = 800
+0 select 990000001
+expect hp 990000001 1400 3200
+0 battle main2
+0 idle activate 46130346    # 500 effect damage -> HP
+0 idle activate 46130346
+expect hp 990000001 400 3200
+expect lp 1 8000
+0 idle end
+1 idle end
+
+0 idle battle
+0 battle attack 89631139    # 800 >= HP 400: destroyed by battle
+0 select 990000001
+expect hp 990000001 0 3200
+expect count 1 mzone 0
+expect count 1 grave 1
+expect destroyed 990000001 battle
+expect lp 1 8000
+expect win none
+stop

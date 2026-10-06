@@ -1,0 +1,24 @@
+# Enemy prototype: the enemy side is played by its Lua script. At HP <= half it stays in
+# defense and does not attack; when the player attacks it, it chains its effect against the
+# attacker, so it loses less HP. TEST VALUES.
+start_draw 0 0
+start_draw 1 0
+draw_per_turn 1 0
+enemy_ai 1
+card 0 mzone 89631139       # Blue-Eyes White Dragon 3000
+card 0 hand 19523799 x2     # Ookazi: 800 damage x2 -> HP 1600 (half)
+card 0 deck 91152256 x10
+card 1 mzone 990000001 fu_def
+
+0 idle activate 19523799
+0 idle activate 19523799
+expect hp 990000001 1600 3200
+0 idle end
+# enemy turn: effect on Blue-Eyes (until the end of that turn), stays in defense, no attack
+expect lp 0 8000
+expect hp 990000001 1600
+0 idle battle
+0 battle attack 89631139    # the enemy chains: Blue-Eyes 3000 -> 2200
+0 select 990000001
+expect hp 990000001 1400    # 2200 - 2000 = 200 instead of 1000
+stop

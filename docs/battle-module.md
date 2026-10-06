@@ -9,6 +9,8 @@
 | `battle.h` / `battle.cpp` | `Content`（卡片資料庫與腳本索引）、`Duel`（一場決鬥）、事件、提示 |
 | `deck.h` / `deck.cpp` | `.ydk` 解析，不依賴核心 |
 
+敵人（擁有 HP 的自訂怪獸卡）的定義方式與規則見 [enemies.md](enemies.md)。
+
 ## 使用流程
 
 ```cpp
@@ -157,6 +159,8 @@ AP 不會取代原本的次數限制，例如每回合一次通常召喚，這�
 | --- | --- |
 | `0001-query-cardid.patch` | 新增查詢旗標 `QUERY_YGOPVE_CARDID`（`0x40000000`），回傳卡片的 `cardid`。只多一個查詢欄位，不改變任何訊息格式或決鬥規則 |
 
+敵人原型沒有新增補丁，全部使用核心既有的 Lua 介面和 log 回呼。
+
 ## 牌組與開場
 
 - **`.ydk` 標記**：`parse_ydk` / `load_ydk` 認得 `#main`、`#extra`、`!side`。
@@ -168,6 +172,10 @@ AP 不會取代原本的次數限制，例如每回合一次通常召喚，這�
 - **洗牌**：核心不會自己洗牌，由模組用種子洗主牌組，採 splitmix64 加 Fisher–Yates。
   - 相同種子一定得到相同順序，而且結果不受編譯器或標準函式庫影響；之後 Godot 端改用 MSVC 編譯也一樣。
 - **固定配置**：`DuelConfig::placements` 會照指定順序放置、不洗牌，供規則測試使用。
+  - 可以直接放到怪獸區或魔陷區：用 `sequence` 指定格子，用 `position` 指定表示形式，預設是表側攻擊。
+- **敵人**：建立 `Content` 時傳入 `enemies_dir`，就會讀取敵人定義。
+  - 敵人的 HP 用 `Duel::hp(instance)` 查詢；HP 變化時會產生 `Hp` 事件，`value` 是目前 HP，`reason` 是上限。
+  - 詳見 [enemies.md](enemies.md)。
 - **備牌**：只保留在 `Deck` 資料裡，不會放進決鬥。
 
 ## 生命週期

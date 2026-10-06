@@ -1,4 +1,4 @@
-﻿run_at_utc: 2026-10-06T03:34:59Z
+﻿run_at_utc: 2026-10-06T12:37:24Z
 harness: build/duel_harness.exe, core: build/ocgcore.dll
 card_db: third_party/BabelCDB/cards.cdb, scripts: third_party/CardScripts
 ok exit=0 build/battle_tests.exe
@@ -19,6 +19,15 @@ ok exit=0 .\tests\duel\ap\ap_cancel.duel
 ok exit=0 .\tests\duel\ap\ap_chain.duel
 ok exit=0 .\tests\duel\ap\ap_mandatory_free.duel
 ok exit=0 .\tests\duel\ap\ap_negated.duel
+ok exit=0 .\tests\duel\enemy\enemy_ai_defend.duel
+ok exit=0 .\tests\duel\enemy\enemy_ai_turn.duel
+ok exit=0 .\tests\duel\enemy\enemy_attacks.duel
+ok exit=0 .\tests\duel\enemy\enemy_attack_pos.duel
+ok exit=0 .\tests\duel\enemy\enemy_defense_hp.duel
+ok exit=0 .\tests\duel\enemy\enemy_effect_kill.duel
+ok exit=0 .\tests\duel\enemy\enemy_negated_rules.duel
+ok exit=0 .\tests\duel\enemy\enemy_removal.duel
+ok exit=0 .\tests\duel\enemy\enemy_turn.duel
 ok exit=1 .\tests\duel\negative\ap_not_enough.duel
 ok exit=1 .\tests\duel\negative\card_not_offered.duel
 ok exit=1 .\tests\duel\negative\unscripted_optional_trigger.duel

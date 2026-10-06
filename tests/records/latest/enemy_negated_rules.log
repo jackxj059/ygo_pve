@@ -1,0 +1,103 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\enemy\enemy_negated_rules.duel
+== duel created
+
+--- new turn (p0)
+  撗拇挺摰?(990000001)#14 HP 3200/3200
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] sset Infinite Impermanence(10045474)@p0.hand[0]#3 [2] end
+  > 0 idle sset 10045474
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Infinite Impermanence(10045474) p0.hand[0]#3 -> p0.szone[0]#3 reason=0x0
+  set Infinite Impermanence(10045474) at p0.szone[0]#3
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_IDLECMD: [0] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] end
+  > 0 idle end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p1)
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate Infinite Impermanence(10045474)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate Infinite Impermanence(10045474)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [2] battle [3] end
+  > 1 idle end
+? p0 SELECT_CHAIN: [0] activate Infinite Impermanence(10045474)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+  phase end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate Infinite Impermanence(10045474)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+? p0 SELECT_CHAIN: [0] activate Infinite Impermanence(10045474)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate Infinite Impermanence(10045474)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p0 SELECT_CHAIN: [0] activate Infinite Impermanence(10045474)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#13 [1] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [2] mset Mystical Elf(15025844)@p0.hand[0]#13 [3] activate Infinite Impermanence(10045474)@p0.szone[0]#3 [4] battle [5] end
+  > 0 idle activate 10045474
+  CHAIN LINK 1: Infinite Impermanence(10045474) from p0.szone[0]#3 (chosen by player)
+? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#14
+  > 0 select 990000001
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  resolve link 1: Infinite Impermanence(10045474)
+  move Infinite Impermanence(10045474) p0.szone[0]#3 -> p0.grave[0]#3 reason=0x400
+  chain end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#13 [1] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [2] mset Mystical Elf(15025844)@p0.hand[0]#13 [3] battle [4] end
+  > 0 idle battle
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase battle-start
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_BATTLECMD: [0] attack Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] main2 [2] end
+  > 0 battle attack 89631139
+? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#14
+  > 0 select 990000001
+  attack p0.mzone[0]#2 -> p1.mzone[0]#14
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  撗拇挺摰?(990000001)#14 HP 2200/3200
+  ok: expect hp 990000001 2200 3200
+  ok: expect count 1 mzone 1
+  ok: expect destroyed 990000001 not destroyed
+== scenario stopped at: ? p0 SELECT_BATTLECMD: [0] main2 [1] end
+PASS
+

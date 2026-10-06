@@ -32,6 +32,9 @@ func _ready() -> void:
 	ap_check.button_pressed = true
 	menu.add_child(ap_check)
 	_add_button("測試對戰：basic_chain_win 的開場（雙方手動）", func() -> void: _start(TestBattles.basic_chain_win()))
+	_add_button("敵人原型：岩殼守衛（P1 由敵人腳本行動）", func() -> void:
+		_start(TestBattles.enemy_prototype(), {"script_players": [1]}))
+	_add_button("敵人原型：岩殼守衛（P1 由你操作）", func() -> void: _start(TestBattles.enemy_prototype()))
 	for file in [OPPONENT_DECK, "dark_time_wizard.ydk"]:
 		if FileAccess.file_exists(TestBattles.deck_path(file)):
 			_add_button("預覽牌組：%s（對手 %s）" % [file.get_file(), OPPONENT_DECK.get_file()], _preview.bind(file))

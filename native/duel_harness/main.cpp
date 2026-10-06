@@ -8,6 +8,7 @@
 #include <deque>
 #include <fstream>
 #include <iterator>
+#include <map>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -15,6 +16,7 @@
 #include <vector>
 #include "battle.h"
 #include "deck.h"
+#include "ocgapi_constants.h"
 
 namespace {
 
@@ -33,6 +35,7 @@ struct Action {
 struct Scenario {
 	battle::DuelConfig config;
 	std::deque<Action> actions;
+	bool script_ai[2] = {}; // enemy_ai P: the enemy scripts answer every prompt of player P
 };
 
 uint32_t location_arg(const std::string& s) {
@@ -47,6 +50,7 @@ Scenario load_scenario(const std::string& path) {
 		fail("cannot open scenario " + path);
 	Scenario sc;
 	auto& cfg = sc.config;
+	uint32_t next_zone[2][2] = {}; // [player][mzone, szone]: next free slot for field placements
 	std::string raw;
 	for(int line_no = 1; std::getline(in, raw); ++line_no) {
 		auto text = raw.substr(0, raw.find('#'));
@@ -77,6 +81,10 @@ Scenario load_scenario(const std::string& path) {
 				cfg.players[to_u32(tok[1]) & 1].ap.costs[tok[2]] = to_u32(tok[3]);
 			} else if(kw == "draw_per_turn" && setup && tok.size() == 2) {
 				cfg.players[0].draw_per_turn = cfg.players[1].draw_per_turn = to_u32(tok[1]);
+			} else if(kw == "enemy_ai" && setup && tok.size() == 2) {
+				sc.script_ai[to_u32(tok[1]) & 1] = true;
+			} else if(kw == "draw_per_turn" && setup && tok.size() == 3) {
+				cfg.players[to_u32(tok[1]) & 1].draw_per_turn = to_u32(tok[2]);
 			} else if(kw == "deck" && setup && tok.size() == 3) {
 				const auto deck = battle::load_ydk(tok[2]);
 				auto& p = cfg.players[to_u32(tok[1]) & 1];
@@ -84,14 +92,30 @@ Scenario load_scenario(const std::string& path) {
 				p.extra = deck.extra; // side deck stays out of the duel
 				std::printf("== p%s deck %s: main %zu, extra %zu, side %zu\n", tok[1].c_str(), tok[2].c_str(), deck.main.size(), deck.extra.size(), deck.side.size());
 			} else if(kw == "card" && setup && (tok.size() == 4 || tok.size() == 5)) {
-				uint32_t copies = 1;
-				if(tok.size() == 5) {
+				const auto player = static_cast<uint8_t>(to_u32(tok[1]) & 1);
+				const auto loc = location_arg(tok[2]);
+				const bool field = loc == LOCATION_MZONE || loc == LOCATION_SZONE;
+				uint32_t copies = 1, position = 0;
+				if(tok.size() == 5 && field) {
+					static const std::map<std::string, uint32_t> positions = {
+						{"fu_atk", POS_FACEUP_ATTACK}, {"fu_def", POS_FACEUP_DEFENSE}, {"fd_def", POS_FACEDOWN_DEFENSE}, {"fd", POS_FACEDOWN}};
+					auto it = positions.find(tok[4]);
+					if(it == positions.end())
+						fail("expected a position (fu_atk/fu_def/fd_def/fd) for a field card");
+					position = it->second;
+				} else if(tok.size() == 5) {
 					if(tok[4].empty() || tok[4][0] != 'x')
 						fail("expected copy count like x10");
 					copies = to_u32(tok[4].substr(1));
 				}
-				for(uint32_t i = 0; i < copies; ++i)
-					cfg.placements.push_back({static_cast<uint8_t>(to_u32(tok[1]) & 1), location_arg(tok[2]), to_u32(tok[3])});
+				for(uint32_t i = 0; i < copies; ++i) {
+					battle::Placement pl{player, loc, to_u32(tok[3])};
+					if(field) {
+						pl.sequence = next_zone[player][loc == LOCATION_SZONE]++;
+						pl.position = position;
+					}
+					cfg.placements.push_back(pl);
+				}
 			} else if(kw == "expect" && tok.size() >= 2) {
 				sc.actions.push_back({line_no, -1, tok[1], {tok.begin() + 2, tok.end()}, text});
 			} else if(kw == "stop" && tok.size() == 1) {
@@ -144,7 +168,22 @@ public:
 				break;
 			}
 			std::printf("%s\n", battle::describe(content_, pr).c_str());
-			const auto picks = decide(pr);
+			std::vector<uint32_t> picks;
+			if(sc_.script_ai[pr.player & 1]) {
+				if(pr.retry)
+					fail("the core rejected the enemy scripts' previous answer");
+				std::string error;
+				if(!duel.script_decide(picks, error))
+					fail("enemy decision failed: " + error);
+				if(picks.size() == 1 && picks[0] < pr.options.size())
+					last_choice_ = pr.options[picks[0]].card.code;
+				std::string shown;
+				for(auto i : picks)
+					shown += " " + (i < pr.options.size() ? pr.options[i].action + (pr.options[i].card.code ? " " + std::to_string(pr.options[i].card.code) : "") : std::to_string(i)) + ";";
+				std::printf("  > enemy script:%s\n", shown.empty() ? " (default order)" : shown.c_str());
+			} else {
+				picks = decide(pr);
+			}
 			std::string error;
 			if(!duel.submit(pr.id, picks, error))
 				fail("battle module rejected the answer: " + error);
@@ -170,6 +209,10 @@ private:
 			resolved_.push_back(e.card.code);
 		} else if(e.type == battle::EventType::ChainEnd) {
 			last_chain_ = resolved_;
+		} else if(e.type == battle::EventType::Move) {
+			last_move_reason_[e.card.code] = e.reason;
+		} else if(e.type == battle::EventType::Hp) {
+			last_hp_[e.card.code] = e.card.instance;
 		}
 		std::printf("%s\n", s.c_str());
 	}
@@ -326,6 +369,8 @@ private:
 	// Prompts this test layer answers on its own when the scenario does not script them;
 	// like expectations, `stop` waits for the next prompt that needs a scripted answer.
 	bool answered_by_default(const battle::Prompt& pr) const {
+		if(sc_.script_ai[pr.player & 1])
+			return true; // answered by the enemy scripts
 		using battle::PromptType;
 		switch(pr.type) {
 		case PromptType::Place: return true;
@@ -418,6 +463,19 @@ private:
 			} else if(act.verb == "ap") {
 				got = std::to_string(duel_->ap(to_u32(arg(act, 0)) & 1));
 				want = arg(act, 1);
+			} else if(act.verb == "hp") {
+				// expect hp CODE n [max]: the enemy unit with this code (the latest one that reported HP)
+				const auto it = last_hp_.find(to_u32(arg(act, 0)));
+				const auto* hp = it == last_hp_.end() ? nullptr : duel_->hp(it->second);
+				got = hp ? std::to_string(hp->hp) + (act.args.size() > 2 ? "/" + std::to_string(hp->max) : "") : "none";
+				want = arg(act, 1) + (act.args.size() > 2 ? "/" + arg(act, 2) : "");
+			} else if(act.verb == "destroyed") {
+				// expect destroyed CODE battle|effect: how the card last left a place
+				const auto it = last_move_reason_.find(to_u32(arg(act, 0)));
+				const uint32_t r = it == last_move_reason_.end() ? 0 : it->second;
+				got = !(r & REASON_DESTROY) ? "not destroyed" : (r & REASON_BATTLE) ? "battle" : (r & REASON_EFFECT) ? "effect" : "other";
+				for(size_t i = 1; i < act.args.size(); ++i)
+					want += (want.empty() ? "" : " ") + act.args[i];
 			} else if(act.verb == "blocked" || act.verb == "cost") {
 				// About an option of the prompt being answered right now.
 				const auto* pr = duel_->prompt();
@@ -447,13 +505,14 @@ private:
 	battle::Duel* duel_ = nullptr;
 	uint32_t last_choice_ = 0;
 	std::vector<uint32_t> resolved_, last_chain_;
+	std::map<uint32_t, uint32_t> last_move_reason_, last_hp_; // by code: reason / card instance
 };
 
 } // namespace
 
 int main(int argc, char** argv) {
 	std::setvbuf(stdout, nullptr, _IONBF, 0);
-	std::string scripts_dir, scenario;
+	std::string scripts_dir, enemies_dir, scenario;
 	std::vector<std::string> dbs;
 	for(int i = 1; i < argc; ++i) {
 		const std::string a = argv[i];
@@ -461,17 +520,19 @@ int main(int argc, char** argv) {
 			scripts_dir = argv[++i];
 		else if(a == "--db" && i + 1 < argc)
 			dbs.push_back(argv[++i]);
+		else if(a == "--enemies" && i + 1 < argc)
+			enemies_dir = argv[++i];
 		else
 			scenario = a;
 	}
 	if(scripts_dir.empty() || dbs.empty() || scenario.empty()) {
-		std::fprintf(stderr, "usage: duel_harness --scripts DIR --db FILE [--db FILE...] SCENARIO\n");
+		std::fprintf(stderr, "usage: duel_harness --scripts DIR --db FILE [--db FILE...] [--enemies DIR] SCENARIO\n");
 		return 2;
 	}
 	try {
 		const auto [major, minor] = battle::core_version();
 		std::printf("== ocgcore API %d.%d\n", major, minor);
-		battle::Content content(scripts_dir, dbs);
+		battle::Content content(scripts_dir, dbs, enemies_dir);
 		std::printf("== scenario %s\n", scenario.c_str());
 		Runner(load_scenario(scenario), content).run();
 	} catch(const std::exception& e) {

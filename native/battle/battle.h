@@ -27,9 +27,13 @@ struct CardData {
 };
 
 // Card databases + script index, shared read-only by every duel. Must outlive them.
+// enemies_dir (optional): enemy definitions, one c<code>.lua per enemy (see docs/enemies.md).
+// Each file is both the card script the core runs and the source of the enemy's card data,
+// which the module reads with its own sandboxed Lua state; ygopve_enemy.lua there holds the
+// HP rules and is loaded into every duel when enemies are present.
 class Content {
 public:
-	Content(const std::string& scripts_dir, const std::vector<std::string>& db_paths);
+	Content(const std::string& scripts_dir, const std::vector<std::string>& db_paths, const std::string& enemies_dir = "");
 	~Content();
 	Content(const Content&) = delete;
 	Content& operator=(const Content&) = delete;
@@ -39,8 +43,12 @@ public:
 	// empty for the client's generic system strings, which are not in the card databases.
 	std::string description(uint64_t desc);
 	const std::string* script_path(const std::string& name) const;
+	bool is_enemy(uint32_t code) const { return enemies_.count(code) > 0; }
+	bool has_enemies() const { return !enemies_.empty(); }
 
 private:
+	void load_enemies(const std::string& dir);
+	std::set<uint32_t> enemies_;
 	std::vector<sqlite3*> dbs_;
 	std::map<uint32_t, CardData> cache_;
 	std::map<std::string, std::string> scripts_;
@@ -67,8 +75,10 @@ struct PlayerConfig {
 
 struct Placement { // exact, unshuffled placement (fixed rule tests)
 	uint8_t player = 0;
-	uint32_t location = 0; // LOCATION_DECK/HAND/GRAVE/REMOVED/EXTRA
+	uint32_t location = 0; // LOCATION_DECK/HAND/GRAVE/REMOVED/EXTRA/MZONE/SZONE
 	uint32_t code = 0;
+	uint32_t sequence = 0; // MZONE/SZONE slot
+	uint32_t position = 0; // MZONE/SZONE: POS_* (0 = face-up attack); ignored elsewhere
 };
 
 struct DuelConfig {
@@ -99,7 +109,8 @@ enum class EventType {
 	NewTurn, NewPhase, Draw, Move, Summon, SpSummon, FlipSummon, Set,
 	Chaining, ChainSolving, ChainEnd, ChainNegated, ChainDisabled,
 	Damage, Recover, PayLp, Attack, Win,
-	Ap // player's AP changed: value = new AP, reason = AP spent (0 = refilled at turn start)
+	Ap, // player's AP changed: value = new AP, reason = AP spent (0 = refilled at turn start)
+	Hp  // enemy unit's HP changed (card.instance): value = HP, reason = max HP
 };
 
 struct Event {
@@ -176,6 +187,12 @@ public:
 	// Game-rule checks (sum totals, counters per card, tribute value, declarable card)
 	// are left to the core, which re-asks: the next prompt has retry = true.
 	bool submit(uint64_t prompt_id, const std::vector<uint32_t>& picks, std::string& error);
+	// Enemy decisions (docs/enemies.md): runs YgoEnemy.Decide from ygopve_enemy.lua for the pending
+	// prompt inside the core's Lua state, where the enemy scripts' ai functions can query the duel
+	// but the core refuses actions. Fills `picks` in submit()'s format; the host still submits them.
+	// Returns false with `error` when there is nothing to decide or no answer came back; an error
+	// inside the scripts ends the duel like any other script error.
+	bool script_decide(std::vector<uint32_t>& picks, std::string& error);
 	std::vector<Event> take_events();
 	const std::string& error() const { return error_; }
 
@@ -187,6 +204,8 @@ public:
 	bool ap_enabled(uint8_t player) const { return ap_[player & 1].rules.enabled; }
 	uint32_t ap(uint8_t player) const { return ap_[player & 1].current; }
 	uint32_t ap_max(uint8_t player) const { return ap_[player & 1].rules.max; }
+	struct Hp { uint32_t hp = 0, max = 0; };
+	const Hp* hp(uint32_t instance) const; // enemy units only (reported by ygopve_enemy.lua); else nullptr
 	int winner() const { return winner_; }                         // -1 until a MSG_WIN
 	uint32_t win_reason() const { return win_reason_; }            // 1 = LP, 2 = deck-out
 
@@ -213,6 +232,10 @@ private:
 	std::string error_;
 	std::set<std::string> missing_scripts_;
 	std::map<uint32_t, CardOrigin> origins_;
+	std::map<uint32_t, Hp> hp_;           // by card instance
+	std::vector<Event> script_events_;    // from the log callback; queued behind the batch's messages
+	bool deciding_ = false, decided_ = false; // script_decide() is running / got "YGOPVE_ANSWER"
+	std::vector<uint32_t> decision_;
 
 	// AP: costs are attached to prompt options, checked in submit(), and charged when the core
 	// confirms the chosen action with its message (summoning, set, chaining, attack, position

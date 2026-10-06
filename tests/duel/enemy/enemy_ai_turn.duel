@@ -1,0 +1,21 @@
+# Enemy prototype: the enemy side is played by its Lua script (s.ai in c990000001.lua), no
+# scenario lines for P1. Healthy (HP > half), so on its turn it: activates its effect on the
+# player's highest-ATK monster, switches to attack position, attacks the lowest-ATK monster.
+# TEST VALUES.
+start_draw 0 0
+start_draw 1 0
+draw_per_turn 1 0
+enemy_ai 1
+card 0 mzone 89631139       # Blue-Eyes White Dragon 3000 (effect target: 3000 -> 2200)
+card 0 mzone 15025844       # Mystical Elf 800 (attack target)
+card 0 deck 91152256 x10
+card 1 mzone 990000001 fu_def
+
+0 idle end
+# enemy turn: no scenario lines
+expect lp 0 7600            # 1200 - 800
+expect count 0 mzone 1      # Mystical Elf destroyed
+expect cards 0 grave 15025844
+expect hp 990000001 3200 3200
+0 idle end
+stop

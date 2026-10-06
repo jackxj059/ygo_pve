@@ -1,0 +1,108 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\enemy\enemy_attacks.duel
+== duel created
+
+--- new turn (p0)
+  撗拇挺摰?(990000001)#14 HP 3200/3200
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Flying Penguin(5628232)@p0.mzone[0]#2 [1] repos Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [2] end
+  > 0 idle end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p1)
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [2] battle [3] end
+  > 1 idle battle
+  phase battle-start
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_BATTLECMD: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] attack 撗拇挺摰?(990000001)@p1.mzone[0]#14 [2] main2 [3] end
+  > 1 battle attack 990000001
+? p1 SELECT_CARD pick 1-1: [0] card Flying Penguin(5628232)@p0.mzone[0]#2 [1] card Gene-Warped Warwolf(69247929)@p0.mzone[1]#3
+  > 1 select 5628232
+  attack p1.mzone[0]#14 -> p0.mzone[0]#2
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  撗拇挺摰?(990000001)#14 HP 2000/3200
+  move Flying Penguin(5628232) p0.mzone[0]#2 -> p0.grave[0]#2 reason=0x21
+? p1 SELECT_BATTLECMD: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] main2 [2] end
+  ok: expect cards 0 grave 5628232
+  ok: expect hp 990000001 2000 3200
+  ok: expect count 1 mzone 1
+  ok: expect destroyed 990000001 not destroyed
+  ok: expect lp 0 8000
+  > 1 battle end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase main2
+  phase end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#13 [1] repos Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [2] mset Mystical Elf(15025844)@p0.hand[0]#13 [3] battle [4] end
+  > 0 idle end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p1)
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [2] battle [3] end
+  > 1 idle battle
+  phase battle-start
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_BATTLECMD: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] attack 撗拇挺摰?(990000001)@p1.mzone[0]#14 [2] main2 [3] end
+  > 1 battle attack 990000001
+? p1 SELECT_CARD pick 1-1: [0] card Gene-Warped Warwolf(69247929)@p0.mzone[1]#3
+  > 1 select 69247929
+  attack p1.mzone[0]#14 -> p0.mzone[1]#3
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
+  > default: pass (not scripted)
+  撗拇挺摰?(990000001)#14 HP 1200/3200
+  ok: expect hp 990000001 1200
+  ok: expect count 0 mzone 1
+  ok: expect count 1 mzone 1
+  ok: expect lp 0 8000
+== scenario stopped at: ? p1 SELECT_BATTLECMD: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] main2 [2] end
+PASS
+

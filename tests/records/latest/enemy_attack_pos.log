@@ -1,0 +1,99 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\enemy\enemy_attack_pos.duel
+== duel created
+
+--- new turn (p0)
+  撗拇挺摰?(990000001)#16 HP 3200/3200
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Celtic Guardian(91152256)@p0.mzone[0]#2 [1] repos Mystical Elf(15025844)@p0.mzone[1]#3 [2] repos Gene-Warped Warwolf(69247929)@p0.mzone[2]#4 [3] repos Blue-Eyes White Dragon(89631139)@p0.mzone[3]#5 [4] end
+  > 0 idle end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  phase end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p1)
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [2] battle [3] end
+  > 1 idle end
+  phase end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#15 [1] repos Celtic Guardian(91152256)@p0.mzone[0]#2 [2] repos Mystical Elf(15025844)@p0.mzone[1]#3 [3] repos Gene-Warped Warwolf(69247929)@p0.mzone[2]#4 [4] repos Blue-Eyes White Dragon(89631139)@p0.mzone[3]#5 [5] mset Mystical Elf(15025844)@p0.hand[0]#15 [6] battle [7] end
+  > 0 idle battle
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  phase battle-start
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_BATTLECMD: [0] attack Celtic Guardian(91152256)@p0.mzone[0]#2 [1] attack Mystical Elf(15025844)@p0.mzone[1]#3 [2] attack Gene-Warped Warwolf(69247929)@p0.mzone[2]#4 [3] attack Blue-Eyes White Dragon(89631139)@p0.mzone[3]#5 [4] main2 [5] end
+  > 0 battle attack 91152256
+? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#16
+  > 0 select 990000001
+  attack p0.mzone[0]#2 -> p1.mzone[0]#16
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  撗拇挺摰?(990000001)#16 HP 1800/3200
+? p0 SELECT_BATTLECMD: [0] attack Mystical Elf(15025844)@p0.mzone[1]#3 [1] attack Gene-Warped Warwolf(69247929)@p0.mzone[2]#4 [2] attack Blue-Eyes White Dragon(89631139)@p0.mzone[3]#5 [3] main2 [4] end
+  ok: expect hp 990000001 1800 3200
+  ok: expect count 1 mzone 1
+  ok: expect lp 0 8000
+  > 0 battle attack 15025844
+? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#16
+  > 0 select 990000001
+  attack p0.mzone[1]#3 -> p1.mzone[0]#16
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  撗拇挺摰?(990000001)#16 HP 1000/3200
+? p0 SELECT_BATTLECMD: [0] attack Gene-Warped Warwolf(69247929)@p0.mzone[2]#4 [1] attack Blue-Eyes White Dragon(89631139)@p0.mzone[3]#5 [2] main2 [3] end
+  ok: expect hp 990000001 1000
+  ok: expect count 0 mzone 4
+  ok: expect lp 0 8000
+  ok: expect destroyed 990000001 not destroyed
+  > 0 battle attack 69247929
+? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#16
+  > 0 select 990000001
+  attack p0.mzone[2]#4 -> p1.mzone[0]#16
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > default: pass (not scripted)
+  撗拇挺摰?(990000001)#16 HP 0/3200
+  move 撗拇挺摰?(990000001) p1.mzone[0]#16 -> p1.grave[0]#16 reason=0x21
+  ok: expect hp 990000001 0
+  ok: expect count 1 mzone 0
+  ok: expect destroyed 990000001 battle
+  ok: expect count 0 mzone 4
+  ok: expect lp 0 8000
+== scenario stopped at: ? p0 SELECT_BATTLECMD: [0] attack Blue-Eyes White Dragon(89631139)@p0.mzone[3]#5 [1] main2 [2] end
+PASS
+
