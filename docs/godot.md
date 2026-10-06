@@ -67,18 +67,30 @@ native/battle/               共用戰鬥模組（C++，不依賴 Godot）
   - 宣言卡名：輸入卡號。
 - **雙人輪流**：兩位玩家都在同一個畫面上操作。勾選「對手自動略過」後，P1 會自動不連鎖、結束回合、不發動效果；遇到無法自動決定的選擇時，仍然會交給你。
 
-## AP
+## AP 與構築點數
 
-- 在宿主的戰鬥設定裡加上 `players[i].ap = {max, initial, costs}`，規則見 `docs/battle-module.md`。
-- 測試宿主的數值放在 `host/test_settings.gd`，全部都是**測試值**。
-- 戰鬥畫面會顯示目前 AP 和上限，選項標上費用；付不起的選項會停用並寫明原因。即使宿主硬送，戰鬥模組也會拒絕。
+- **AP**：
+  - 在宿主的戰鬥設定裡加上 `players[i].ap = {max, initial, costs}`，規則見 `docs/battle-module.md`。
+  - 測試宿主的數值放在 `host/test_settings.gd`，全部都是**測試值**。
+  - 戰鬥畫面會顯示目前 AP 和上限，選項標上費用；付不起的選項會停用並寫明原因。即使宿主硬送，戰鬥模組也會拒絕。
+- **構築點數**（`YgoDeckPoints`，位於 `addons/ygo_battle/deck_points.gd`）：
+  - **點數表**：`game/data/points/*.json`，格式是 `ygo-pve-points/1`，帶有版本和來源。
+    - 由 `scripts/import_genesys_points.py` 從官方 TCG Genesys 頁面匯入，只取點數，不帶卡池限制。
+    - 點數表必須明確宣告 `unlisted_points`，也就是沒列出的卡算幾點；沒寫就拒絕載入。資料庫找不到的卡號一律視為錯誤。
+  - **計分**：主牌組加額外牌組，重複卡每張都算；備牌不算。這是專案自己的決定，官方 Genesys 也會計算備牌。
+  - **開戰檢查**：`YgoBattleSession.start(content, config, {points, cap})` 會檢查 0 號玩家的牌組，超出上限就拒絕開戰。對手不檢查。
+  - **牌組預覽**：`deck_preview.tscn` 依區塊列出卡片、張數和每張的點數，顯示總點數和上限；不合法時「開始戰鬥」按鈕會停用。
 
 ## 測試
 
 - **`game/tests/smoke_test.gd`**：無畫面執行，由 `test-duel.ps1` 呼叫。
   - 用 GDScript 透過 GDExtension 完整重播 `basic_chain_win`，確認 P0 以 LP 獲勝、最後 LP 為 7000 對 0。
   - 把畫面掛到一場新的決鬥上，確認第一個提示有顯示；卸下畫面後，決鬥仍然存在。
-- **`game/tests/screenshot.gd`**：開啟視窗，先自動執行前 N 步再截圖，用來在不手動點選的情況下檢查版面。
+- **`game/tests/rules_test.gd`**：無畫面執行，檢查構築點數和 AP 是否正確開放給 GDScript。
+- **`game/tests/screenshot.gd`**：開啟視窗後截圖，用來在不手動點選的情況下檢查版面。
+  - 可以先自動執行前 N 步再截圖。
+  - 也可以用 `preview:<牌組>` 截牌組預覽畫面。
+- **逾時保護**：Godot 測試在 `test-duel.ps1` 裡有 2 分鐘的逾時限制，因為腳本編譯失敗時 Godot 不會自己結束。
 
 ## 已知限制
 

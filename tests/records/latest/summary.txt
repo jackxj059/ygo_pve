@@ -25,3 +25,4 @@ ok exit=1 .\tests\duel\negative\unscripted_optional_trigger.duel
 ok exit=1 .\tests\duel\negative\ydk_bad_format.duel
 ok exit=1 .\tests\duel\negative\ydk_unknown_card.duel
 ok exit=0 game/tests/smoke_test.gd
+ok exit=0 game/tests/rules_test.gd

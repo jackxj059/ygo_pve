@@ -2,7 +2,7 @@ extends SceneTree
 ## Opens the test host, starts the basic test battle, optionally plays the first N scripted
 ## actions of the smoke test, and saves a screenshot, for checking the layout without
 ## clicking. Needs a window (not --headless). Usage:
-##   godot --path game --script res://tests/screenshot.gd -- <output.png> [actions]
+##   godot --path game --script res://tests/screenshot.gd -- <output.png> [actions | preview:<deck.ydk>]
 
 const Smoke := preload("res://tests/smoke_test.gd")
 
@@ -10,10 +10,19 @@ const Smoke := preload("res://tests/smoke_test.gd")
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	var out := args[0] if args.size() > 0 else ProjectSettings.globalize_path("user://battle.png")
-	var actions := int(args[1]) if args.size() > 1 else 0
+	var mode: String = args[1] if args.size() > 1 else "0"
 	var main: Control = load("res://host/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame
+	if mode.begins_with("preview:"): # deck preview of a .ydk relative to the repository root
+		main._preview(mode.trim_prefix("preview:"))
+		for i in 30:
+			await process_frame
+		root.get_viewport().get_texture().get_image().save_png(out)
+		print("saved ", out)
+		quit()
+		return
+	var actions := int(mode)
 	main._start(preload("res://host/test_battles.gd").basic_chain_win())
 	var queue := Smoke.ACTIONS.slice(0, actions)
 	for i in 600:

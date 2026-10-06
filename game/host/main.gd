@@ -1,14 +1,17 @@
 extends Control
-## Minimal test host: starts battles, leaves the battle screen and comes back to the same
-## duel, and shows results. AP values come from host/test_settings.gd (test values); the
-## battle module only gets them as config.
+## Minimal test host: previews decks, starts battles, leaves the battle screen and comes back
+## to the same duel, and shows results. AP values and the building point cap come from
+## host/test_settings.gd (test values); the battle module only gets them as config.
 
 const TestBattles := preload("res://host/test_battles.gd")
 const TestSettings := preload("res://host/test_settings.gd")
+const OPPONENT_DECK := "tests/decks/test_basic.ydk"
 
 var content: YgoContent
+var points: YgoDeckPoints
 var session: YgoBattleSession
 var screen: Control
+var preview: Control
 var menu: VBoxContainer
 var status: Label
 var resume_button: Button
@@ -29,11 +32,9 @@ func _ready() -> void:
 	ap_check.button_pressed = true
 	menu.add_child(ap_check)
 	_add_button("測試對戰：basic_chain_win 的開場（雙方手動）", func() -> void: _start(TestBattles.basic_chain_win()))
-	_add_button("牌組對戰：test_basic.ydk 對 test_basic.ydk", func() -> void:
-		_start_decks(["tests/decks/test_basic.ydk", "tests/decks/test_basic.ydk"]))
-	if FileAccess.file_exists(TestBattles.deck_path("dark_time_wizard.ydk")):
-		_add_button("牌組對戰：dark_time_wizard.ydk 對 test_basic.ydk", func() -> void:
-			_start_decks(["dark_time_wizard.ydk", "tests/decks/test_basic.ydk"]))
+	for file in [OPPONENT_DECK, "dark_time_wizard.ydk"]:
+		if FileAccess.file_exists(TestBattles.deck_path(file)):
+			_add_button("預覽牌組：%s（對手 %s）" % [file.get_file(), OPPONENT_DECK.get_file()], _preview.bind(file))
 	resume_button = _add_button("回到目前的對戰", _enter)
 	resume_button.disabled = true
 	status = Label.new()
@@ -45,6 +46,13 @@ func _ready() -> void:
 	add_child(screen)
 	screen.leave_requested.connect(_leave)
 	screen.finished.connect(_on_finished)
+	preview = load("res://addons/ygo_battle/deck_preview.tscn").instantiate()
+	preview.hide()
+	add_child(preview)
+	preview.back_requested.connect(func() -> void:
+		preview.hide()
+		menu.show())
+	preview.start_requested.connect(_start_with_deck)
 
 
 func _add_button(text: String, callback: Callable) -> Button:
@@ -56,37 +64,49 @@ func _add_button(text: String, callback: Callable) -> Button:
 
 
 func _ensure_content() -> bool:
-	if content != null:
-		return true
 	var error := []
-	content = YgoBattleSession.open_content(TestBattles.resources(), error)
 	if content == null:
-		status.text = "無法開啟卡片資料：%s" % [error]
-	return content != null
+		content = YgoBattleSession.open_content(TestBattles.resources(), error)
+	if points == null and content != null:
+		points = YgoDeckPoints.load_table(TestSettings.POINTS_TABLE, error)
+	if not error.is_empty():
+		status.text = "無法載入資料：%s" % [error]
+	return content != null and points != null
 
 
-func _start_decks(files: Array) -> void:
-	var paths := files.map(func(f: String) -> String: return TestBattles.deck_path(f))
-	var seed := Time.get_ticks_usec()
-	var error := []
-	var config := YgoBattleSession.config_from_decks(paths, seed, error)
-	if config.is_empty():
-		status.text = "牌組載入失敗：%s" % [error]
-		return
-	_start(config)
-	status.text = "種子 %d（同一種子可重現開場）" % seed
-
-
-func _start(config: Dictionary) -> void:
+func _preview(file: String) -> void:
 	if not _ensure_content():
+		return
+	var deck := YgoContent.load_ydk(TestBattles.deck_path(file))
+	if deck.error != "":
+		status.text = "牌組載入失敗：%s" % deck.error
+		return
+	menu.hide()
+	preview.show_deck(file, deck, points, TestSettings.BUILD_POINT_CAP, content, TestBattles.resources().images_dir)
+
+
+func _start_with_deck(deck: Dictionary) -> void:
+	var opponent := YgoContent.load_ydk(TestBattles.deck_path(OPPONENT_DECK))
+	var seed := Time.get_ticks_usec()
+	preview.hide()
+	_start({"seed": seed, "players": [{"main": deck.main, "extra": deck.extra}, {"main": opponent.main, "extra": opponent.extra}]},
+		{"points": points, "cap": TestSettings.BUILD_POINT_CAP})
+	if session != null:
+		status.text = "種子 %d（同一種子可重現開場）" % seed
+
+
+func _start(config: Dictionary, rules := {}) -> void:
+	if not _ensure_content():
+		menu.show()
 		return
 	if ap_check.button_pressed:
 		config.players[0]["ap"] = TestSettings.AP
 	session = YgoBattleSession.new()
-	var err := session.start(content, config)
+	var err := session.start(content, config, rules)
 	if err != "":
 		status.text = "無法建立對戰：%s" % err
 		session = null
+		menu.show()
 		return
 	_enter()
 

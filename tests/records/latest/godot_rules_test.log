@@ -1,0 +1,27 @@
+﻿Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  ok: content and points table load []
+points table
+  ok: version and size
+  ok: the table declares unlisted cards as 0 points
+deck totals
+  ok: duplicates count per copy: 20+20+3+0 = 43 (got 43)
+  ok: unlisted card uses the declared value
+  ok: extra counts, side does not (got 23)
+  ok: over the cap is not ok: ["deck uses 120 points, the cap is 100"]
+  ok: alternate artwork uses its base card's points
+  ok: unknown card is an error
+table validation
+  ok: a table without unlisted_points is refused
+  ok: a table's own unlisted value is used
+legal deck required to start
+  ok: over-cap deck cannot start: deck is not legal: deck uses 123 points, the cap is 100
+  ok: legal deck starts
+AP through the GDExtension
+  ok: AP 3/3 at turn 1
+  ok: opponent has no AP
+  ok: summon option costs 1 AP
+  ok: summoning spent 1 AP (now 2)
+  ok: the AP event reaches GDScript
+PASS
+

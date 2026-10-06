@@ -49,11 +49,11 @@ try {
         if (-not $ok) { Write-Host $output }
         $results += [pscustomobject]@{ Scenario = $rel; Exit = $code; Result = $status }
     }
-    # Godot (headless): the GDExtension loads and GDScript drives duels and the screen.
-    # A script that fails to compile never calls quit(), so each run has a timeout.
+    # Godot (headless): the GDExtension loads and GDScript drives duels, the screen and the
+    # building rules. A script that fails to compile never calls quit(), so each run has a timeout.
     $godot = Join-Path $root 'tools/godot/Godot_v4.7.2-stable_win64_console.exe'
     & $godot --headless --path game --import 2>&1 | Out-Null
-    foreach ($test in @('smoke_test')) {
+    foreach ($test in 'smoke_test', 'rules_test') {
         $out = Join-Path $records "godot_$test.log"
         $err = "$out.stderr"
         $p = Start-Process -FilePath $godot -ArgumentList '--headless', '--path', 'game', '--script', "res://tests/$test.gd" `

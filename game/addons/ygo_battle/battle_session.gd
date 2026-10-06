@@ -34,8 +34,16 @@ static func config_from_decks(deck_paths: Array, seed: int, error: Array) -> Dic
 	return {"seed": seed, "players": players}
 
 
-func start(with_content: YgoContent, config: Dictionary) -> String:
+## rules (optional), for battles that require a legal deck:
+##   {points: YgoDeckPoints, cap: int} - player 0's main + extra deck must fit the cap.
+## Opponents are not checked (enemies will not be built from decks).
+func start(with_content: YgoContent, config: Dictionary, rules := {}) -> String:
 	content = with_content
+	if rules.has("points"):
+		var player: Dictionary = config.get("players", [{}])[0]
+		var check: Dictionary = rules.points.evaluate(player, rules.get("cap", 0), content)
+		if not check.ok:
+			return "deck is not legal: " + "; ".join(check.errors)
 	duel = YgoDuel.new()
 	return duel.start(content, config)
 
