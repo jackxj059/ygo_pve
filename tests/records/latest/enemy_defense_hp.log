@@ -28,7 +28,7 @@
 ? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main1
-? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [2] battle [3] end
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#19 [2] sset ??蝯?(990000102)@p1.hand[1]#20 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#19 [4] activate ??蝯?(990000102)@p1.hand[1]#20 [5] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [6] battle [7] end [8] shuffle
   > 1 idle end
   phase end
 ? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
@@ -111,7 +111,7 @@
 ? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main1
-? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [2] battle [3] end
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#19 [2] sset ??蝯?(990000102)@p1.hand[1]#20 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#19 [4] activate ??蝯?(990000102)@p1.hand[1]#20 [5] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [6] battle [7] end [8] shuffle
   > 1 idle end
   phase end
 ? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
@@ -211,7 +211,7 @@
 ? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main1
-? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [2] battle [3] end
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#19 [2] sset ??蝯?(990000102)@p1.hand[1]#20 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#19 [4] activate ??蝯?(990000102)@p1.hand[1]#20 [5] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [6] battle [7] end [8] shuffle
   > 1 idle end
   phase end
 ? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass

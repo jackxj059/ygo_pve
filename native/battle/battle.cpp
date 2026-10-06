@@ -215,7 +215,8 @@ void Content::load_enemies(const std::string& dir) {
 	const auto* constants = script_path("constant.lua");
 	if(!constants)
 		fail("constant.lua not found; it is needed to read enemy definitions");
-	for(const auto& entry : fs::directory_iterator(dir)) {
+	// One folder per unit (its monster and its skill spells) or loose files; any depth.
+	for(const auto& entry : fs::recursive_directory_iterator(dir)) {
 		const auto file = entry.path().filename().string();
 		if(!entry.is_regular_file() || entry.path().extension() != ".lua")
 			continue;
@@ -268,20 +269,64 @@ void Content::load_enemies(const std::string& dir) {
 		CardData cd;
 		cd.code = code;
 		cd.found = true;
-		cd.type = TYPE_MONSTER | TYPE_EFFECT;
 		cd.name = text("name", true);
 		cd.text = text("text", false);
-		cd.attack = static_cast<int32_t>(integer("atk", true));
-		cd.defense = static_cast<int32_t>(integer("def", true));
-		cd.level = static_cast<uint32_t>(integer("level", false));
-		cd.race = static_cast<uint64_t>(integer("race", false));
-		cd.attribute = static_cast<uint32_t>(integer("attribute", false));
+		const auto kind = text("kind", false);
+		if(kind.empty() || kind == "monster") {
+			cd.type = TYPE_MONSTER | TYPE_EFFECT;
+			cd.attack = static_cast<int32_t>(integer("atk", true));
+			cd.defense = static_cast<int32_t>(integer("def", true));
+			cd.level = static_cast<uint32_t>(integer("level", false));
+			cd.race = static_cast<uint64_t>(integer("race", false));
+			cd.attribute = static_cast<uint32_t>(integer("attribute", false));
+			// hp (optional) is used by ygopve_enemy.lua in the core; checked here so mistakes fail early.
+			lua_getfield(L, -1, "hp");
+			const bool has_hp = !lua_isnil(L, -1);
+			lua_pop(L, 1);
+			if(has_hp && integer("hp", false) <= 0)
+				fail("enemy " + file + ": hp must be a positive integer");
+			// skills (optional): codes of this unit's skill spells, put into its side's hand at the start.
+			if(lua_getfield(L, -1, "skills") == LUA_TTABLE) {
+				auto& list = skills_[code];
+				for(lua_Integer i = 1; lua_geti(L, -1, i) != LUA_TNIL; ++i) {
+					int ok = 0;
+					const auto v = lua_tointegerx(L, -1, &ok);
+					lua_pop(L, 1);
+					if(!ok || v <= 0)
+						fail("enemy " + file + ": skills must be a list of card codes");
+					list.push_back(static_cast<uint32_t>(v));
+				}
+				lua_pop(L, 1); // the nil that ended the list
+			} else if(!lua_isnil(L, -1)) {
+				fail("enemy " + file + ": skills must be a list of card codes");
+			}
+			lua_pop(L, 1);
+		} else if(kind == "spell") {
+			const auto sub = text("spell", false);
+			static const std::map<std::string, uint32_t> subtypes = {
+				{"", 0}, {"normal", 0}, {"quickplay", TYPE_QUICKPLAY}, {"continuous", TYPE_CONTINUOUS}};
+			const auto it = subtypes.find(sub);
+			if(it == subtypes.end())
+				fail("enemy " + file + ": spell must be normal, quickplay or continuous");
+			cd.type = TYPE_SPELL | it->second;
+		} else {
+			fail("enemy " + file + ": kind must be monster or spell");
+		}
 		cd.setcodes.push_back(0);
 		cache_[code] = cd;
 		enemies_.insert(code);
 	}
 	if(!enemies_.empty() && !scripts_.count("ygopve_enemy.lua"))
 		fail("ygopve_enemy.lua (enemy rules) not found in " + dir);
+	for(const auto& [unit, list] : skills_)
+		for(auto skill : list)
+			if(!enemies_.count(skill) || !(cache_[skill].type & TYPE_SPELL))
+				fail("enemy " + std::to_string(unit) + ": skill " + std::to_string(skill) + " is not an enemy spell definition");
+}
+
+const std::vector<uint32_t>* Content::skills(uint32_t code) const {
+	auto it = skills_.find(code);
+	return it == skills_.end() ? nullptr : &it->second;
 }
 
 Content::~Content() {
@@ -430,6 +475,11 @@ Duel::Duel(Content& content, const DuelConfig& config) : content_(content) {
 			const auto& pl = config.placements[i];
 			add(pl.player & 1, pl.location, pl.code, "p" + std::to_string(pl.player) + " " + loc_name(pl.location) + " placement",
 			    {static_cast<uint8_t>(pl.player & 1), Source::Placement, i}, pl.sequence, pl.position);
+			// An enemy unit brings its skill pool: one copy of each skill spell into its side's hand.
+			if(const auto* skills = content_.skills(pl.code))
+				for(auto skill : *skills)
+					add(pl.player & 1, LOCATION_HAND, skill, "skill of " + content_.label(pl.code),
+					    {static_cast<uint8_t>(pl.player & 1), Source::Placement, i});
 		}
 		// Normal monsters legitimately have no script; anything else must have one.
 		for(const auto& [code, origin] : added) {

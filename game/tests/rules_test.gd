@@ -109,7 +109,9 @@ func _initialize() -> void:
 	for i in 50:
 		session.step()
 		p = session.prompt()
-		if p.is_empty() or (ended and p.type == "SELECT_IDLECMD"):
+		if p.is_empty():
+			continue # still running (step() processes a limited number of batches per call)
+		if ended and p.type == "SELECT_IDLECMD":
 			break
 		var wanted := "end" if p.type == "SELECT_IDLECMD" else "pass"
 		ended = ended or wanted == "end"
@@ -119,7 +121,9 @@ func _initialize() -> void:
 				break
 	check(ended and p.get("player") == 0 and p.get("type") == "SELECT_IDLECMD" and session.result.is_empty(),
 		"back to P0's main phase after the enemy's turn (%s)" % [session.result])
-	check(session.duel.lp(0) == 6800, "the enemy attacked directly (P0 LP %d)" % session.duel.lp(0))
+	check(session.duel.lp(0) == 6300, "the enemy used 岩盤強化 and attacked directly: 1700 (P0 LP %d)" % session.duel.lp(0))
+	check(session.duel.count(1, YgoDuel.LOCATION_SZONE) == 1 and session.duel.count(1, YgoDuel.LOCATION_HAND) == 1,
+		"重壓結界 on the field, 岩盤強化 back in the skill pool")
 
 	print("PASS" if failures == 0 else "FAIL: %d check(s)" % failures)
 	quit(0 if failures == 0 else 1)

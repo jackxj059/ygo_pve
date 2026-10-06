@@ -1,4 +1,4 @@
-﻿run_at_utc: 2026-10-06T12:37:24Z
+﻿run_at_utc: 2026-10-06T16:21:29Z
 harness: build/duel_harness.exe, core: build/ocgcore.dll
 card_db: third_party/BabelCDB/cards.cdb, scripts: third_party/CardScripts
 ok exit=0 build/battle_tests.exe
@@ -25,11 +25,14 @@ ok exit=0 .\tests\duel\enemy\enemy_attacks.duel
 ok exit=0 .\tests\duel\enemy\enemy_attack_pos.duel
 ok exit=0 .\tests\duel\enemy\enemy_defense_hp.duel
 ok exit=0 .\tests\duel\enemy\enemy_effect_kill.duel
+ok exit=0 .\tests\duel\enemy\enemy_hp_defined.duel
 ok exit=0 .\tests\duel\enemy\enemy_negated_rules.duel
 ok exit=0 .\tests\duel\enemy\enemy_removal.duel
+ok exit=0 .\tests\duel\enemy\enemy_skills.duel
 ok exit=0 .\tests\duel\enemy\enemy_turn.duel
 ok exit=1 .\tests\duel\negative\ap_not_enough.duel
 ok exit=1 .\tests\duel\negative\card_not_offered.duel
+ok exit=1 .\tests\duel\negative\enemy_skill_blocks_trap.duel
 ok exit=1 .\tests\duel\negative\unscripted_optional_trigger.duel
 ok exit=1 .\tests\duel\negative\ydk_bad_format.duel
 ok exit=1 .\tests\duel\negative\ydk_unknown_card.duel

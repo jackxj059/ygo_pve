@@ -8,6 +8,7 @@ s.ygopve_enemy={
 	name="岩殼守衛",
 	text="【敵人】HP＝原本攻擊力＋守備力。\n1回合1次，自己或對手回合：以對手場上1隻表側怪獸為對象才能發動。那隻怪獸的攻擊力直到回合結束時下降800。",
 	atk=1200, def=2000, level=4, race=RACE_ROCK, attribute=ATTRIBUTE_EARTH,
+	skills={990000101, 990000102}, -- 技能池：岩盤強化、重壓結界（同資料夾）
 }
 
 function s.initial_effect(c)
@@ -47,7 +48,8 @@ end
 
 -- 行動模式：輪到敵方選擇時由戰鬥模組呼叫（docs/enemies.md「敵人的行動」）。
 -- 只能查詢場面，不能直接操作；回傳選項索引（從 1 開始），回傳 nil 交給預設行為。
---   自己的回合：能發動效果就發動；HP 高於一半時轉攻擊表示並攻擊攻擊力最低的怪獸，
+--   自己的回合：能發動效果就發動；重壓結界不在場上就放結界；
+--             HP 高於一半時轉攻擊表示，放岩盤強化後攻擊攻擊力最低的怪獸；
 --             HP 一半以下時轉守備表示、不攻擊。
 --   對手的回合：自己被攻擊時，發動效果降低攻擊怪獸的攻擊力（減少損失的 HP）。
 function s.ai(c,prompt)
@@ -56,8 +58,11 @@ function s.ai(c,prompt)
 	local healthy=hp*2>max
 	if prompt.type=="SELECT_IDLECMD" then
 		local wrong_pos=(healthy and c:IsDefensePos()) or (not healthy and c:IsAttackPos())
+		local buffed=c:GetAttack()>c:GetBaseAttack()
 		return F(prompt,"activate",c)
+			or F(prompt,"activate",990000102)  -- 重壓結界：在場上時手牌沒有它，就不會出現這個選項
 			or (wrong_pos and F(prompt,"repos",c))
+			or (healthy and c:IsAttackPos() and not buffed and F(prompt,"activate",990000101))
 			or (c:IsAttackPos() and F(prompt,"battle"))
 			or F(prompt,"end")
 	elseif prompt.type=="SELECT_BATTLECMD" then

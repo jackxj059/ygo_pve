@@ -27,7 +27,7 @@
 ? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
   > default: pass (not scripted)
   phase main1
-? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [2] battle [3] end
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#15 [2] sset ??蝯?(990000102)@p1.hand[1]#16 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#15 [4] activate ??蝯?(990000102)@p1.hand[1]#16 [5] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [6] battle [7] end [8] shuffle
   > 1 idle battle
   phase battle-start
 ? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
@@ -84,7 +84,7 @@
 ? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass
   > default: pass (not scripted)
   phase main1
-? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [2] battle [3] end
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#15 [2] sset ??蝯?(990000102)@p1.hand[1]#16 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#15 [4] activate ??蝯?(990000102)@p1.hand[1]#16 [5] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [6] battle [7] end [8] shuffle
   > 1 idle battle
   phase battle-start
 ? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#14 [1] pass

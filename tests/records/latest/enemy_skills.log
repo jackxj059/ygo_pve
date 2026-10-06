@@ -1,0 +1,153 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\enemy\enemy_skills.duel
+== duel created
+
+--- new turn (p0)
+  撗拇挺摰?(990000001)#16 HP 3200/3200
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > enemy script: pass;
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > enemy script: pass;
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Gene-Warped Warwolf(69247929)@p0.mzone[0]#2 [1] sset Jar of Greed(83968380)@p0.hand[0]#3 [2] sset Raigeki(12580477)@p0.hand[1]#4 [3] sset Mystical Space Typhoon(5318639)@p0.hand[2]#5 [4] activate Raigeki(12580477)@p0.hand[1]#4 [5] end [6] shuffle
+  ok: expect count 1 hand 2
+  > 0 idle sset 83968380
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Jar of Greed(83968380) p0.hand[0]#3 -> p0.szone[0]#3 reason=0x0
+  set Jar of Greed(83968380) at p0.szone[0]#3
+? p0 SELECT_CHAIN: [0] activate Mystical Space Typhoon(5318639)@p0.hand[1]#5 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > enemy script: pass;
+? p0 SELECT_IDLECMD: [0] repos Gene-Warped Warwolf(69247929)@p0.mzone[0]#2 [1] sset Raigeki(12580477)@p0.hand[0]#4 [2] sset Mystical Space Typhoon(5318639)@p0.hand[1]#5 [3] activate Raigeki(12580477)@p0.hand[0]#4 [4] activate Mystical Space Typhoon(5318639)@p0.hand[1]#5 [5] end [6] shuffle
+  > 0 idle end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > enemy script: pass;
+  phase end
+? p0 SELECT_CHAIN: [0] activate Mystical Space Typhoon(5318639)@p0.hand[1]#5 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > enemy script: pass;
+
+--- new turn (p1)
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > enemy script: pass;
+? p0 SELECT_CHAIN: [0] activate Jar of Greed(83968380)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] pass
+  > enemy script: pass;
+? p0 SELECT_CHAIN: [0] activate Jar of Greed(83968380)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#17 [2] sset ??蝯?(990000102)@p1.hand[1]#18 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#17 [4] activate ??蝯?(990000102)@p1.hand[1]#18 [5] activate 撗拇挺摰?(990000001)@p1.mzone[0]#16 [6] battle [7] end [8] shuffle
+  > enemy script: activate 990000001;
+  CHAIN LINK 1: 撗拇挺摰?(990000001) from p1.mzone[0]#16 (chosen by player)
+? p1 SELECT_CARD pick 1-1: [0] card Gene-Warped Warwolf(69247929)@p0.mzone[0]#2
+  > enemy script: card 69247929;
+? p0 SELECT_CHAIN: [0] activate Jar of Greed(83968380)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+  resolve link 1: 撗拇挺摰?(990000001)
+  chain end
+? p0 SELECT_CHAIN: [0] activate Jar of Greed(83968380)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#17 [2] sset ??蝯?(990000102)@p1.hand[1]#18 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#17 [4] activate ??蝯?(990000102)@p1.hand[1]#18 [5] battle [6] end [7] shuffle
+  > enemy script: activate 990000102;
+? p1 SELECT_PLACE pick 1-1: [0] zone p1.szone[0] [1] zone p1.szone[1] [2] zone p1.szone[2] [3] zone p1.szone[3] [4] zone p1.szone[4]
+  > enemy script: zone;
+  move ??蝯?(990000102) p1.hand[1]#18 -> p1.szone[0]#18 reason=0x0
+  CHAIN LINK 1: ??蝯?(990000102) from p1.szone[0]#18 (chosen by player)
+? p0 SELECT_CHAIN: [0] activate Jar of Greed(83968380)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+  resolve link 1: ??蝯?(990000102)
+  chain end
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#17 [2] activate 撗拍撘瑕?(990000101)@p1.hand[0]#17 [3] battle [4] end
+  > enemy script: repos 990000001;
+? p1 SELECT_IDLECMD: [0] sset 撗拍撘瑕?(990000101)@p1.hand[0]#17 [1] activate 撗拍撘瑕?(990000101)@p1.hand[0]#17 [2] battle [3] end
+  > enemy script: activate 990000101;
+? p1 SELECT_PLACE pick 1-1: [0] zone p1.szone[1] [1] zone p1.szone[2] [2] zone p1.szone[3] [3] zone p1.szone[4]
+  > enemy script: zone;
+  move 撗拍撘瑕?(990000101) p1.hand[0]#17 -> p1.szone[1]#17 reason=0x0
+  CHAIN LINK 1: 撗拍撘瑕?(990000101) from p1.szone[1]#17 (chosen by player)
+  resolve link 1: 撗拍撘瑕?(990000101)
+  move 撗拍撘瑕?(990000101) p1.szone[1]#17 -> p1.hand[0]#17 reason=0x4000400
+  chain end
+? p1 SELECT_IDLECMD: [0] sset 撗拍撘瑕?(990000101)@p1.hand[0]#17 [1] activate 撗拍撘瑕?(990000101)@p1.hand[0]#17 [2] battle [3] end
+  > enemy script: battle;
+  phase battle-start
+? p1 SELECT_BATTLECMD: [0] attack 撗拇挺摰?(990000001)@p1.mzone[0]#16 [1] main2 [2] end
+  > enemy script: attack 990000001;
+? p1 SELECT_CARD pick 1-1: [0] card Gene-Warped Warwolf(69247929)@p0.mzone[0]#2
+  > enemy script: card 69247929;
+  attack p1.mzone[0]#16 -> p0.mzone[0]#2
+  p0 takes damage 500
+  move Gene-Warped Warwolf(69247929) p0.mzone[0]#2 -> p0.grave[0]#2 reason=0x21
+? p1 SELECT_BATTLECMD: [0] main2 [1] end
+  > enemy script: end;
+  phase main2
+  phase end
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+? p0 SELECT_CHAIN: [0] activate Mystical Space Typhoon(5318639)@p0.hand[1]#5 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_CHAIN: [0] activate Mystical Space Typhoon(5318639)@p0.hand[1]#5 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p0 SELECT_CHAIN: [0] activate Mystical Space Typhoon(5318639)@p0.hand[1]#5 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[2]#15 [1] mset Mystical Elf(15025844)@p0.hand[2]#15 [2] sset Raigeki(12580477)@p0.hand[0]#4 [3] sset Mystical Space Typhoon(5318639)@p0.hand[1]#5 [4] activate Raigeki(12580477)@p0.hand[0]#4 [5] activate Mystical Space Typhoon(5318639)@p0.hand[1]#5 [6] battle [7] end [8] shuffle
+  ok: expect lp 0 7500
+  ok: expect count 0 mzone 0
+  ok: expect count 1 szone 1
+  ok: expect count 1 hand 1
+  ok: expect count 1 grave 0
+  > 0 idle activate 12580477
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[1] [1] zone p0.szone[2] [2] zone p0.szone[3] [3] zone p0.szone[4]
+  > default: first free zone
+  move Raigeki(12580477) p0.hand[0]#4 -> p0.szone[1]#4 reason=0x0
+  CHAIN LINK 1: Raigeki(12580477) from p0.szone[1]#4 (chosen by player)
+? p0 SELECT_CHAIN: [0] activate Mystical Space Typhoon(5318639)@p0.hand[0]#5 [1] pass
+  > default: pass (not scripted)
+  resolve link 1: Raigeki(12580477)
+  move 撗拇挺摰?(990000001) p1.mzone[0]#16 -> p1.grave[0]#16 reason=0x41
+  撗拇挺摰?(990000001)#16 HP 0/3200
+  move Raigeki(12580477) p0.szone[1]#4 -> p0.grave[1]#4 reason=0x400
+  chain end
+? p0 SELECT_CHAIN: [0] activate Mystical Space Typhoon(5318639)@p0.hand[0]#5 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[1]#15 [1] mset Mystical Elf(15025844)@p0.hand[1]#15 [2] sset Mystical Space Typhoon(5318639)@p0.hand[0]#5 [3] activate Mystical Space Typhoon(5318639)@p0.hand[0]#5 [4] battle [5] end [6] shuffle
+  ok: expect count 1 mzone 0
+  ok: expect count 1 szone 1
+  > 0 idle activate 5318639
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[1] [1] zone p0.szone[2] [2] zone p0.szone[3] [3] zone p0.szone[4]
+  > default: first free zone
+  move Mystical Space Typhoon(5318639) p0.hand[0]#5 -> p0.szone[1]#5 reason=0x0
+  CHAIN LINK 1: Mystical Space Typhoon(5318639) from p0.szone[1]#5 (chosen by player)
+? p0 SELECT_CARD pick 1-1: [0] card Jar of Greed(83968380)@p0.szone[0]#3 [1] card ??蝯?(990000102)@p1.szone[0]#18
+  > 0 select 990000102
+  resolve link 1: Mystical Space Typhoon(5318639)
+  move ??蝯?(990000102) p1.szone[0]#18 -> p1.hand[1]#18 reason=0x4000041
+  move Mystical Space Typhoon(5318639) p0.szone[1]#5 -> p0.grave[2]#5 reason=0x400
+  chain end
+? p0 SELECT_CHAIN: [0] activate Jar of Greed(83968380)@p0.szone[0]#3 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#15 [1] mset Mystical Elf(15025844)@p0.hand[0]#15 [2] activate Jar of Greed(83968380)@p0.szone[0]#3 [3] battle [4] end
+  ok: expect count 1 szone 0
+  ok: expect count 1 hand 2
+  ok: expect count 1 grave 1
+  > 0 idle activate 83968380
+  CHAIN LINK 1: Jar of Greed(83968380) from p0.szone[0]#3 (chosen by player)
+  resolve link 1: Jar of Greed(83968380)
+  p0 draws Mystical Elf(15025844)
+  move Jar of Greed(83968380) p0.szone[0]#3 -> p0.grave[3]#3 reason=0x400
+  chain end
+== scenario stopped at: ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#15 [1] summon Mystical Elf(15025844)@p0.hand[1]#14 [2] mset Mystical Elf(15025844)@p0.hand[0]#15 [3] mset Mystical Elf(15025844)@p0.hand[1]#14 [4] battle [5] end [6] shuffle
+PASS
+

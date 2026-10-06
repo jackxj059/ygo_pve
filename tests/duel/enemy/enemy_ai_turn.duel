@@ -1,6 +1,7 @@
 # Enemy prototype: the enemy side is played by its Lua script (s.ai in c990000001.lua), no
 # scenario lines for P1. Healthy (HP > half), so on its turn it: activates its effect on the
-# player's highest-ATK monster, switches to attack position, attacks the lowest-ATK monster.
+# player's highest-ATK monster, puts up its continuous skill, switches to attack position, uses
+# its ATK +500 skill and attacks the lowest-ATK monster.
 # TEST VALUES.
 start_draw 0 0
 start_draw 1 0
@@ -13,7 +14,7 @@ card 1 mzone 990000001 fu_def
 
 0 idle end
 # enemy turn: no scenario lines
-expect lp 0 7600            # 1200 - 800
+expect lp 0 7100            # 1700 - 800
 expect count 0 mzone 1      # Mystical Elf destroyed
 expect cards 0 grave 15025844
 expect hp 990000001 3200 3200

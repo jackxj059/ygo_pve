@@ -175,7 +175,7 @@ public:
 				std::string error;
 				if(!duel.script_decide(picks, error))
 					fail("enemy decision failed: " + error);
-				if(picks.size() == 1 && picks[0] < pr.options.size())
+				if(picks.size() == 1 && picks[0] < pr.options.size() && pr.options[picks[0]].card.code)
 					last_choice_ = pr.options[picks[0]].card.code;
 				std::string shown;
 				for(auto i : picks)

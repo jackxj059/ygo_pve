@@ -15,10 +15,10 @@
 powershell -ExecutionPolicy Bypass -File scripts/test-duel.ps1 -Build
 ```
 
-結果是 `34/34 scenarios behaved as expected`（後來加入敵人自動行動與攻擊表示規則後的最終結果；最初的原型是 30/30）：
+結果是 `37/37 scenarios behaved as expected`（後來加入敵人自動行動與攻擊表示規則後的最終結果；最初的原型是 30/30）：
 
 - **原有測試**：25 項，維持通過，包含 AP 和構築點數的測試。
-- **新增敵人情境**：9 個（原型 5 個，加上 `enemy_ai_turn`、`enemy_ai_defend`、`enemy_attack_pos`、`enemy_attacks`）。
+- **新增敵人情境**：12 個（原型 5 個，加上 `enemy_ai_turn`、`enemy_ai_defend`、`enemy_attack_pos`、`enemy_attacks`、`enemy_hp_defined`、`enemy_skills`、`negative/enemy_skill_blocks_trap`）。
 - **Godot 規則測試**：原本就算在 25 項裡，這次在裡面新增 4 項敵人相關的檢查。
 
 ## 驗收
@@ -91,6 +91,33 @@ powershell -ExecutionPolicy Bypass -File scripts/test-duel.ps1 -Build
 | 敵人（1200）攻擊 Warwolf（2000） | Warwolf 沒被破壞，敵人 HP 2000 → 1200，玩家沒受傷害 |
 
 起因是試玩時，攻擊表示的敵人與攻擊怪獸攻擊力相同而同歸於盡。當時這部分規則還沒定案，照原規則處理，所以不是程式錯誤。
+
+## 自訂 HP（2026-10-06 追加決定）
+
+規則：敵人定義裡有寫 `hp` 就用它，沒寫時預設為攻擊力加守備力。
+
+驗證：
+- `enemy_hp_defined`：稻草人寫了 `hp=1500`，HP 是 1500/1500；同場的岩殼守衛沒寫，HP 是 3200/3200。凱爾特守衛攻擊稻草人後，HP 變成 600/1500。
+- 手動測試：把 `hp` 改成字串或 0 時，分別回報 `hp must be an integer`、`hp must be a positive integer`；測試後已還原。
+
+## 技能（2026-10-06／07 追加決定）
+
+規則：
+- 每個單位有一組技能魔法卡，用完不消耗。
+- 永續技能佔用魔陷區；一般和速攻技能處理完就消失，不進墓地。
+- 技能被拆掉後還能再放；使用時機完全由 `s.ai` 決定。
+- 玩家看不到技能池；單位死亡後，永續技能繼續留著。
+
+| 檢查 | 情境 | 結果 |
+| --- | --- | --- |
+| 敵人自動放技能並攻擊 | `enemy_skills` | 依序放重壓結界、轉攻擊表示、放岩盤強化（攻擊力 1700），然後攻擊；玩家剩 7500 LP |
+| 一次性技能不消耗 | `enemy_skills` | 岩盤強化處理完 `p1.szone -> p1.hand`（`reason=0x4000400`），墓地 0 張 |
+| 單位死亡後永續技能留著 | `enemy_skills` | 落雷之後，敵方怪獸區 0 張，魔陷區仍有 1 張 |
+| 永續技能被拆後回到技能池 | `enemy_skills` | 旋風拆掉結界後，結界回到手牌，手牌 2 張，墓地只有單位那 1 張 |
+| 永續技能的限制效果 | `enemy_skills`、`negative/enemy_skill_blocks_trap` | 結界在場上時，玩家不能發動貪欲之壺（陷阱）；拆掉之後可以發動 |
+| 畫面上看不到技能池 | 截圖 | 開啟敵人自動行動時，P1 手牌那一列是空的；重壓結界顯示在 P1 魔陷區 |
+
+順手修正：魔陷區表側的魔法和陷阱，在畫面上被當成守備表示橫放，現在只有怪獸區會橫放。
 
 ## 畫面確認
 

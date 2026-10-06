@@ -43,12 +43,14 @@ public:
 	// empty for the client's generic system strings, which are not in the card databases.
 	std::string description(uint64_t desc);
 	const std::string* script_path(const std::string& name) const;
-	bool is_enemy(uint32_t code) const { return enemies_.count(code) > 0; }
+	bool is_enemy(uint32_t code) const { return enemies_.count(code) > 0; } // any card defined in enemies_dir
+	const std::vector<uint32_t>* skills(uint32_t code) const; // an enemy unit's skill pool, or nullptr
 	bool has_enemies() const { return !enemies_.empty(); }
 
 private:
 	void load_enemies(const std::string& dir);
 	std::set<uint32_t> enemies_;
+	std::map<uint32_t, std::vector<uint32_t>> skills_;
 	std::vector<sqlite3*> dbs_;
 	std::map<uint32_t, CardData> cache_;
 	std::map<std::string, std::string> scripts_;

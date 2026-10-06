@@ -1,0 +1,15 @@
+# expect-fail: Jar of Greed(83968380) is not among the offered choices
+# Enemy prototype: while 重壓結界 (an enemy skill) is on the field, the player cannot activate traps.
+start_draw 0 0
+start_draw 1 0
+draw_per_turn 1 0
+enemy_ai 1
+card 0 mzone 69247929
+card 0 hand 83968380        # Jar of Greed (trap)
+card 0 deck 15025844 x10
+card 1 mzone 990000001 fu_def
+
+0 idle sset 83968380
+0 idle end
+expect count 1 szone 1      # 重壓結界
+0 idle activate 83968380

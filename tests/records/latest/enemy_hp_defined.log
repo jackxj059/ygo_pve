@@ -1,0 +1,70 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\enemy\enemy_hp_defined.duel
+== duel created
+
+--- new turn (p0)
+  閮毀?函酉?犖(990000002)#13 HP 1500/1500
+  撗拇挺摰?(990000001)#14 HP 3200/3200
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Celtic Guardian(91152256)@p0.mzone[0]#2 [1] end
+  ok: expect hp 990000002 1500 1500
+  ok: expect hp 990000001 3200 3200
+  > 0 idle end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+  phase end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p1)
+  phase draw
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p1 SELECT_IDLECMD: [0] repos 閮毀?函酉?犖(990000002)@p1.mzone[0]#13 [1] repos 撗拇挺摰?(990000001)@p1.mzone[1]#14 [2] sset 撗拍撘瑕?(990000101)@p1.hand[0]#15 [3] sset ??蝯?(990000102)@p1.hand[1]#16 [4] activate 撗拍撘瑕?(990000101)@p1.hand[0]#15 [5] activate ??蝯?(990000102)@p1.hand[1]#16 [6] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [7] battle [8] end [9] shuffle
+  > 1 idle end
+  phase end
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+  phase standby
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#12 [1] repos Celtic Guardian(91152256)@p0.mzone[0]#2 [2] mset Mystical Elf(15025844)@p0.hand[0]#12 [3] battle [4] end
+  > 0 idle battle
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+  phase battle-start
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+? p0 SELECT_BATTLECMD: [0] attack Celtic Guardian(91152256)@p0.mzone[0]#2 [1] main2 [2] end
+  > 0 battle attack 91152256
+? p0 SELECT_CARD pick 1-1: [0] card 閮毀?函酉?犖(990000002)@p1.mzone[0]#13 [1] card 撗拇挺摰?(990000001)@p1.mzone[1]#14
+  > 0 select 990000002
+  attack p0.mzone[0]#2 -> p1.mzone[0]#13
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[1]#14 [1] pass
+  > default: pass (not scripted)
+  閮毀?函酉?犖(990000002)#13 HP 600/1500
+  ok: expect hp 990000002 600 1500
+== scenario stopped at: ? p0 SELECT_BATTLECMD: [0] main2 [1] end
+PASS
+

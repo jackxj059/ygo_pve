@@ -50,7 +50,7 @@
 ? p0 SELECT_CHAIN: [0] activate Infinite Impermanence(10045474)@p0.szone[0]#3 {AP 1} [1] activate Jar of Greed(83968380)@p0.szone[1]#4 {AP 1} [2] pass
   > default: pass (not scripted)
   phase main1
-? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [2] battle [3] end
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#16 [2] sset ??蝯?(990000102)@p1.hand[1]#17 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#16 [4] activate ??蝯?(990000102)@p1.hand[1]#17 [5] activate 撗拇挺摰?(990000001)@p1.mzone[0]#15 [6] battle [7] end [8] shuffle
   ok: expect ap 0 3
   > 1 idle activate 990000001
   CHAIN LINK 1: 撗拇挺摰?(990000001) from p1.mzone[0]#15 (chosen by player)
@@ -71,7 +71,7 @@
   chain end
 ? p0 SELECT_CHAIN: [0] activate Jar of Greed(83968380)@p0.szone[1]#4 {AP 1} [1] pass
   > default: pass (not scripted)
-? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] battle [2] end
+? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#15 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#16 [2] sset ??蝯?(990000102)@p1.hand[1]#17 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#16 [4] activate ??蝯?(990000102)@p1.hand[1]#17 [5] battle [6] end [7] shuffle
   ok: expect chain 10045474 990000001
   ok: expect ap 0 2
   > 1 idle battle

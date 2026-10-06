@@ -3,7 +3,8 @@
 --
 -- An enemy is a monster card with HP; the enemy side has no LP. Rules decided so far
 -- (docs/enemies.md):
---   * HP starts at the printed ATK + DEF (test rule). Later ATK/DEF changes never change the cap.
+--   * HP starts at s.ygopve_enemy.hp when the enemy defines it, otherwise at the printed ATK + DEF
+--     (default decided 2026-10-06). Later ATK/DEF changes never change the cap.
 --   * Attacked in defense position, attacker ATK > DEF: the enemy loses the difference in HP
 --     instead of being destroyed; at HP 0 it is destroyed by battle (normal battle destruction).
 --     ATK = DEF and ATK < DEF follow the normal rules (no damage / attacker's controller takes it).
@@ -33,7 +34,8 @@ local RULE = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_UNCOPYABLE
 local function ensure(c)
 	local id = c:GetCardID()
 	if not hp[id] then
-		maxhp[id] = math.max(c:GetTextAttack(), 0) + math.max(c:GetTextDefense(), 0)
+		local def = c:GetMetatable().ygopve_enemy
+		maxhp[id] = def and def.hp or math.max(c:GetTextAttack(), 0) + math.max(c:GetTextDefense(), 0)
 		hp[id] = maxhp[id]
 	end
 	return id
@@ -180,6 +182,25 @@ function YgoEnemy.Init(c)
 	c:RegisterEffect(e3)
 end
 
+-- Skills ------------------------------------------------------------------------------------
+-- A unit's skills are spell cards listed in its s.ygopve_enemy.skills; the battle module puts one
+-- copy of each into the unit side's hand at the start, and only the enemy scripts use them.
+-- Skills are never used up (decided 2026-10-06): instead of going to the GY (after resolving, or
+-- when destroyed or discarded) or leaving the field in any other way, a skill returns to its
+-- owner's hand and can be activated again. A continuous skill keeps its zone until it is removed,
+-- and stays after its unit dies. Skill scripts call YgoEnemy.InitSkill(c) from initial_effect.
+function YgoEnemy.InitSkill(c)
+	local e1 = Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(RULE)
+	e1:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
+	e1:SetValue(LOCATION_HAND)
+	c:RegisterEffect(e1)
+	local e2 = e1:Clone()
+	e2:SetCode(EFFECT_TO_GRAVE_REDIRECT)
+	c:RegisterEffect(e2)
+end
+
 -- Enemy decisions ---------------------------------------------------------------------------
 -- When the enemy side has to answer a prompt, the battle module runs
 --   YgoEnemy.Decide(prompt)
@@ -195,10 +216,10 @@ end
 -- (1-based), a list of indices for multi-pick prompts, or nil/false to leave it to the next enemy and
 -- finally to YgoEnemy.DefaultDecide.
 
--- Index of the first option with this action (and card, if given), or nil.
+-- Index of the first option with this action (and card, or card code, if given), or nil.
 function YgoEnemy.Find(prompt, action, card)
 	for i, o in ipairs(prompt.options) do
-		if o.action == action and (not card or o.card == card) then return i end
+		if o.action == action and (not card or o.card == card or o.code == card) then return i end
 	end
 end
 

@@ -30,6 +30,7 @@ enemy prototype through the GDExtension
   ok: HP 3200/3200 reported at the start (got { "hp": 3200, "max": 3200 })
 enemy scripts play P1
   ok: back to P0's main phase after the enemy's turn ({  })
-  ok: the enemy attacked directly (P0 LP 6800)
+  ok: the enemy used 撗拍撘瑕? and attacked directly: 1700 (P0 LP 6300)
+  ok: ??蝯? on the field, 撗拍撘瑕? back in the skill pool
 PASS
 

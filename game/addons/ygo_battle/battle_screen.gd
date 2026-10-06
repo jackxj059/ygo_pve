@@ -198,6 +198,8 @@ func _refresh_board() -> void:
 		var cards := duel.cards(player, loc)
 		if loc == YgoDuel.LOCATION_SZONE:
 			cards = cards.slice(0, 6) # 5 spell/trap zones + field zone
+		if loc == YgoDuel.LOCATION_HAND and player in session.script_players:
+			cards = [] # an enemy side's hand is its skill pool, which the player does not see
 		for c in cards:
 			row.add_child(_card_view(c))
 	for player in [0, 1]:
@@ -230,7 +232,7 @@ func _card_view(c: Dictionary) -> Control:
 	# Position only means something on the field; hand cards are always "face-down" to the core.
 	var on_field: bool = c.location == YgoDuel.LOCATION_MZONE or c.location == YgoDuel.LOCATION_SZONE
 	var pos: int = c.position if on_field else 0
-	if pos & POS_DEFENSE:
+	if pos & POS_DEFENSE and c.location == YgoDuel.LOCATION_MZONE: # face-up spells/traps also carry the defense bit
 		face.pivot_offset = CARD_SIZE / 2
 		face.rotation_degrees = 90
 		face.scale = Vector2(0.7, 0.7)

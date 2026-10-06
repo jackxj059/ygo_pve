@@ -1,0 +1,35 @@
+# Enemy prototype: skills. 岩殼守衛 has two skill spells (rock_guardian/): 岩盤強化 (normal: ATK
+# +500) and 重壓結界 (continuous: the opponent cannot activate traps). Its script plays P1.
+# Skills are never used up: after resolving, or when removed, they return to the enemy's hand;
+# a continuous skill stays after its unit dies. TEST VALUES.
+start_draw 0 0
+start_draw 1 0
+draw_per_turn 1 0
+enemy_ai 1
+card 0 mzone 69247929       # Gene-Warped Warwolf 2000
+card 0 hand 83968380        # Jar of Greed (trap)
+card 0 hand 12580477        # Raigeki
+card 0 hand 5318639         # Mystical Space Typhoon
+card 0 deck 15025844 x10
+card 1 mzone 990000001 fu_def   # brings 990000101 and 990000102 into P1's hand
+
+expect count 1 hand 2
+0 idle sset 83968380
+0 idle end
+# enemy turn: effect on Warwolf (2000 -> 1200), 重壓結界, attack position, 岩盤強化 (1200 -> 1700),
+# attacks Warwolf: 1700 vs 1200
+expect lp 0 7500
+expect count 0 mzone 0
+expect count 1 szone 1      # 重壓結界
+expect count 1 hand 1       # 岩盤強化 came back instead of going to the GY
+expect count 1 grave 0
+0 idle activate 12580477    # Raigeki: the unit dies
+expect count 1 mzone 0
+expect count 1 szone 1      # its continuous skill stays
+0 idle activate 5318639     # remove 重壓結界
+0 select 990000102
+expect count 1 szone 0
+expect count 1 hand 2       # back in the pool
+expect count 1 grave 1      # only the unit
+0 idle activate 83968380    # traps can be activated again
+stop
