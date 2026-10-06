@@ -4,6 +4,8 @@ D01 已定案：Godot **4.7.2-stable**、Windows x64。畫面與流程使用 GDS
 
 ## 指令
 
+想直接玩，雙擊 repo 根目錄的 `start-game.cmd` 就好：缺工具會先跑 bootstrap，還沒建置過會先 build，然後開啟測試宿主。它只檢查建置結果在不在，改過 C++ 後要自己重跑 `build.ps1`。
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap.ps1   # 另外下載 Godot、可攜式 Python、SCons，並 clone godot-cpp
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1       # 另外建置 GDExtension；第一次會順便建置 godot-cpp，需要幾分鐘
