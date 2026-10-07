@@ -14,13 +14,17 @@ func _initialize() -> void:
 	var main: Control = load("res://host/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame
-	if mode.begins_with("preview:") or mode.begins_with("equip:"):
+	if mode.begins_with("preview:") or mode.begins_with("equip:") or mode.begins_with("menu:"):
 		# preview:<deck> - deck preview of a .ydk relative to the repository root
 		# equip:<deck>   - same, with 雙擊徽章 on main[0] and 省力徽章 on main[1], then a battle
 		#                  against the enemy, shown at P0's first main phase prompt
 		main._preview(mode.get_slice(":", 1))
 		for i in 30:
 			await process_frame
+		if mode.begins_with("menu:"): # the equipment menu of main[0]
+			main.preview._open_menu("main:0")
+			for i in 10:
+				await process_frame
 		if mode.begins_with("equip:"):
 			for assign in [["main:0", 990000202], ["main:1", 990000201]]:
 				main.preview._menu_key = assign[0]

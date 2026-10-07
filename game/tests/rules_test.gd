@@ -159,6 +159,9 @@ func _initialize() -> void:
 	err = session.start(content, {"seed": 1, "players": [{"main": deck.main}, {"main": deck.main}],
 		"equipment": [{"player": 0, "source": "main", "index": 99, "code": 990000202}]})
 	check("no card at that position" in err, "equipment on a missing card is refused: %s" % err)
+	check(content.equip_refusal(990000204, 6368038) == "" and "Level 5" in content.equip_refusal(990000204, 91152256),
+		"equipment restrictions are visible to the setup screen (Gaia ok, Celtic Guardian refused)")
+	check(content.equip_requires(990000204) == {"race": 1, "min_level": 5}, "equip_requires: %s" % [content.equip_requires(990000204)])
 
 	print("PASS" if failures == 0 else "FAIL: %d check(s)" % failures)
 	quit(0 if failures == 0 else 1)

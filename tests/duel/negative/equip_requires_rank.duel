@@ -1,0 +1,10 @@
+# expect-fail: needs Level 5 or higher (has 4)
+# Equipment restrictions: an Xyz monster's Rank counts as its Level, so Number 39: Utopia (Rank 4)
+# cannot take 勇士之證 (Level 5+ Warriors).
+start_draw 0 0
+start_draw 1 0
+card 0 extra 84013237
+card 0 deck 15025844 x10
+card 1 deck 15025844 x10
+equip 0 placement 0 990000204
+0 idle end

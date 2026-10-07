@@ -1,0 +1,9 @@
+# expect-fail: needs card type 0x2
+# Equipment restrictions: 魔導書籤 can only go on a Spell.
+start_draw 0 0
+start_draw 1 0
+card 0 mzone 91152256
+card 0 deck 15025844 x10
+card 1 deck 15025844 x10
+equip 0 placement 0 990000205
+0 idle end

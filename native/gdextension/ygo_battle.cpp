@@ -98,6 +98,8 @@ protected:
 		ClassDB::bind_method(D_METHOD("is_enemy", "code"), &YgoContent::is_enemy);
 		ClassDB::bind_method(D_METHOD("is_item", "code"), &YgoContent::is_item);
 		ClassDB::bind_method(D_METHOD("is_equip", "code"), &YgoContent::is_equip);
+		ClassDB::bind_method(D_METHOD("equip_refusal", "equip", "card"), &YgoContent::equip_refusal);
+		ClassDB::bind_method(D_METHOD("equip_requires", "equip"), &YgoContent::equip_requires);
 		ClassDB::bind_method(D_METHOD("is_open"), &YgoContent::is_open);
 		ClassDB::bind_method(D_METHOD("card_info", "code"), &YgoContent::card_info);
 		ClassDB::bind_method(D_METHOD("description", "desc"), &YgoContent::description);
@@ -126,6 +128,23 @@ public:
 	bool is_enemy(int64_t code) const { return content_ && content_->is_enemy(static_cast<uint32_t>(code)); }
 	bool is_item(int64_t code) const { return content_ && content_->is_item(static_cast<uint32_t>(code)); }
 	bool is_equip(int64_t code) const { return content_ && content_->is_equip(static_cast<uint32_t>(code)); }
+	// "" when the equipment may be fixed to that card, else the reason (same check as the battle).
+	String equip_refusal(int64_t equip, int64_t card) {
+		return content_ ? str(content_->equip_refusal(static_cast<uint32_t>(equip), static_cast<uint32_t>(card))) : String("content is not open");
+	}
+	// {type, race, attribute, min_level, max_level}, only the fields that are set; for display.
+	Dictionary equip_requires(int64_t equip) const {
+		Dictionary d;
+		const auto* r = content_ ? content_->equip_requires(static_cast<uint32_t>(equip)) : nullptr;
+		if(!r)
+			return d;
+		const std::pair<const char*, uint32_t> fields[] = {{"type", r->type}, {"race", r->race}, {"attribute", r->attribute},
+		                                                   {"min_level", r->min_level}, {"max_level", r->max_level}};
+		for(const auto& [k, v] : fields)
+			if(v)
+				d[k] = static_cast<int64_t>(v);
+		return d;
+	}
 
 	Dictionary card_info(int64_t code) {
 		Dictionary d;

@@ -11,6 +11,7 @@
 
 | 檔案 | 內容 |
 | --- | --- |
+| `game/data/equipment/c990000204.lua`、`c990000205.lua` | 有限制的範例裝備：勇士之證（5 星以上戰士族，攻擊力 +500）、魔導書籤（只能裝魔法卡，發動免 AP） |
 | `game/data/support/ygopve_support.lua` | 道具與裝備共用的規則：開局處理、道具窗口、結果回報、裝備綁定、「洗回牌組」的共用操作 |
 | `game/data/items/c9900003xx.lua` | 範例道具：回收之鈴（除外區 5 張洗回）、墓地回收網（墓地 5 張洗回）、回復藥（回復 1000） |
 | `game/data/equipment/c9900002xx.lua` | 範例裝備：省力徽章（發動免 AP）、雙擊徽章（戰鬥傷害 2 倍）、回復徽章（原效果成功後回復 1000） |
@@ -50,6 +51,24 @@ function s.install(tc, owner, eq)        -- 開局時對裝備的那一張卡註
 	tc:RegisterEffect(e1)
 end
 ```
+
+**裝備限制**（`requires`，選填）：限制這件裝備能裝給哪些卡，寫了多個條件時要全部符合。
+
+```lua
+s.ygopve={ name="勇士之證", kind="equip", requires={ min_level=5, race=RACE_WARRIOR } }
+s.ygopve={ name="魔導書籤", kind="equip", requires={ type=TYPE_SPELL } }
+```
+
+| 條件 | 意思 |
+| --- | --- |
+| `type` | 卡片種類：`TYPE_MONSTER`、`TYPE_SPELL`、`TYPE_TRAP` |
+| `min_level`／`max_level` | 等級範圍，只適用怪獸。超量怪獸的階級算作等級；連結怪獸沒有等級，所以不能裝（2026-10-07 決定） |
+| `race` | 種族，例如 `RACE_WARRIOR`；可以用 `|` 合併多個，符合其中之一即可 |
+| `attribute` | 屬性，例如 `ATTRIBUTE_DARK`；同上 |
+
+- **什麼時候檢查**：只在戰鬥外配置時檢查。牌組預覽的選單裡，不符合的裝備會顯示成灰色並寫出條件；建立決鬥時，戰鬥模組也會用同一個檢查（`Content::equip_refusal`）再擋一次。
+- **戰鬥中的變化**：戰鬥中等級或種族被效果改變時，裝備不會脫落。
+- **寫錯時**：寫了表格以外的條件，或值不是正整數，載入時會報錯。
 
 **共用函式**：
 - `YgoSupport.ShuffleIntoDeck(tp, 區域, 張數)`：選卡後洗回牌組，回傳結果。

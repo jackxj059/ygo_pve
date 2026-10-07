@@ -1,4 +1,4 @@
-﻿run_at_utc: 2026-10-07T05:16:44Z
+﻿run_at_utc: 2026-10-07T05:58:05Z
 harness: build/duel_harness.exe, core: build/ocgcore.dll
 card_db: third_party/BabelCDB/cards.cdb, scripts: third_party/CardScripts
 ok exit=0 build/battle_tests.exe
@@ -38,10 +38,14 @@ ok exit=0 .\tests\duel\equipment\equip_double_damage.duel
 ok exit=0 .\tests\duel\equipment\equip_double_enemy.duel
 ok exit=0 .\tests\duel\equipment\equip_double_stack.duel
 ok exit=0 .\tests\duel\equipment\equip_recover.duel
+ok exit=0 .\tests\duel\equipment\equip_requires.duel
 ok exit=1 .\tests\duel\negative\ap_not_enough.duel
 ok exit=1 .\tests\duel\negative\card_not_offered.duel
 ok exit=1 .\tests\duel\negative\enemy_skill_blocks_trap.duel
 ok exit=1 .\tests\duel\negative\equip_no_target.duel
+ok exit=1 .\tests\duel\negative\equip_requires_level.duel
+ok exit=1 .\tests\duel\negative\equip_requires_rank.duel
+ok exit=1 .\tests\duel\negative\equip_requires_type.duel
 ok exit=1 .\tests\duel\negative\item_facedown_excluded.duel
 ok exit=1 .\tests\duel\negative\item_needs_five.duel
 ok exit=1 .\tests\duel\negative\item_not_in_battle.duel

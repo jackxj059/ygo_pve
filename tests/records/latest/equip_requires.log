@@ -1,0 +1,43 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\equipment\equip_requires.duel
+== duel created
+  move 勇士之證(990000204) p0.hand[1] -> p0.-[0] reason=0x400
+  move 勇士之證(990000204) p0.hand[1] -> p0.-[0] reason=0x400
+  move 魔導書籤(990000205) p0.hand[1] -> p0.-[0] reason=0x400
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Gaia The Fierce Knight(6368038)@p0.mzone[0]#2 [1] sset Monster Reborn(83764718)@p0.hand[0]#4 [2] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#25 [1] repos Mystical Elf(15025844)@p1.mzone[0]#15 [2] mset Mystical Elf(15025844)@p1.hand[0]#25 [3] battle [4] end
+  > 1 idle end
+  phase end
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[1]#14 [1] repos Gaia The Fierce Knight(6368038)@p0.mzone[0]#2 [2] mset Mystical Elf(15025844)@p0.hand[1]#14 [3] sset Monster Reborn(83764718)@p0.hand[0]#4 [4] battle [5] end [6] shuffle
+  > 0 idle battle
+  phase battle-start
+? p0 SELECT_BATTLECMD: [0] attack Gaia The Fierce Knight(6368038)@p0.mzone[0]#2 [1] main2 [2] end
+  > 0 battle attack 6368038
+? p0 SELECT_CARD pick 1-1: [0] card Mystical Elf(15025844)@p1.mzone[0]#15
+  > 0 select 15025844
+  attack p0.mzone[0]#2 -> p1.mzone[0]#15
+  p1 takes damage 2000
+  move Mystical Elf(15025844) p1.mzone[0]#15 -> p1.grave[0]#15 reason=0x21
+  ok: expect lp 1 6000
+== scenario stopped at: ? p0 SELECT_BATTLECMD: [0] main2 [1] end
+PASS
+

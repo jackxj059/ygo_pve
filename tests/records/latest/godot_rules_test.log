@@ -40,5 +40,7 @@ items and equipment through the GDExtension
   ok: item event with its result: [{ "type": "item", "text": "  item ?儔??990000303)#82: success", "player": 0, "value": 0, "reason": 0, "card": { "code": 990000303, "controller": 0, "location": 0, "sequence": 0, "position": 0, "instance": 82 }, "from": { "code": 0, "controller": 0, "location": 0, "sequence": 0, "position": 0, "instance": 0 }, "to": { "code": 0, "controller": 0, "location": 0, "sequence": 0, "position": 0, "instance": 0 }, "codes": [], "result": "success" }]
   ok: the item is used up
   ok: equipment on a missing card is refused: equipment 0 (??敺賜?(990000202)): p0 has no card at that position
+  ok: equipment restrictions are visible to the setup screen (Gaia ok, Celtic Guardian refused)
+  ok: equip_requires: { "race": 1, "min_level": 5 }
 PASS
 

@@ -332,6 +332,28 @@ void Content::load_custom(const std::string& dir) {
 				if(kind == "equip")
 					lua_pop(L, 1);
 			}
+			if(kind == "equip" && lua_getfield(L, -1, "requires") == LUA_TTABLE) {
+				EquipRequires req;
+				const std::map<std::string, uint32_t*> fields = {{"type", &req.type}, {"race", &req.race}, {"attribute", &req.attribute},
+				                                                 {"min_level", &req.min_level}, {"max_level", &req.max_level}};
+				for(lua_pushnil(L); lua_next(L, -2) != 0; lua_pop(L, 1)) {
+					const std::string key = lua_type(L, -2) == LUA_TSTRING ? lua_tostring(L, -2) : "?";
+					auto f = fields.find(key);
+					int ok = 0;
+					const auto v = lua_tointegerx(L, -1, &ok);
+					if(f == fields.end())
+						fail(file + ": unknown requires." + key + " (use type, race, attribute, min_level, max_level)");
+					if(!ok || v <= 0)
+						fail(file + ": requires." + key + " must be a positive integer");
+					*f->second = static_cast<uint32_t>(v);
+				}
+				requires_[code] = req;
+				lua_pop(L, 1);
+			} else if(kind == "equip") {
+				if(!lua_isnil(L, -1))
+					fail(file + ": requires must be a table");
+				lua_pop(L, 1);
+			}
 		} else {
 			fail(file + ": kind must be monster, spell, item or equip");
 		}
@@ -354,6 +376,41 @@ void Content::load_custom(const std::string& dir) {
 std::string Content::kind(uint32_t code) const {
 	auto it = kinds_.find(code);
 	return it == kinds_.end() ? "" : it->second;
+}
+
+const Content::EquipRequires* Content::equip_requires(uint32_t equip) const {
+	auto it = requires_.find(equip);
+	return it == requires_.end() ? nullptr : &it->second;
+}
+
+std::string Content::equip_refusal(uint32_t equip, uint32_t code) {
+	if(!is_equip(equip))
+		return label(equip) + " is not an equipment definition";
+	const auto* req = equip_requires(equip);
+	if(!req)
+		return "";
+	const auto& cd = card(code);
+	if(!cd.found)
+		return "unknown card code " + std::to_string(code);
+	if(req->type && !(cd.type & req->type))
+		return "needs card type 0x" + [](uint32_t v) { char b[16]; std::snprintf(b, sizeof(b), "%x", v); return std::string(b); }(req->type);
+	const bool monster = cd.type & TYPE_MONSTER;
+	if((req->race || req->attribute || req->min_level || req->max_level) && !monster)
+		return "needs a monster";
+	if(req->race && !(cd.race & req->race))
+		return "needs race 0x" + [](uint64_t v) { char b[24]; std::snprintf(b, sizeof(b), "%llx", static_cast<unsigned long long>(v)); return std::string(b); }(req->race);
+	if(req->attribute && !(cd.attribute & req->attribute))
+		return "needs attribute 0x" + [](uint32_t v) { char b[16]; std::snprintf(b, sizeof(b), "%x", v); return std::string(b); }(req->attribute);
+	if(req->min_level || req->max_level) {
+		if(cd.type & TYPE_LINK)
+			return "a Link monster has no Level";
+		// The database's level field holds an Xyz monster's Rank, which counts as its Level here.
+		if(req->min_level && cd.level < req->min_level)
+			return "needs Level " + std::to_string(req->min_level) + " or higher (has " + std::to_string(cd.level) + ")";
+		if(req->max_level && cd.level > req->max_level)
+			return "needs Level " + std::to_string(req->max_level) + " or lower (has " + std::to_string(cd.level) + ")";
+	}
+	return "";
 }
 
 const std::vector<std::string>* Content::ap_free(uint32_t code) const {
@@ -584,6 +641,12 @@ Duel::Duel(Content& content, const DuelConfig& config) : content_(content) {
 			if(!target)
 				fail("equipment " + std::to_string(i) + " (" + content_.label(eq.code) + "): p" + std::to_string(eq.player & 1) +
 				     " has no card at that position");
+			const auto& pc = config.players[eq.player & 1];
+			const uint32_t card_code = eq.source == Source::Main ? pc.main[eq.index]
+			                         : eq.source == Source::Extra ? pc.extra[eq.index]
+			                                                      : config.placements[eq.index].code;
+			if(const auto why = content_.equip_refusal(eq.code, card_code); !why.empty())
+				fail("equipment " + std::to_string(i) + " (" + content_.label(eq.code) + ") cannot go on " + content_.label(card_code) + ": " + why);
 			const std::string bind = "YgoSupport.Bind(" + std::to_string(self) + "," + std::to_string(target) + ")";
 			if(!OCG_LoadScript(duel_, bind.data(), static_cast<uint32_t>(bind.size()), "ygopve_bind"))
 				fail("binding equipment failed");

@@ -1,0 +1,4 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\negative\equip_requires_type.duel
+FAIL: equipment 0 (魔導書籤(990000205)) cannot go on Celtic Guardian(91152256): needs card type 0x2
+

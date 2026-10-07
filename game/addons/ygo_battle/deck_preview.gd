@@ -6,6 +6,8 @@ extends Control
 ## (YgoBattleSession.start with rules) refuses illegal decks on its own as well.
 ## One piece of equipment per card for now (slots are not decided).
 
+const BattleScreen := preload("res://addons/ygo_battle/battle_screen.gd") # race / attribute names
+
 ## equipment: [{player, source, index, code}]; opponent: "deck" or "enemy"
 signal start_requested(deck: Dictionary, equipment: Array, opponent: String)
 signal back_requested
@@ -168,10 +170,17 @@ func _open_menu(key: String) -> void:
 	_menu.clear()
 	if _equipped.has(key):
 		_menu.add_item("拿下 %s" % _content.card_info(_equipped[key]).get("name", ""), 0)
+	var parts := key.split(":")
+	var card: int = _deck[parts[0]][int(parts[1])]
 	for code: int in _supply:
 		var left: int = _supply[code]
-		_menu.add_item("裝上 %s（剩 %d）" % [_content.card_info(code).get("name", str(code)), left], code)
-		_menu.set_item_disabled(_menu.item_count - 1, left <= 0 or _equipped.get(key, 0) == code)
+		# The same check the battle module makes when the battle is created.
+		var refused := _content.equip_refusal(code, card) != ""
+		var text := "裝上 %s（剩 %d）" % [_content.card_info(code).get("name", str(code)), left]
+		if refused:
+			text += "　不符合：需要%s" % _requirement_text(code)
+		_menu.add_item(text, code)
+		_menu.set_item_disabled(_menu.item_count - 1, refused or left <= 0 or _equipped.get(key, 0) == code)
 		_menu.set_item_tooltip(_menu.item_count - 1, _content.card_info(code).get("text", ""))
 	_menu.position = Vector2i(get_global_mouse_position()) + get_window().position
 	_menu.popup()
@@ -185,6 +194,25 @@ func _on_menu(id: int) -> void:
 		_equipped[_menu_key] = id
 		_supply[id] -= 1
 	_update_tile(_menu_key, _tiles[_menu_key])
+
+
+func _requirement_text(equip: int) -> String:
+	var req := _content.equip_requires(equip)
+	var parts := []
+	if req.has("type"):
+		parts.append({YgoDuel.TYPE_MONSTER: "怪獸", YgoDuel.TYPE_SPELL: "魔法卡", YgoDuel.TYPE_TRAP: "陷阱卡"}.get(req.type, "特定種類的卡"))
+	if req.has("min_level"):
+		parts.append("%d 星以上（超量的階級算等級，連結不行）" % req.min_level)
+	if req.has("max_level"):
+		parts.append("%d 星以下" % req.max_level)
+	for field in [["race", BattleScreen.RACES, "族"], ["attribute", BattleScreen.ATTRIBUTES, "屬性"]]:
+		if req.has(field[0]):
+			var names := []
+			for i in field[1].size():
+				if int(req[field[0]]) & (1 << i):
+					names.append(field[1][i] + field[2])
+			parts.append("或".join(names))
+	return "、".join(parts)
 
 
 ## The assignment as battle config: equipment named by deck position (external fixed id).

@@ -1,0 +1,4 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\negative\equip_requires_level.duel
+FAIL: equipment 0 (勇士之證(990000204)) cannot go on Celtic Guardian(91152256): needs Level 5 or higher (has 4)
+

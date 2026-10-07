@@ -25,4 +25,6 @@ const EQUIPMENT := {
 	990000201: 2, # 省力徽章: activations of that card cost no AP
 	990000202: 1, # 雙擊徽章: double battle damage
 	990000203: 1, # 回復徽章: +1000 LP after its effect resolves successfully
+	990000204: 1, # 勇士之證: Level 5+ Warriors only, +500 ATK
+	990000205: 1, # 魔導書籤: Spells only, activations cost no AP
 }

@@ -48,6 +48,17 @@ public:
 	bool is_item(uint32_t code) const { return kind(code) == "item"; }
 	bool is_equip(uint32_t code) const { return kind(code) == "equip"; }
 	const std::vector<std::string>* ap_free(uint32_t code) const; // equipment: AP kinds it makes free
+	// Equipment restrictions (s.ygopve.requires): which cards it may be fixed to. All fields that
+	// are set must hold; 0 = no restriction. Levels: an Xyz monster's Rank counts as its Level,
+	// a Link monster has none (decided 2026-10-07).
+	struct EquipRequires {
+		uint32_t type = 0, race = 0, attribute = 0;
+		uint32_t min_level = 0, max_level = 0;
+	};
+	const EquipRequires* equip_requires(uint32_t equip) const;
+	// Why this equipment cannot be fixed to this card ("" = it can). Checked out of battle by the
+	// host's setup screen and again by Duel when the battle is created.
+	std::string equip_refusal(uint32_t equip, uint32_t card);
 	const std::vector<uint32_t>* skills(uint32_t code) const; // an enemy unit's skill pool, or nullptr
 	bool has_enemies() const { return !enemies_.empty(); }
 	bool has_support() const { return has_support_; } // items or equipment defined
@@ -58,6 +69,7 @@ private:
 	std::set<uint32_t> enemies_;
 	std::map<uint32_t, std::string> kinds_; // code -> monster / spell / item / equip
 	std::map<uint32_t, std::vector<std::string>> ap_free_;
+	std::map<uint32_t, EquipRequires> requires_;
 	bool has_support_ = false;
 	std::map<uint32_t, std::vector<uint32_t>> skills_;
 	std::vector<sqlite3*> dbs_;

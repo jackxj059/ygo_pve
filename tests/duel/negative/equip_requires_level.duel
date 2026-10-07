@@ -1,0 +1,9 @@
+# expect-fail: needs Level 5 or higher (has 4)
+# Equipment restrictions: 勇士之證 needs a Level 5+ Warrior; Celtic Guardian is Level 4.
+start_draw 0 0
+start_draw 1 0
+card 0 mzone 91152256
+card 0 deck 15025844 x10
+card 1 deck 15025844 x10
+equip 0 placement 0 990000204
+0 idle end
