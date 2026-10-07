@@ -3,88 +3,88 @@
 == duel created
 
 --- new turn (p0)
-  撗拇挺摰?(990000001)#18 HP 3200/3200
+  岩殼守衛(990000001)#18 HP 3200/3200
   phase draw
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase standby
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main1
 ? p0 SELECT_IDLECMD: [0] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] repos Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [2] repos Celtic Guardian(91152256)@p0.mzone[2]#4 [3] sset Wasteland(23424603)@p0.hand[0]#5 [4] sset Hinotama(46130346)@p0.hand[1]#6 [5] sset Hinotama(46130346)@p0.hand[2]#7 [6] activate Wasteland(23424603)@p0.hand[0]#5 [7] activate Hinotama(46130346)@p0.hand[1]#6 [8] activate Hinotama(46130346)@p0.hand[2]#7 [9] end [10] shuffle
   ok: expect hp 990000001 3200 3200
   > 0 idle end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 
 --- new turn (p1)
   phase draw
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase standby
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main1
-? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#19 [2] sset ??蝯?(990000102)@p1.hand[1]#20 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#19 [4] activate ??蝯?(990000102)@p1.hand[1]#20 [5] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [6] battle [7] end [8] shuffle
+? p1 SELECT_IDLECMD: [0] repos 岩殼守衛(990000001)@p1.mzone[0]#18 [1] sset 岩盤強化(990000101)@p1.hand[0]#19 [2] sset 重壓結界(990000102)@p1.hand[1]#20 [3] activate 岩盤強化(990000101)@p1.hand[0]#19 [4] activate 重壓結界(990000102)@p1.hand[1]#20 [5] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [6] battle [7] end [8] shuffle
   > 1 idle end
   phase end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 
 --- new turn (p0)
   phase draw
   p0 draws Mystical Elf(15025844)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase standby
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main1
 ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[3]#17 [1] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [2] repos Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [3] repos Celtic Guardian(91152256)@p0.mzone[2]#4 [4] mset Mystical Elf(15025844)@p0.hand[3]#17 [5] sset Wasteland(23424603)@p0.hand[0]#5 [6] sset Hinotama(46130346)@p0.hand[1]#6 [7] sset Hinotama(46130346)@p0.hand[2]#7 [8] activate Wasteland(23424603)@p0.hand[0]#5 [9] activate Hinotama(46130346)@p0.hand[1]#6 [10] activate Hinotama(46130346)@p0.hand[2]#7 [11] battle [12] end [13] shuffle
   > 0 idle battle
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase battle-start
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 ? p0 SELECT_BATTLECMD: [0] attack Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] attack Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [2] attack Celtic Guardian(91152256)@p0.mzone[2]#4 [3] main2 [4] end
   > 0 battle attack 91152256
-? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#18
+? p0 SELECT_CARD pick 1-1: [0] card 岩殼守衛(990000001)@p1.mzone[0]#18
   > 0 select 990000001
   attack p0.mzone[2]#4 -> p1.mzone[0]#18
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   p0 takes damage 600
 ? p0 SELECT_BATTLECMD: [0] attack Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] attack Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [2] main2 [3] end
   ok: expect lp 0 7400
   ok: expect hp 990000001 3200
   > 0 battle attack 69247929
-? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#18
+? p0 SELECT_CARD pick 1-1: [0] card 岩殼守衛(990000001)@p1.mzone[0]#18
   > 0 select 990000001
   attack p0.mzone[1]#3 -> p1.mzone[0]#18
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 ? p0 SELECT_BATTLECMD: [0] attack Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] main2 [2] end
   ok: expect lp 0 7400
   ok: expect hp 990000001 3200
   > 0 battle attack 89631139
-? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#18
+? p0 SELECT_CARD pick 1-1: [0] card 岩殼守衛(990000001)@p1.mzone[0]#18
   > 0 select 990000001
   attack p0.mzone[0]#2 -> p1.mzone[0]#18
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-  撗拇挺摰?(990000001)#18 HP 2200/3200
+  岩殼守衛(990000001)#18 HP 2200/3200
 ? p0 SELECT_BATTLECMD: [0] main2 [1] end
   ok: expect hp 990000001 2200 3200
   ok: expect count 1 mzone 1
@@ -92,75 +92,75 @@
   ok: expect destroyed 990000001 not destroyed
   ok: expect lp 1 8000
   > 0 battle end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main2
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 
 --- new turn (p1)
   phase draw
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase standby
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main1
-? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#19 [2] sset ??蝯?(990000102)@p1.hand[1]#20 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#19 [4] activate ??蝯?(990000102)@p1.hand[1]#20 [5] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [6] battle [7] end [8] shuffle
+? p1 SELECT_IDLECMD: [0] repos 岩殼守衛(990000001)@p1.mzone[0]#18 [1] sset 岩盤強化(990000101)@p1.hand[0]#19 [2] sset 重壓結界(990000102)@p1.hand[1]#20 [3] activate 岩盤強化(990000101)@p1.hand[0]#19 [4] activate 重壓結界(990000102)@p1.hand[1]#20 [5] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [6] battle [7] end [8] shuffle
   > 1 idle end
   phase end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 
 --- new turn (p0)
   phase draw
   p0 draws Mystical Elf(15025844)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase standby
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main1
 ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[3]#17 [1] summon Mystical Elf(15025844)@p0.hand[4]#16 [2] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [3] repos Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [4] repos Celtic Guardian(91152256)@p0.mzone[2]#4 [5] mset Mystical Elf(15025844)@p0.hand[3]#17 [6] mset Mystical Elf(15025844)@p0.hand[4]#16 [7] sset Wasteland(23424603)@p0.hand[0]#5 [8] sset Hinotama(46130346)@p0.hand[1]#6 [9] sset Hinotama(46130346)@p0.hand[2]#7 [10] activate Wasteland(23424603)@p0.hand[0]#5 [11] activate Hinotama(46130346)@p0.hand[1]#6 [12] activate Hinotama(46130346)@p0.hand[2]#7 [13] battle [14] end [15] shuffle
   > 0 idle activate 23424603
   move Wasteland(23424603) p0.hand[0]#5 -> p0.szone[5]#5 reason=0x0
   CHAIN LINK 1: Wasteland(23424603) from p0.szone[5]#5 (chosen by player)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   resolve link 1: Wasteland(23424603)
   chain end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[2]#17 [1] summon Mystical Elf(15025844)@p0.hand[3]#16 [2] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [3] repos Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [4] repos Celtic Guardian(91152256)@p0.mzone[2]#4 [5] mset Mystical Elf(15025844)@p0.hand[2]#17 [6] mset Mystical Elf(15025844)@p0.hand[3]#16 [7] sset Hinotama(46130346)@p0.hand[0]#6 [8] sset Hinotama(46130346)@p0.hand[1]#7 [9] activate Hinotama(46130346)@p0.hand[0]#6 [10] activate Hinotama(46130346)@p0.hand[1]#7 [11] battle [12] end [13] shuffle
   > 0 idle battle
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase battle-start
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 ? p0 SELECT_BATTLECMD: [0] attack Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] attack Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [2] attack Celtic Guardian(91152256)@p0.mzone[2]#4 [3] main2 [4] end
   > 0 battle attack 89631139
-? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#18
+? p0 SELECT_CARD pick 1-1: [0] card 岩殼守衛(990000001)@p1.mzone[0]#18
   > 0 select 990000001
   attack p0.mzone[0]#2 -> p1.mzone[0]#18
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-  撗拇挺摰?(990000001)#18 HP 1400/3200
+  岩殼守衛(990000001)#18 HP 1400/3200
 ? p0 SELECT_BATTLECMD: [0] attack Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [1] attack Celtic Guardian(91152256)@p0.mzone[2]#4 [2] main2 [3] end
   ok: expect hp 990000001 1400 3200
   > 0 battle main2
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main2
 ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[2]#17 [1] summon Mystical Elf(15025844)@p0.hand[3]#16 [2] repos Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [3] repos Celtic Guardian(91152256)@p0.mzone[2]#4 [4] mset Mystical Elf(15025844)@p0.hand[2]#17 [5] mset Mystical Elf(15025844)@p0.hand[3]#16 [6] sset Hinotama(46130346)@p0.hand[0]#6 [7] sset Hinotama(46130346)@p0.hand[1]#7 [8] activate Hinotama(46130346)@p0.hand[0]#6 [9] activate Hinotama(46130346)@p0.hand[1]#7 [10] end [11] shuffle
@@ -169,14 +169,14 @@
   > default: first free zone
   move Hinotama(46130346) p0.hand[0]#6 -> p0.szone[0]#6 reason=0x0
   CHAIN LINK 1: Hinotama(46130346) from p0.szone[0]#6 (chosen by player)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   resolve link 1: Hinotama(46130346)
   p1 takes damage 500
-  撗拇挺摰?(990000001)#18 HP 900/3200
+  岩殼守衛(990000001)#18 HP 900/3200
   move Hinotama(46130346) p0.szone[0]#6 -> p0.grave[0]#6 reason=0x400
   chain end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[1]#17 [1] summon Mystical Elf(15025844)@p0.hand[2]#16 [2] repos Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [3] repos Celtic Guardian(91152256)@p0.mzone[2]#4 [4] mset Mystical Elf(15025844)@p0.hand[1]#17 [5] mset Mystical Elf(15025844)@p0.hand[2]#16 [6] sset Hinotama(46130346)@p0.hand[0]#7 [7] activate Hinotama(46130346)@p0.hand[0]#7 [8] end [9] shuffle
   > 0 idle activate 46130346
@@ -184,68 +184,68 @@
   > default: first free zone
   move Hinotama(46130346) p0.hand[0]#7 -> p0.szone[0]#7 reason=0x0
   CHAIN LINK 1: Hinotama(46130346) from p0.szone[0]#7 (chosen by player)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   resolve link 1: Hinotama(46130346)
   p1 takes damage 500
-  撗拇挺摰?(990000001)#18 HP 400/3200
+  岩殼守衛(990000001)#18 HP 400/3200
   move Hinotama(46130346) p0.szone[0]#7 -> p0.grave[1]#7 reason=0x400
   chain end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#17 [1] summon Mystical Elf(15025844)@p0.hand[1]#16 [2] repos Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [3] repos Celtic Guardian(91152256)@p0.mzone[2]#4 [4] mset Mystical Elf(15025844)@p0.hand[0]#17 [5] mset Mystical Elf(15025844)@p0.hand[1]#16 [6] end [7] shuffle
   ok: expect hp 990000001 400 3200
   ok: expect lp 1 8000
   > 0 idle end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 
 --- new turn (p1)
   phase draw
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase standby
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main1
-? p1 SELECT_IDLECMD: [0] repos 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] sset 撗拍撘瑕?(990000101)@p1.hand[0]#19 [2] sset ??蝯?(990000102)@p1.hand[1]#20 [3] activate 撗拍撘瑕?(990000101)@p1.hand[0]#19 [4] activate ??蝯?(990000102)@p1.hand[1]#20 [5] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [6] battle [7] end [8] shuffle
+? p1 SELECT_IDLECMD: [0] repos 岩殼守衛(990000001)@p1.mzone[0]#18 [1] sset 岩盤強化(990000101)@p1.hand[0]#19 [2] sset 重壓結界(990000102)@p1.hand[1]#20 [3] activate 岩盤強化(990000101)@p1.hand[0]#19 [4] activate 重壓結界(990000102)@p1.hand[1]#20 [5] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [6] battle [7] end [8] shuffle
   > 1 idle end
   phase end
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 
 --- new turn (p0)
   phase draw
   p0 draws Mystical Elf(15025844)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase standby
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase main1
 ? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#17 [1] summon Mystical Elf(15025844)@p0.hand[1]#16 [2] summon Mystical Elf(15025844)@p0.hand[2]#15 [3] repos Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [4] repos Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [5] repos Celtic Guardian(91152256)@p0.mzone[2]#4 [6] mset Mystical Elf(15025844)@p0.hand[0]#17 [7] mset Mystical Elf(15025844)@p0.hand[1]#16 [8] mset Mystical Elf(15025844)@p0.hand[2]#15 [9] battle [10] end [11] shuffle
   > 0 idle battle
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
   phase battle-start
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
 ? p0 SELECT_BATTLECMD: [0] attack Blue-Eyes White Dragon(89631139)@p0.mzone[0]#2 [1] attack Gene-Warped Warwolf(69247929)@p0.mzone[1]#3 [2] attack Celtic Guardian(91152256)@p0.mzone[2]#4 [3] main2 [4] end
   > 0 battle attack 89631139
-? p0 SELECT_CARD pick 1-1: [0] card 撗拇挺摰?(990000001)@p1.mzone[0]#18
+? p0 SELECT_CARD pick 1-1: [0] card 岩殼守衛(990000001)@p1.mzone[0]#18
   > 0 select 990000001
   attack p0.mzone[0]#2 -> p1.mzone[0]#18
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-? p1 SELECT_CHAIN: [0] activate 撗拇挺摰?(990000001)@p1.mzone[0]#18 [1] pass
+? p1 SELECT_CHAIN: [0] activate 岩殼守衛(990000001)@p1.mzone[0]#18 [1] pass
   > default: pass (not scripted)
-  撗拇挺摰?(990000001)#18 HP 0/3200
-  move 撗拇挺摰?(990000001) p1.mzone[0]#18 -> p1.grave[0]#18 reason=0x21
+  岩殼守衛(990000001)#18 HP 0/3200
+  move 岩殼守衛(990000001) p1.mzone[0]#18 -> p1.grave[0]#18 reason=0x21
   ok: expect hp 990000001 0 3200
   ok: expect count 1 mzone 0
   ok: expect count 1 grave 1

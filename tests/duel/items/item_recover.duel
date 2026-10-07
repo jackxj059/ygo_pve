@@ -1,0 +1,27 @@
+# Items (validation 1): an item runs without a chain from the owner's main phase command, and
+# what it does is a normal core action whose effects still happen afterwards: Fire Princess
+# (a continuous effect) burns the opponent, and Aromage Jasmine's mandatory trigger starts a
+# normal chain and draws. Items are consumables (decided 2026-10-07): 2 uses here.
+start_draw 0 0
+start_draw 1 0
+lp 0 5000
+item 0 990000303 x2         # 回復藥: gain 1000 LP, 2 uses
+card 0 mzone 64752646       # Fire Princess: when you gain LP, 500 damage to the opponent
+card 0 mzone 96789758       # Aromage Jasmine: when you gain LP, draw 1 (trigger, once per turn)
+card 0 deck 15025844 x10
+card 1 deck 15025844 x10
+
+0 idle activate 990000303
+expect item 990000303 success
+expect lp 0 6000
+expect lp 1 7500            # Fire Princess after the item
+expect chain 96789758       # Jasmine's trigger resolved in its own chain
+expect count 0 hand 1
+expect uses 990000303 1
+0 idle activate 990000303   # second use
+expect lp 0 7000
+expect lp 1 7000
+expect uses 990000303 0
+expect blocked activate 990000303
+0 idle end
+stop

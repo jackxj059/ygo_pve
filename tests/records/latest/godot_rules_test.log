@@ -32,5 +32,13 @@ enemy scripts play P1
   ok: back to P0's main phase after the enemy's turn ({  })
   ok: the enemy used 撗拍撘瑕? and attacked directly: 1700 (P0 LP 6300)
   ok: ??蝯? on the field, 撗拍撘瑕? back in the skill pool
+items and equipment through the GDExtension
+  ok: item and equipment definitions read from Lua
+  ok: battle with an item and equipment starts: 
+  ok: the equipment is on exactly one card (main deck index 0)
+  ok: the item was used from the main phase command (LP 9000)
+  ok: item event with its result: [{ "type": "item", "text": "  item ?儔??990000303)#82: success", "player": 0, "value": 0, "reason": 0, "card": { "code": 990000303, "controller": 0, "location": 0, "sequence": 0, "position": 0, "instance": 82 }, "from": { "code": 0, "controller": 0, "location": 0, "sequence": 0, "position": 0, "instance": 0 }, "to": { "code": 0, "controller": 0, "location": 0, "sequence": 0, "position": 0, "instance": 0 }, "codes": [], "result": "success" }]
+  ok: the item is used up
+  ok: equipment on a missing card is refused: equipment 0 (??敺賜?(990000202)): p0 has no card at that position
 PASS
 

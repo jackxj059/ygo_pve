@@ -1,0 +1,55 @@
+# Equipment (validation 4): 回復徽章 - after the equipped card's effect is resolved successfully,
+# its owner gains 1000 LP. Tracked per chain link of that exact card (not by card code):
+#   equipped Pot of Greed resolves                         +1000
+#   plain Pot of Greed (same name)                          nothing
+#   equipped Pot of Greed negated (Solemn Judgment)        nothing (activation negated)
+#   equipped Goblindbergh, effect negated (Impermanence)   nothing (effect negated, CHAIN_SOLVED still comes)
+#   equipped Monster Reborn, target banished (D.D. Crow)   nothing (target gone at resolution)
+#   plain Jar + equipped Jar in one chain                  +1000 once (only the equipped link; the
+#                                                          plain one is negated by Impermanence's column effect)
+# Recovery goes to the equipment's owner (TEST SETTING: control changes are not decided).
+start_draw 0 0
+start_draw 1 0
+card 0 szone 55144522 fd    # placement 0: Pot of Greed, equipped
+card 0 szone 55144522 fd    # 1: Pot of Greed
+card 0 szone 55144522 fd    # 2: Pot of Greed, equipped
+card 0 szone 83968380 fd    # 3: Jar of Greed (same column as Impermanence: negated this turn)
+card 0 szone 83968380 fd    # 4: Jar of Greed, equipped
+card 0 hand 25259669        # 5: Goblindbergh, equipped
+card 0 hand 83764718        # 6: Monster Reborn, equipped
+card 0 hand 15025844        # 7: Mystical Elf
+card 0 grave 89631139       # 8: Blue-Eyes White Dragon
+card 0 deck 15025844 x10    # 9-18
+card 1 szone 41420027 fd    # 19: Solemn Judgment
+card 1 szone 10045474 fd    # 20: Infinite Impermanence
+card 1 hand 24508238        # 21: D.D. Crow
+card 1 deck 15025844 x10
+equip 0 placement 0 990000203
+equip 0 placement 2 990000203
+equip 0 placement 4 990000203
+equip 0 placement 5 990000203
+equip 0 placement 6 990000203
+
+0 idle activate 55144522@szone[0]
+expect lp 0 9000
+0 idle activate 55144522@szone[1]
+expect lp 0 9000
+0 idle activate 55144522@szone[2]
+1 chain 41420027            # Solemn Judgment: negate the activation
+expect lp 0 9000
+0 idle summon 25259669
+0 yesno yes
+1 chain 10045474            # Infinite Impermanence on Goblindbergh: its effect is negated
+1 select 25259669
+expect lp 0 9000
+0 idle activate 83764718
+0 select 89631139
+1 chain 24508238            # D.D. Crow banishes the target
+1 select 89631139
+expect lp 0 9000
+expect count 0 mzone 1      # only Goblindbergh: nothing was revived
+0 idle activate 83968380@szone[3]
+0 chain 83968380@szone[4]
+expect chain 83968380 83968380
+expect lp 0 10000
+stop

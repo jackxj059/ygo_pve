@@ -1,0 +1,17 @@
+# Equipment follows the card (decided 2026-10-07): when the opponent takes control of the
+# equipped monster (Change of Heart), its doubled battle damage now hits the original owner.
+start_draw 0 0
+start_draw 1 0
+card 0 mzone 91152256       # placement 0: Celtic Guardian 1400, equipped (雙擊徽章)
+card 0 deck 15025844 x10
+card 1 hand 4031928         # Change of Heart
+card 1 deck 15025844 x10
+equip 0 placement 0 990000202
+
+0 idle end
+1 idle activate 4031928
+1 select 91152256
+1 idle battle
+1 battle attack 91152256    # direct: 1400 x2
+expect lp 0 5200
+stop

@@ -1,10 +1,10 @@
 -- 岩殼守衛：敵人技術原型（數值為測試值）
 -- 同一個檔案有兩個用途：
---   s.ygopve_enemy   戰鬥模組在建立決鬥前讀取，作為核心的卡片資料（不需要卡片資料庫）
+--   s.ygopve   戰鬥模組在建立決鬥前讀取，作為核心的卡片資料（不需要卡片資料庫）
 --   s.initial_effect 核心照一般卡片腳本執行
 local s,id=GetID()
 
-s.ygopve_enemy={
+s.ygopve={
 	name="岩殼守衛",
 	text="【敵人】HP＝原本攻擊力＋守備力。\n1回合1次，自己或對手回合：以對手場上1隻表側怪獸為對象才能發動。那隻怪獸的攻擊力直到回合結束時下降800。",
 	atk=1200, def=2000, level=4, race=RACE_ROCK, attribute=ATTRIBUTE_EARTH,

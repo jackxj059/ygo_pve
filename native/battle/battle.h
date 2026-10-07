@@ -27,13 +27,14 @@ struct CardData {
 };
 
 // Card databases + script index, shared read-only by every duel. Must outlive them.
-// enemies_dir (optional): enemy definitions, one c<code>.lua per enemy (see docs/enemies.md).
-// Each file is both the card script the core runs and the source of the enemy's card data,
-// which the module reads with its own sandboxed Lua state; ygopve_enemy.lua there holds the
-// HP rules and is loaded into every duel when enemies are present.
+// custom_dir (optional): project-defined cards, one c<code>.lua each, in any subfolder: enemy
+// units and their skills (docs/enemies.md), items and equipment (docs/items.md). Each file is
+// both the card script the core runs and the source of the card's data (its s.ygopve table),
+// which the module reads with its own sandboxed Lua state. The shared rule scripts
+// ygopve_enemy.lua / ygopve_support.lua are loaded into every duel that uses those kinds.
 class Content {
 public:
-	Content(const std::string& scripts_dir, const std::vector<std::string>& db_paths, const std::string& enemies_dir = "");
+	Content(const std::string& scripts_dir, const std::vector<std::string>& db_paths, const std::string& custom_dir = "");
 	~Content();
 	Content(const Content&) = delete;
 	Content& operator=(const Content&) = delete;
@@ -43,13 +44,21 @@ public:
 	// empty for the client's generic system strings, which are not in the card databases.
 	std::string description(uint64_t desc);
 	const std::string* script_path(const std::string& name) const;
-	bool is_enemy(uint32_t code) const { return enemies_.count(code) > 0; } // any card defined in enemies_dir
+	bool is_enemy(uint32_t code) const { return kind(code) == "monster" || kind(code) == "spell"; } // unit or skill
+	bool is_item(uint32_t code) const { return kind(code) == "item"; }
+	bool is_equip(uint32_t code) const { return kind(code) == "equip"; }
+	const std::vector<std::string>* ap_free(uint32_t code) const; // equipment: AP kinds it makes free
 	const std::vector<uint32_t>* skills(uint32_t code) const; // an enemy unit's skill pool, or nullptr
 	bool has_enemies() const { return !enemies_.empty(); }
+	bool has_support() const { return has_support_; } // items or equipment defined
 
 private:
-	void load_enemies(const std::string& dir);
+	void load_custom(const std::string& dir);
+	std::string kind(uint32_t code) const;
 	std::set<uint32_t> enemies_;
+	std::map<uint32_t, std::string> kinds_; // code -> monster / spell / item / equip
+	std::map<uint32_t, std::vector<std::string>> ap_free_;
+	bool has_support_ = false;
 	std::map<uint32_t, std::vector<uint32_t>> skills_;
 	std::vector<sqlite3*> dbs_;
 	std::map<uint32_t, CardData> cache_;
@@ -83,11 +92,42 @@ struct Placement { // exact, unshuffled placement (fixed rule tests)
 	uint32_t position = 0; // MZONE/SZONE: POS_* (0 = face-up attack); ignored elsewhere
 };
 
+// Where a card instance came from in the DuelConfig (index is before shuffling).
+struct CardOrigin {
+	enum class Source { Main, Extra, Placement, Support }; // Support: DuelConfig items / equipment
+	uint8_t player = 0;
+	Source source = Source::Main;
+	uint32_t index = 0; // into players[player].main / .extra, or into placements
+};
+
+// An item the player can use in this battle (docs/items.md). Its card is created for the duel and
+// leaves it at the start; using it runs its Lua operation without a chain. Items cost no AP and
+// are consumables (decided 2026-10-07): each use that starts takes one, whatever its result;
+// cancelling the card pick before it is submitted does not.
+struct ItemConfig {
+	uint8_t player = 0;
+	uint32_t code = 0;
+	uint32_t count = 1;
+};
+
+
+// Equipment fixed to one specific card before the battle, named by the card's external fixed id:
+// its position in the player's main/extra list or in placements (CardOrigin). Same-name copies
+// are different cards.
+struct EquipConfig {
+	uint8_t player = 0; // owner of the target card
+	CardOrigin::Source source = CardOrigin::Source::Main;
+	uint32_t index = 0;
+	uint32_t code = 0; // equipment definition
+};
+
 struct DuelConfig {
 	uint64_t seed[4] = {1, 2, 3, 4};
 	uint64_t flags = 0; // 0 = master rule 5
 	PlayerConfig players[2];
 	std::vector<Placement> placements; // added after each player's shuffled main/extra
+	std::vector<ItemConfig> items;
+	std::vector<EquipConfig> equipment;
 };
 
 // ------------------------------------------------------------ events/prompts
@@ -99,21 +139,17 @@ struct CardRef {
 	uint32_t instance = 0; // core card id: same card object for the whole duel; 0 = unknown/zone
 };
 
-// Where a card instance came from in the DuelConfig (index is before shuffling).
-struct CardOrigin {
-	enum class Source { Main, Extra, Placement };
-	uint8_t player = 0;
-	Source source = Source::Main;
-	uint32_t index = 0; // into players[player].main / .extra, or into placements
-};
-
 enum class EventType {
 	NewTurn, NewPhase, Draw, Move, Summon, SpSummon, FlipSummon, Set,
 	Chaining, ChainSolving, ChainEnd, ChainNegated, ChainDisabled,
 	Damage, Recover, PayLp, Attack, Win,
 	Ap, // player's AP changed: value = new AP, reason = AP spent (0 = refilled at turn start)
-	Hp  // enemy unit's HP changed (card.instance): value = HP, reason = max HP
+	Hp,  // enemy unit's HP changed (card.instance): value = HP, reason = max HP
+	Item // an item was used (card = the item): value = ItemResult
 };
+
+enum class ItemResult { Success, Partial, NoChange, Cancel };
+const char* to_string(ItemResult result);
 
 struct Event {
 	EventType type{};
@@ -157,6 +193,13 @@ struct Prompt {
 	uint64_t desc = 0;         // YesNo/EffectYesNo question; Counter: counter type
 	CardRef card;              // EffectYesNo/Position subject
 	std::vector<uint64_t> filter; // AnnounceCard: the core's declarable-card filter program (opcodes)
+};
+
+// An item of DuelConfig::items during the duel: uses left (see ItemConfig).
+struct ItemState {
+	CardRef card; // code and instance of the item's card (outside the duel)
+	uint8_t player = 0;
+	uint32_t left = 0;
 };
 
 enum class Status { Continue, Awaiting, Ended, Error };
@@ -208,6 +251,7 @@ public:
 	uint32_t ap_max(uint8_t player) const { return ap_[player & 1].rules.max; }
 	struct Hp { uint32_t hp = 0, max = 0; };
 	const Hp* hp(uint32_t instance) const; // enemy units only (reported by ygopve_enemy.lua); else nullptr
+	const std::vector<ItemState>& items() const { return items_; }
 	int winner() const { return winner_; }                         // -1 until a MSG_WIN
 	uint32_t win_reason() const { return win_reason_; }            // 1 = LP, 2 = deck-out
 
@@ -236,6 +280,8 @@ private:
 	std::map<uint32_t, CardOrigin> origins_;
 	std::map<uint32_t, Hp> hp_;           // by card instance
 	std::vector<Event> script_events_;    // from the log callback; queued behind the batch's messages
+	std::map<uint32_t, std::set<std::string>> ap_free_; // card instance -> AP kinds its equipment makes free
+	std::vector<ItemState> items_;
 	bool deciding_ = false, decided_ = false; // script_decide() is running / got "YGOPVE_ANSWER"
 	std::vector<uint32_t> decision_;
 

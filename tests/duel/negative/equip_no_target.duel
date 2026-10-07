@@ -1,0 +1,8 @@
+# expect-fail: has no card at that position
+# Equipment: binding to a position that holds no card is an error, not ignored.
+start_draw 0 0
+start_draw 1 0
+card 0 deck 15025844 x10
+card 1 deck 15025844 x10
+equip 0 placement 99 990000202
+0 idle end

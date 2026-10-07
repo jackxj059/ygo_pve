@@ -1,0 +1,93 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\equipment\equip_double_damage.duel
+== duel created
+  move 雙擊徽章(990000202) p0.hand[1] -> p0.-[0] reason=0x400
+  move 雙擊徽章(990000202) p0.hand[1] -> p0.-[0] reason=0x400
+  move 雙擊徽章(990000202) p0.hand[1] -> p0.-[0] reason=0x400
+  move 雙擊徽章(990000202) p0.hand[1] -> p0.-[0] reason=0x400
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Celtic Guardian(91152256)@p0.mzone[0]#2 [1] repos Celtic Guardian(91152256)@p0.mzone[1]#3 [2] repos Mystical Elf(15025844)@p0.mzone[2]#4 [3] repos Susa Soldier(40473581)@p0.mzone[3]#5 [4] sset Monster Reborn(83764718)@p0.hand[0]#7 [5] activate Monster Reborn(83764718)@p0.hand[0]#7 [6] end
+  > 0 idle activate 83764718
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Monster Reborn(83764718) p0.hand[0]#7 -> p0.szone[0]#7 reason=0x0
+  CHAIN LINK 1: Monster Reborn(83764718) from p0.szone[0]#7 (chosen by player)
+? p0 SELECT_CARD pick 1-1: [0] card Gene-Warped Warwolf(69247929)@p0.grave[0]#6
+  > 0 select 69247929@grave
+  resolve link 1: Monster Reborn(83764718)
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.mzone[4]
+  > default: first free zone
+? p0 SELECT_POSITION for Gene-Warped Warwolf(69247929): [0] fu_atk Gene-Warped Warwolf(69247929) [1] fu_def Gene-Warped Warwolf(69247929)
+  > default: fu_atk
+  move Gene-Warped Warwolf(69247929) p0.grave[0]#6 -> p0.mzone[4]#6 reason=0x800
+  special summon Gene-Warped Warwolf(69247929) at p0.mzone[4]#6
+  move Monster Reborn(83764718) p0.szone[0]#7 -> p0.grave[0]#7 reason=0x400
+  chain end
+? p0 SELECT_IDLECMD: [0] repos Celtic Guardian(91152256)@p0.mzone[0]#2 [1] repos Celtic Guardian(91152256)@p0.mzone[1]#3 [2] repos Mystical Elf(15025844)@p0.mzone[2]#4 [3] repos Susa Soldier(40473581)@p0.mzone[3]#5 [4] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p1 SELECT_IDLECMD: [0] repos Mystical Elf(15025844)@p1.mzone[0]#18 [1] repos Mystical Elf(15025844)@p1.mzone[1]#19 [2] repos Mystical Elf(15025844)@p1.mzone[2]#20 [3] repos Celtic Guardian(91152256)@p1.mzone[3]#21 [4] repos Mystical Elf(15025844)@p1.mzone[4]#22 [5] battle [6] end
+  > 1 idle end
+  phase end
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Celtic Guardian(91152256)@p0.mzone[0]#2 [1] repos Celtic Guardian(91152256)@p0.mzone[1]#3 [2] repos Mystical Elf(15025844)@p0.mzone[2]#4 [3] repos Susa Soldier(40473581)@p0.mzone[3]#5 [4] repos Gene-Warped Warwolf(69247929)@p0.mzone[4]#6 [5] battle [6] end
+  > 0 idle battle
+  phase battle-start
+? p0 SELECT_BATTLECMD: [0] attack Celtic Guardian(91152256)@p0.mzone[0]#2 [1] attack Celtic Guardian(91152256)@p0.mzone[1]#3 [2] attack Mystical Elf(15025844)@p0.mzone[2]#4 [3] attack Susa Soldier(40473581)@p0.mzone[3]#5 [4] attack Gene-Warped Warwolf(69247929)@p0.mzone[4]#6 [5] main2 [6] end
+  > 0 battle attack 91152256@mzone[0]
+? p0 SELECT_CARD pick 1-1: [0] card Mystical Elf(15025844)@p1.mzone[0]#18 [1] card Mystical Elf(15025844)@p1.mzone[1]#19 [2] card Mystical Elf(15025844)@p1.mzone[2]#20 [3] card Celtic Guardian(91152256)@p1.mzone[3]#21 [4] card Mystical Elf(15025844)@p1.mzone[4]#22
+  > 0 select 15025844
+  attack p0.mzone[0]#2 -> p1.mzone[0]#18
+  p1 takes damage 1200
+  move Mystical Elf(15025844) p1.mzone[0]#18 -> p1.grave[0]#18 reason=0x21
+? p0 SELECT_BATTLECMD: [0] attack Celtic Guardian(91152256)@p0.mzone[1]#3 [1] attack Mystical Elf(15025844)@p0.mzone[2]#4 [2] attack Susa Soldier(40473581)@p0.mzone[3]#5 [3] attack Gene-Warped Warwolf(69247929)@p0.mzone[4]#6 [4] main2 [5] end
+  ok: expect lp 1 6800
+  > 0 battle attack 91152256@mzone[1]
+? p0 SELECT_CARD pick 1-1: [0] card Mystical Elf(15025844)@p1.mzone[1]#19 [1] card Mystical Elf(15025844)@p1.mzone[2]#20 [2] card Celtic Guardian(91152256)@p1.mzone[3]#21 [3] card Mystical Elf(15025844)@p1.mzone[4]#22
+  > 0 select 15025844
+  attack p0.mzone[1]#3 -> p1.mzone[1]#19
+  p1 takes damage 600
+  move Mystical Elf(15025844) p1.mzone[1]#19 -> p1.grave[1]#19 reason=0x21
+? p0 SELECT_BATTLECMD: [0] attack Mystical Elf(15025844)@p0.mzone[2]#4 [1] attack Susa Soldier(40473581)@p0.mzone[3]#5 [2] attack Gene-Warped Warwolf(69247929)@p0.mzone[4]#6 [3] main2 [4] end
+  ok: expect lp 1 6200
+  > 0 battle attack 15025844
+? p0 SELECT_CARD pick 1-1: [0] card Mystical Elf(15025844)@p1.mzone[2]#20 [1] card Celtic Guardian(91152256)@p1.mzone[3]#21 [2] card Mystical Elf(15025844)@p1.mzone[4]#22
+  > 0 select 15025844
+  attack p0.mzone[2]#4 -> p1.mzone[2]#20
+  move Mystical Elf(15025844) p0.mzone[2]#4 -> p0.grave[1]#4 reason=0x21
+  move Mystical Elf(15025844) p1.mzone[2]#20 -> p1.grave[2]#20 reason=0x21
+? p0 SELECT_BATTLECMD: [0] attack Susa Soldier(40473581)@p0.mzone[3]#5 [1] attack Gene-Warped Warwolf(69247929)@p0.mzone[4]#6 [2] main2 [3] end
+  ok: expect lp 1 6200
+  > 0 battle attack 40473581
+? p0 SELECT_CARD pick 1-1: [0] card Celtic Guardian(91152256)@p1.mzone[3]#21 [1] card Mystical Elf(15025844)@p1.mzone[4]#22
+  > 0 select 91152256
+  attack p0.mzone[3]#5 -> p1.mzone[3]#21
+  p1 takes damage 600
+  move Celtic Guardian(91152256) p1.mzone[3]#21 -> p1.grave[3]#21 reason=0x21
+? p0 SELECT_BATTLECMD: [0] attack Gene-Warped Warwolf(69247929)@p0.mzone[4]#6 [1] main2 [2] end
+  ok: expect lp 1 5600
+  > 0 battle attack 69247929
+? p0 SELECT_CARD pick 1-1: [0] card Mystical Elf(15025844)@p1.mzone[4]#22
+  > 0 select 15025844
+  attack p0.mzone[4]#6 -> p1.mzone[4]#22
+  p1 takes damage 2400
+  move Mystical Elf(15025844) p1.mzone[4]#22 -> p1.grave[4]#22 reason=0x21
+  ok: expect lp 1 3200
+== scenario stopped at: ? p0 SELECT_BATTLECMD: [0] main2 [1] end
+PASS
+

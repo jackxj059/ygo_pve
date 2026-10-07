@@ -85,15 +85,24 @@ func _preview(file: String) -> void:
 		status.text = "牌組載入失敗：%s" % deck.error
 		return
 	menu.hide()
-	preview.show_deck(file, deck, points, TestSettings.BUILD_POINT_CAP, content, TestBattles.resources().images_dir)
+	preview.show_deck(file, deck, points, TestSettings.BUILD_POINT_CAP, content, TestBattles.resources().images_dir,
+		TestSettings.ITEMS, TestSettings.EQUIPMENT)
 
 
-func _start_with_deck(deck: Dictionary) -> void:
-	var opponent := YgoContent.load_ydk(TestBattles.deck_path(OPPONENT_DECK))
+## opponent: "deck" (test_basic.ydk, played by hand) or "enemy" (岩殼守衛, played by its script).
+func _start_with_deck(deck: Dictionary, equipment: Array, opponent: String) -> void:
 	var seed := Time.get_ticks_usec()
+	var config := {"seed": seed, "players": [{"main": deck.main, "extra": deck.extra}], "equipment": equipment}
+	var rules := {"points": points, "cap": TestSettings.BUILD_POINT_CAP}
+	if opponent == "enemy":
+		config.players.append({"start_draw": 0, "draw_per_turn": 0})
+		config["placements"] = TestBattles.enemy_unit()
+		rules["script_players"] = [1]
+	else:
+		var other := YgoContent.load_ydk(TestBattles.deck_path(OPPONENT_DECK))
+		config.players.append({"main": other.main, "extra": other.extra})
 	preview.hide()
-	_start({"seed": seed, "players": [{"main": deck.main, "extra": deck.extra}, {"main": opponent.main, "extra": opponent.extra}]},
-		{"points": points, "cap": TestSettings.BUILD_POINT_CAP})
+	_start(config, rules)
 	if session != null:
 		status.text = "種子 %d（同一種子可重現開場）" % seed
 
@@ -104,6 +113,8 @@ func _start(config: Dictionary, rules := {}) -> void:
 		return
 	if ap_check.button_pressed:
 		config.players[0]["ap"] = TestSettings.AP
+	config["items"] = TestSettings.ITEMS.map(func(it: Dictionary) -> Dictionary:
+		return {"player": 0, "code": it.code, "count": it.count})
 	session = YgoBattleSession.new()
 	var err := session.start(content, config, rules)
 	if err != "":

@@ -10,15 +10,17 @@ var duel: YgoDuel
 var log_lines := PackedStringArray()
 var result := {} ## empty until the duel ends or fails
 var script_players := [] ## players whose prompts the enemy scripts answer (see start())
+var equipment := [] ## config.equipment of this battle: [{player, source, index, code}]
 
 
-## resources: {scripts_dir: String, databases: PackedStringArray, enemies_dir: String (optional)}.
+## resources: {scripts_dir: String, databases: PackedStringArray, custom_dir: String (optional:
+## enemies, items, equipment)}.
 ## Returns null and fills `error`
 ## (a one-element Array) when the content cannot be opened.
 static func open_content(resources: Dictionary, error: Array) -> YgoContent:
 	var c := YgoContent.new()
 	var err := c.open(resources.get("scripts_dir", ""), PackedStringArray(resources.get("databases", [])),
-		resources.get("enemies_dir", ""))
+		resources.get("custom_dir", ""))
 	if err != "":
 		error.append(err)
 		return null
@@ -45,6 +47,7 @@ static func config_from_decks(deck_paths: Array, seed: int, error: Array) -> Dic
 func start(with_content: YgoContent, config: Dictionary, rules := {}) -> String:
 	content = with_content
 	script_players = rules.get("script_players", [])
+	equipment = config.get("equipment", [])
 	if rules.has("points"):
 		var player: Dictionary = config.get("players", [{}])[0]
 		var check: Dictionary = rules.points.evaluate(player, rules.get("cap", 0), content)
@@ -98,6 +101,16 @@ func _answer_by_script() -> bool:
 		finished.emit(result)
 		return false
 	return true
+
+
+## The equipment fixed to a card instance (0 if none), found through the card's origin in the
+## config - the same external fixed id the battle module bound it by.
+func equipment_of(instance: int) -> int:
+	var o := duel.origin(instance) if duel else {}
+	for eq: Dictionary in equipment:
+		if not o.is_empty() and eq.get("player", 0) == o.player and eq.source == o.source and eq.index == o.index:
+			return eq.code
+	return 0
 
 
 func prompt() -> Dictionary:

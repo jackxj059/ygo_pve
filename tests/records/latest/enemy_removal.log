@@ -3,7 +3,7 @@
 == duel created
 
 --- new turn (p0)
-  撗拇挺摰?(990000001)#13 HP 3200/3200
+  岩殼守衛(990000001)#13 HP 3200/3200
   phase draw
   phase standby
   phase main1
@@ -15,8 +15,8 @@
   move Raigeki(12580477) p0.hand[0]#2 -> p0.szone[0]#2 reason=0x0
   CHAIN LINK 1: Raigeki(12580477) from p0.szone[0]#2 (chosen by player)
   resolve link 1: Raigeki(12580477)
-  move 撗拇挺摰?(990000001) p1.mzone[0]#13 -> p1.grave[0]#13 reason=0x41
-  撗拇挺摰?(990000001)#13 HP 0/3200
+  move 岩殼守衛(990000001) p1.mzone[0]#13 -> p1.grave[0]#13 reason=0x41
+  岩殼守衛(990000001)#13 HP 0/3200
   move Raigeki(12580477) p0.szone[0]#2 -> p0.grave[0]#2 reason=0x400
   chain end
   ok: expect count 1 mzone 0

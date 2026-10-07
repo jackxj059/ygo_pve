@@ -81,6 +81,24 @@ Scenario load_scenario(const std::string& path) {
 				cfg.players[to_u32(tok[1]) & 1].ap.costs[tok[2]] = to_u32(tok[3]);
 			} else if(kw == "draw_per_turn" && setup && tok.size() == 2) {
 				cfg.players[0].draw_per_turn = cfg.players[1].draw_per_turn = to_u32(tok[1]);
+			} else if(kw == "item" && setup && (tok.size() == 3 || tok.size() == 4)) {
+				uint32_t count = 1;
+				if(tok.size() == 4) {
+					if(tok[3].empty() || tok[3][0] != 'x')
+						fail("expected a count like x3");
+					count = to_u32(tok[3].substr(1));
+				}
+				cfg.items.push_back({static_cast<uint8_t>(to_u32(tok[1]) & 1), to_u32(tok[2]), count});
+			} else if(kw == "equip" && setup && tok.size() == 5) {
+				// equip P main|extra|placement INDEX CODE: the card's external fixed id (0-based index into
+				// that player's ydk main/extra list, or into all placement lines in order)
+				static const std::map<std::string, battle::CardOrigin::Source> sources = {
+					{"main", battle::CardOrigin::Source::Main}, {"extra", battle::CardOrigin::Source::Extra},
+					{"placement", battle::CardOrigin::Source::Placement}};
+				auto src = sources.find(tok[2]);
+				if(src == sources.end())
+					fail("expected main, extra or placement");
+				cfg.equipment.push_back({static_cast<uint8_t>(to_u32(tok[1]) & 1), src->second, to_u32(tok[3]), to_u32(tok[4])});
 			} else if(kw == "enemy_ai" && setup && tok.size() == 2) {
 				sc.script_ai[to_u32(tok[1]) & 1] = true;
 			} else if(kw == "draw_per_turn" && setup && tok.size() == 3) {
@@ -213,6 +231,8 @@ private:
 			last_move_reason_[e.card.code] = e.reason;
 		} else if(e.type == battle::EventType::Hp) {
 			last_hp_[e.card.code] = e.card.instance;
+		} else if(e.type == battle::EventType::Item) {
+			last_item_[e.card.code] = static_cast<battle::ItemResult>(e.value);
 		}
 		std::printf("%s\n", s.c_str());
 	}
@@ -228,7 +248,7 @@ private:
 			const auto what = arg(act, 0);
 			const bool needs_card = what == "summon" || what == "spsummon" || what == "repos" || what == "mset" ||
 			                        what == "sset" || what == "activate" || what == "attack";
-			const auto idx = needs_card ? pick(pr, what, to_u32(arg(act, 1)), {}, act) : pick_action(pr, what, act);
+			const auto idx = needs_card ? pick(pr, what, arg(act, 1), {}, act) : pick_action(pr, what, act);
 			if(what == "activate")
 				last_choice_ = pr.options[idx].card.code;
 			return answer({idx}, act.text);
@@ -254,7 +274,7 @@ private:
 			const auto act = take(p, "select", name);
 			std::vector<uint32_t> picks;
 			for(const auto& code : act.args)
-				picks.push_back(pick(pr, "card", to_u32(code), picks, act));
+				picks.push_back(pick(pr, "card", code, picks, act));
 			return answer(picks, act.text);
 		}
 		case PromptType::SelectUnselect: {
@@ -274,7 +294,7 @@ private:
 				const auto act = take(p, "chain", name);
 				if(arg(act, 0) == "pass")
 					return answer({pick_action(pr, "pass", act)}, act.text);
-				const auto idx = pick(pr, "activate", to_u32(arg(act, 0)), {}, act);
+				const auto idx = pick(pr, "activate", arg(act, 0), {}, act);
 				last_choice_ = pr.options[idx].card.code;
 				return answer({idx}, act.text);
 			}
@@ -352,7 +372,7 @@ private:
 			const auto act = take(p, "sort", name);
 			std::vector<uint32_t> picks;
 			for(const auto& code : act.args)
-				picks.push_back(pick(pr, "card", to_u32(code), picks, act));
+				picks.push_back(pick(pr, "card", code, picks, act));
 			return answer(picks, act.text);
 		}
 		}
@@ -412,12 +432,32 @@ private:
 		return act.args[i];
 	}
 
-	uint32_t pick(const battle::Prompt& pr, const std::string& action, uint32_t code, const std::vector<uint32_t>& used, const Action& act) {
+	// A card token is a code, or CODE@location / CODE@location[sequence] to tell same-name copies
+	// apart (e.g. 83968380@hand, 83968380@szone[1]).
+	static bool matches(const battle::CardRef& card, const std::string& token) {
+		const auto at = token.find('@');
+		if(card.code != to_u32(token.substr(0, at)))
+			return false;
+		if(at == std::string::npos)
+			return true;
+		auto where = token.substr(at + 1);
+		const auto br = where.find('[');
+		if(br != std::string::npos && card.sequence != to_u32(where.substr(br + 1, where.find(']') - br - 1)))
+			return false;
+		return card.location == location_arg(where.substr(0, br));
+	}
+
+	std::string token_label(const std::string& token) {
+		const auto at = token.find('@');
+		return content_.label(to_u32(token.substr(0, at))) + (at == std::string::npos ? "" : token.substr(at));
+	}
+
+	uint32_t pick(const battle::Prompt& pr, const std::string& action, const std::string& token, const std::vector<uint32_t>& used, const Action& act) {
 		for(uint32_t i = 0; i < pr.options.size(); ++i)
-			if(pr.options[i].action == action && pr.options[i].card.code == code &&
+			if(pr.options[i].action == action && matches(pr.options[i].card, token) &&
 			   std::find(used.begin(), used.end(), i) == used.end())
 				return i;
-		fail("line " + std::to_string(act.line) + ": " + content_.label(code) + " is not among the offered choices");
+		fail("line " + std::to_string(act.line) + ": " + token_label(token) + " is not among the offered choices");
 	}
 
 	uint32_t pick_action(const battle::Prompt& pr, const std::string& action, const Action& act) {
@@ -469,6 +509,19 @@ private:
 				const auto* hp = it == last_hp_.end() ? nullptr : duel_->hp(it->second);
 				got = hp ? std::to_string(hp->hp) + (act.args.size() > 2 ? "/" + std::to_string(hp->max) : "") : "none";
 				want = arg(act, 1) + (act.args.size() > 2 ? "/" + arg(act, 2) : "");
+			} else if(act.verb == "uses") {
+				// expect uses CODE n: uses left of that item (all copies of the code together)
+				uint32_t left = 0;
+				for(const auto& st : duel_->items())
+					if(st.card.code == to_u32(arg(act, 0)))
+						left += st.left;
+				got = std::to_string(left);
+				want = arg(act, 1);
+			} else if(act.verb == "item") {
+				// expect item CODE RESULT: the result of that item's latest use
+				const auto it = last_item_.find(to_u32(arg(act, 0)));
+				got = it == last_item_.end() ? "unused" : battle::to_string(it->second);
+				want = arg(act, 1);
 			} else if(act.verb == "destroyed") {
 				// expect destroyed CODE battle|effect: how the card last left a place
 				const auto it = last_move_reason_.find(to_u32(arg(act, 0)));
@@ -483,7 +536,7 @@ private:
 					fail("line " + std::to_string(act.line) + ": no prompt is pending");
 				const battle::Option* found = nullptr;
 				for(const auto& o : pr->options)
-					if(o.action == arg(act, 0) && o.card.code == to_u32(arg(act, 1)))
+					if(o.action == arg(act, 0) && matches(o.card, arg(act, 1)))
 						found = &o;
 				if(!found)
 					fail("line " + std::to_string(act.line) + ": the current prompt has no such option");
@@ -506,13 +559,14 @@ private:
 	uint32_t last_choice_ = 0;
 	std::vector<uint32_t> resolved_, last_chain_;
 	std::map<uint32_t, uint32_t> last_move_reason_, last_hp_; // by code: reason / card instance
+	std::map<uint32_t, battle::ItemResult> last_item_;
 };
 
 } // namespace
 
 int main(int argc, char** argv) {
 	std::setvbuf(stdout, nullptr, _IONBF, 0);
-	std::string scripts_dir, enemies_dir, scenario;
+	std::string scripts_dir, custom_dir, scenario;
 	std::vector<std::string> dbs;
 	for(int i = 1; i < argc; ++i) {
 		const std::string a = argv[i];
@@ -520,19 +574,19 @@ int main(int argc, char** argv) {
 			scripts_dir = argv[++i];
 		else if(a == "--db" && i + 1 < argc)
 			dbs.push_back(argv[++i]);
-		else if(a == "--enemies" && i + 1 < argc)
-			enemies_dir = argv[++i];
+		else if(a == "--custom" && i + 1 < argc)
+			custom_dir = argv[++i];
 		else
 			scenario = a;
 	}
 	if(scripts_dir.empty() || dbs.empty() || scenario.empty()) {
-		std::fprintf(stderr, "usage: duel_harness --scripts DIR --db FILE [--db FILE...] [--enemies DIR] SCENARIO\n");
+		std::fprintf(stderr, "usage: duel_harness --scripts DIR --db FILE [--db FILE...] [--custom DIR] SCENARIO\n");
 		return 2;
 	}
 	try {
 		const auto [major, minor] = battle::core_version();
 		std::printf("== ocgcore API %d.%d\n", major, minor);
-		battle::Content content(scripts_dir, dbs, enemies_dir);
+		battle::Content content(scripts_dir, dbs, custom_dir);
 		std::printf("== scenario %s\n", scenario.c_str());
 		Runner(load_scenario(scenario), content).run();
 	} catch(const std::exception& e) {

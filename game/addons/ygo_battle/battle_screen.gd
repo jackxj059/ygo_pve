@@ -239,6 +239,18 @@ func _card_view(c: Dictionary) -> Control:
 	if pos & POS_FACEDOWN:
 		box.modulate = Color(0.55, 0.55, 0.75)
 	box.tooltip_text = "%s%s" % [_name(code), "（裡側）" if pos & POS_FACEDOWN else ""]
+	# Equipment fixed to this card before the battle (follows the card through every zone).
+	var eq := session.equipment_of(c.instance)
+	if eq != 0:
+		var badge := Label.new()
+		badge.text = "裝"
+		badge.add_theme_font_size_override("font_size", 12)
+		badge.add_theme_color_override("font_color", Color(0.55, 0.85, 1))
+		badge.add_theme_constant_override("outline_size", 4)
+		badge.add_theme_color_override("font_outline_color", Color.BLACK)
+		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(badge)
+		box.tooltip_text += "\n裝備：%s" % _name(eq)
 	# Enemy units: HP bar text on the card (reported by the enemy rules script through the module).
 	var hp: Dictionary = session.duel.hp(c.instance) if on_field else {}
 	if not hp.is_empty():
@@ -274,6 +286,13 @@ func _name(code: int) -> String:
 
 
 func _on_event(e: Dictionary) -> void:
+	if e.type == "item":
+		var results := {"success": "成功", "partial": "部分成功", "nochange": "沒有變化", "cancel": "取消（不消耗）"}
+		_log.append_text("[color=#8cd9ff]使用道具 %s：%s[/color]\n" % [_name(e.card.code), results.get(e.result, e.result)])
+		return
+	# Item and equipment cards leaving the duel at the start: bookkeeping, not a game event.
+	if e.type == "move" and e.to.location == 0 and (session.content.is_item(e.card.code) or session.content.is_equip(e.card.code)):
+		return
 	_log.append_text(String(e.text).strip_edges() + "\n")
 	match e.type:
 		"new_turn":
@@ -316,11 +335,15 @@ func _show_prompt(p: Dictionary) -> void:
 			for i in p.options.size():
 				var b := _add_button(_option_label(p, p.options[i]), _submit.bind(PackedInt64Array([i])))
 				# The battle module refuses blocked options anyway; this only explains why.
-				if p.options[i].get("blocked", "") != "":
+				var blocked: String = p.options[i].get("blocked", "")
+				if blocked != "":
 					b.disabled = true
-					var ap: Dictionary = session.duel.ap(p.player)
-					b.text += "　【AP 不足：需要 %d，剩 %d】" % [p.options[i].cost, ap.current]
-					b.tooltip_text = p.options[i].blocked
+					if blocked == "no uses left":
+						b.text += "　【已用完】"
+					else:
+						var ap: Dictionary = session.duel.ap(p.player)
+						b.text += "　【AP 不足：需要 %d，剩 %d】" % [p.options[i].cost, ap.current]
+					b.tooltip_text = blocked
 
 
 func _option_label(p: Dictionary, o: Dictionary) -> String:
@@ -332,6 +355,8 @@ func _option_label(p: Dictionary, o: Dictionary) -> String:
 	if verb != "":
 		parts.append(verb)
 	var card: Dictionary = o.card
+	if card.code != 0 and session.content.is_item(card.code):
+		return "使用道具：%s（剩 %d）" % [_name(card.code), _item_left(p.player, card.code)]
 	if action == "zone":
 		parts.append(_where(card))
 	elif card.code != 0:
@@ -352,6 +377,13 @@ func _option_label(p: Dictionary, o: Dictionary) -> String:
 	if o.get("cost", 0) > 0:
 		parts.append("（AP %d）" % o.cost)
 	return " ".join(parts)
+
+
+func _item_left(player: int, code: int) -> int:
+	for it: Dictionary in session.duel.items():
+		if it.player == player and it.code == code:
+			return it.left
+	return 0
 
 
 func _where(card: Dictionary) -> String:

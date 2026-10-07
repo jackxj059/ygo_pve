@@ -2,7 +2,7 @@
 -- 技能不會消耗：處理完不進墓地，回到敵方手牌（YgoEnemy.InitSkill）。
 local s,id=GetID()
 
-s.ygopve_enemy={
+s.ygopve={
 	name="岩盤強化", kind="spell", spell="normal",
 	text="【技能】自己場上的怪獸攻擊力直到回合結束時上升500。",
 }

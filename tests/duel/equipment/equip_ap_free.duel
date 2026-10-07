@@ -1,0 +1,50 @@
+# Equipment (validation 2): 省力徽章 makes one specific card's activations cost no AP. Same-name
+# copies are separate cards: only the equipped ones are free. The same price is shown, checked
+# and charged; other actions of the equipped card (its Normal Summon) still cost AP.
+# Equipment is fixed by placement index (0-based, all "card" lines in order). TEST VALUES.
+start_draw 0 0
+start_draw 1 0
+ap 0 1 1                    # 1 AP per turn
+ap_cost 0 activate 1
+ap_cost 0 summon 1
+card 0 szone 83968380 fd    # placement 0: Jar of Greed, equipped
+card 0 szone 83968380 fd    # placement 1: Jar of Greed, not equipped
+card 0 szone 83968380 fd    # placement 2: Jar of Greed, equipped
+card 0 hand 25259669        # placement 3: Goblindbergh, equipped
+card 0 hand 15025844        # placement 4: Mystical Elf (for Goblindbergh's effect)
+card 0 deck 15025844 x10    # placements 5-14
+card 1 szone 83968380 fd    # placement 15
+card 1 deck 15025844 x10
+equip 0 placement 0 990000201
+equip 0 placement 2 990000201
+equip 0 placement 3 990000201
+
+# --- turn 1, p0
+expect ap 0 1
+expect cost activate 83968380@szone[1] 1
+expect cost activate 83968380@szone[0] 0
+0 idle activate 83968380@szone[1]   # the plain copy: 1 -> 0
+expect ap 0 0
+expect cost activate 83968380@szone[0] 0
+expect blocked summon 25259669
+0 idle activate 83968380@szone[0]   # the equipped copy at 0 AP: free
+expect ap 0 0
+0 idle end
+
+# --- turn 2, p1: p0 chains the other equipped copy, still at 0 AP
+1 idle activate 83968380
+expect cost activate 83968380@szone[2] 0
+0 chain 83968380@szone[2]
+expect chain 83968380 83968380
+expect ap 0 0
+1 idle end
+
+# --- turn 3, p0: AP refills to 1
+expect ap 0 1
+expect cost summon 25259669 1
+0 idle summon 25259669      # the Normal Summon still costs AP: 1 -> 0
+expect cost yes 25259669 0
+0 yesno yes                 # its effect after moving hand -> field (same card) is free
+0 select 15025844
+expect ap 0 0
+stop

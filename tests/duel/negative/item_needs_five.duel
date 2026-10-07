@@ -1,0 +1,10 @@
+# expect-fail: (990000302) is not among the offered choices
+# Items (validation 1): with fewer than 5 cards that can return to the deck the item is not offered.
+start_draw 0 0
+start_draw 1 0
+item 0 990000302            # 墓地回收網: GY -> deck, 5 cards
+card 0 grave 15025844 x4
+card 0 deck 15025844 x10
+card 1 deck 15025844 x10
+
+0 idle activate 990000302

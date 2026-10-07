@@ -80,6 +80,7 @@ const char* event_name(battle::EventType t) {
 	case E::Win: return "win";
 	case E::Ap: return "ap";
 	case E::Hp: return "hp";
+	case E::Item: return "item";
 	}
 	return "?";
 }
@@ -93,8 +94,10 @@ class YgoContent : public RefCounted {
 
 protected:
 	static void _bind_methods() {
-		ClassDB::bind_method(D_METHOD("open", "scripts_dir", "db_paths", "enemies_dir"), &YgoContent::open, DEFVAL(String()));
+		ClassDB::bind_method(D_METHOD("open", "scripts_dir", "db_paths", "custom_dir"), &YgoContent::open, DEFVAL(String()));
 		ClassDB::bind_method(D_METHOD("is_enemy", "code"), &YgoContent::is_enemy);
+		ClassDB::bind_method(D_METHOD("is_item", "code"), &YgoContent::is_item);
+		ClassDB::bind_method(D_METHOD("is_equip", "code"), &YgoContent::is_equip);
 		ClassDB::bind_method(D_METHOD("is_open"), &YgoContent::is_open);
 		ClassDB::bind_method(D_METHOD("card_info", "code"), &YgoContent::card_info);
 		ClassDB::bind_method(D_METHOD("description", "desc"), &YgoContent::description);
@@ -104,13 +107,14 @@ protected:
 public:
 	battle::Content* get() const { return content_.get(); }
 
-	// enemies_dir (optional): enemy definitions (game/data/enemies), see docs/enemies.md
-	String open(const String& scripts_dir, const PackedStringArray& db_paths, const String& enemies_dir) {
+	// custom_dir (optional): project-defined cards - enemies, items, equipment (game/data);
+	// see docs/enemies.md and docs/items.md
+	String open(const String& scripts_dir, const PackedStringArray& db_paths, const String& custom_dir) {
 		std::vector<std::string> dbs;
 		for(int64_t i = 0; i < db_paths.size(); ++i)
 			dbs.push_back(std_str(db_paths[i]));
 		try {
-			content_ = std::make_unique<battle::Content>(std_str(scripts_dir), dbs, std_str(enemies_dir));
+			content_ = std::make_unique<battle::Content>(std_str(scripts_dir), dbs, std_str(custom_dir));
 		} catch(const std::exception& e) {
 			content_.reset();
 			return str(e.what());
@@ -120,6 +124,8 @@ public:
 
 	bool is_open() const { return content_ != nullptr; }
 	bool is_enemy(int64_t code) const { return content_ && content_->is_enemy(static_cast<uint32_t>(code)); }
+	bool is_item(int64_t code) const { return content_ && content_->is_item(static_cast<uint32_t>(code)); }
+	bool is_equip(int64_t code) const { return content_ && content_->is_equip(static_cast<uint32_t>(code)); }
 
 	Dictionary card_info(int64_t code) {
 		Dictionary d;
@@ -184,6 +190,7 @@ protected:
 		ClassDB::bind_method(D_METHOD("ap", "player"), &YgoDuel::ap);
 		ClassDB::bind_method(D_METHOD("hp", "instance"), &YgoDuel::hp);
 		ClassDB::bind_method(D_METHOD("script_decide"), &YgoDuel::script_decide);
+		ClassDB::bind_method(D_METHOD("items"), &YgoDuel::items);
 		ClassDB::bind_method(D_METHOD("get_error"), &YgoDuel::get_error);
 		ClassDB::bind_method(D_METHOD("winner"), &YgoDuel::winner);
 		ClassDB::bind_method(D_METHOD("win_reason"), &YgoDuel::win_reason);
@@ -212,6 +219,8 @@ public:
 	//                     ap: {max, initial, costs: {kind: n}} (optional)}, {...}],
 	//          placements: [{player, location, code, sequence, position}, ...]}
 	//          (sequence/position: field placements only; position defaults to face-up attack)
+	//          items: [{player, code, count}, ...] (docs/items.md)
+	//          equipment: [{player, source: "main"|"extra"|"placement", index, code}, ...]
 	String start(const Ref<YgoContent>& content, const Dictionary& config) {
 		duel_.reset();
 		if(content.is_null() || !content->get())
@@ -258,6 +267,25 @@ public:
 			                          static_cast<uint32_t>(static_cast<int64_t>(pl.get("sequence", 0))),
 			                          static_cast<uint32_t>(static_cast<int64_t>(pl.get("position", 0)))});
 		}
+		const Array items = config.get("items", Array());
+		for(int64_t i = 0; i < items.size(); ++i) {
+			const Dictionary it = items[i];
+			cfg.items.push_back({static_cast<uint8_t>(static_cast<int64_t>(it.get("player", 0)) & 1),
+			                     static_cast<uint32_t>(static_cast<int64_t>(it.get("code", 0))),
+			                     static_cast<uint32_t>(static_cast<int64_t>(it.get("count", 1)))});
+		}
+		const Array equipment = config.get("equipment", Array());
+		for(int64_t i = 0; i < equipment.size(); ++i) {
+			const Dictionary eq = equipment[i];
+			using Source = battle::CardOrigin::Source;
+			const String src = eq.get("source", "main");
+			if(src != "main" && src != "extra" && src != "placement")
+				return start_error_ = "equipment " + String::num_int64(i) + ": source must be main, extra or placement";
+			cfg.equipment.push_back({static_cast<uint8_t>(static_cast<int64_t>(eq.get("player", 0)) & 1),
+			                         src == "main" ? Source::Main : src == "extra" ? Source::Extra : Source::Placement,
+			                         static_cast<uint32_t>(static_cast<int64_t>(eq.get("index", 0))),
+			                         static_cast<uint32_t>(static_cast<int64_t>(eq.get("code", 0)))});
+		}
 		try {
 			duel_ = std::make_unique<battle::Duel>(*content_->get(), cfg);
 		} catch(const std::exception& e) {
@@ -284,6 +312,8 @@ public:
 			d["from"] = card_dict(e.from);
 			d["to"] = card_dict(e.to);
 			d["codes"] = ints(e.codes);
+			if(e.type == battle::EventType::Item)
+				d["result"] = battle::to_string(static_cast<battle::ItemResult>(e.value));
 			out.push_back(d);
 		}
 		return out;
@@ -383,6 +413,22 @@ public:
 		return d;
 	}
 
+	// Items of this duel: [{code, instance, player, left}, ...]
+	Array items() const {
+		Array out;
+		if(!duel_)
+			return out;
+		for(const auto& st : duel_->items()) {
+			Dictionary d;
+			d["code"] = static_cast<int64_t>(st.card.code);
+			d["instance"] = static_cast<int64_t>(st.card.instance);
+			d["player"] = st.player;
+			d["left"] = static_cast<int64_t>(st.left);
+			out.push_back(d);
+		}
+		return out;
+	}
+
 	Dictionary origin(int64_t instance) {
 		Dictionary d;
 		const auto* o = duel_ ? duel_->origin(static_cast<uint32_t>(instance)) : nullptr;
@@ -390,7 +436,7 @@ public:
 			return d;
 		using Source = battle::CardOrigin::Source;
 		d["player"] = o->player;
-		d["source"] = o->source == Source::Main ? "main" : o->source == Source::Extra ? "extra" : "placement";
+		d["source"] = o->source == Source::Main ? "main" : o->source == Source::Extra ? "extra" : o->source == Source::Placement ? "placement" : "support";
 		d["index"] = static_cast<int64_t>(o->index);
 		return d;
 	}

@@ -173,9 +173,10 @@ AP 不會取代原本的次數限制，例如每回合一次通常召喚，這�
   - 相同種子一定得到相同順序，而且結果不受編譯器或標準函式庫影響；之後 Godot 端改用 MSVC 編譯也一樣。
 - **固定配置**：`DuelConfig::placements` 會照指定順序放置、不洗牌，供規則測試使用。
   - 可以直接放到怪獸區或魔陷區：用 `sequence` 指定格子，用 `position` 指定表示形式，預設是表側攻擊。
-- **敵人**：建立 `Content` 時傳入 `enemies_dir`，就會讀取敵人定義。
+- **自訂卡片**：建立 `Content` 時傳入 `custom_dir`（測試時是 `game/data`），就會讀取底下所有 `c<卡號>.lua` 的定義：敵人、技能、道具、裝備。
   - 敵人的 HP 用 `Duel::hp(instance)` 查詢；HP 變化時會產生 `Hp` 事件，`value` 是目前 HP，`reason` 是上限。
   - 詳見 [enemies.md](enemies.md)。
+- **道具與裝備**：`DuelConfig::items`、`DuelConfig::equipment`；裝備用卡片的外部固定 ID（`CardOrigin`：哪位玩家的主牌組、額外牌組或固定配置的第幾張）綁定到那一張卡。道具使用結果會產生 `Item` 事件。詳見 [items.md](items.md)。
 - **備牌**：只保留在 `Deck` 資料裡，不會放進決鬥。
 
 ## 生命週期

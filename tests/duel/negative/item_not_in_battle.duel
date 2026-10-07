@@ -1,0 +1,13 @@
+# expect-fail: (990000303) is not among the offered choices
+# Items (validation 1): not usable in the battle phase.
+start_draw 0 0
+start_draw 1 0
+item 0 990000303
+card 0 mzone 91152256
+card 0 deck 15025844 x10
+card 1 deck 15025844 x10
+
+0 idle end
+1 idle end
+0 idle battle
+0 battle activate 990000303

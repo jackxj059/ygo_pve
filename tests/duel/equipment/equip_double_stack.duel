@@ -1,0 +1,18 @@
+# Equipment (validation 3): a monster that already doubles its own damage (Piranha Army, on a
+# direct attack) does not go to x4 with 雙擊徽章: the core applies "double" once.
+start_draw 0 0
+start_draw 1 0
+card 0 mzone 50823978       # placement 0: Piranha Army 800, equipped
+card 0 mzone 50823978       # 1: Piranha Army 800
+card 0 deck 15025844 x10
+card 1 deck 15025844 x10
+equip 0 placement 0 990000202
+
+0 idle end
+1 idle end
+0 idle battle
+0 battle attack 50823978@mzone[0]
+expect lp 1 6400            # 800 x2
+0 battle attack 50823978@mzone[1]
+expect lp 1 4800            # 800 x2 as well
+stop

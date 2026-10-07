@@ -1,0 +1,12 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\negative\item_needs_five.duel
+== duel created
+  move 墓地回收網(990000302) p0.hand[0] -> p0.-[0] reason=0x400
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] end
+FAIL: line 10: 墓地回收網(990000302) is not among the offered choices
+

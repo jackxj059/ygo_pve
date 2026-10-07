@@ -1,0 +1,26 @@
+# Items (validation 1): pick 5 banished cards to shuffle into the deck. Cancelling the pick changes
+# nothing, is reported as cancel and uses nothing up; picking 5 succeeds and uses the item up.
+# An Extra Deck monster counts and goes back to the Extra Deck (decided 2026-10-07).
+start_draw 0 0
+start_draw 1 0
+item 0 990000301            # 回收之鈴: banished -> deck, 5 cards
+card 0 removed 15025844 x5
+card 0 removed 45231177     # Flame Swordsman (Fusion)
+card 0 deck 91152256 x5
+card 1 deck 15025844 x10
+
+0 idle activate 990000301
+0 select                    # cancel the pick
+expect item 990000301 cancel
+expect count 0 removed 6
+expect count 0 deck 5
+expect uses 990000301 1
+0 idle activate 990000301
+0 select 45231177 15025844 15025844 15025844 15025844
+expect item 990000301 success
+expect count 0 removed 1
+expect count 0 deck 9
+expect count 0 extra 1
+expect uses 990000301 0
+0 idle end
+stop

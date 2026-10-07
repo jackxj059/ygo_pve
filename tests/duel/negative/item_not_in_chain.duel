@@ -1,0 +1,12 @@
+# expect-fail: (990000303) is not among the offered choices
+# Items (validation 1): not usable in a chain window, even in the owner's main phase.
+start_draw 0 0
+start_draw 1 0
+item 0 990000303
+card 0 szone 83968380 fd    # Jar of Greed, so P0 gets a chain window
+card 0 szone 83968380 fd
+card 0 deck 15025844 x10
+card 1 deck 15025844 x10
+
+0 idle activate 83968380@szone[0]
+0 chain 990000303

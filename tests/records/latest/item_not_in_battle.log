@@ -1,0 +1,33 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\negative\item_not_in_battle.duel
+== duel created
+  move 回復藥(990000303) p0.hand[0] -> p0.-[0] reason=0x400
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Celtic Guardian(91152256)@p0.mzone[0]#2 [1] activate 回復藥(990000303) [2] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#22 [1] mset Mystical Elf(15025844)@p1.hand[0]#22 [2] battle [3] end
+  > 1 idle end
+  phase end
+
+--- new turn (p0)
+  phase draw
+  p0 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#12 [1] repos Celtic Guardian(91152256)@p0.mzone[0]#2 [2] mset Mystical Elf(15025844)@p0.hand[0]#12 [3] activate 回復藥(990000303) [4] battle [5] end
+  > 0 idle battle
+  phase battle-start
+? p0 SELECT_BATTLECMD: [0] attack Celtic Guardian(91152256)@p0.mzone[0]#2 [1] main2 [2] end
+FAIL: line 13: 回復藥(990000303) is not among the offered choices
+

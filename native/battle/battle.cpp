@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iterator>
 #include <sstream>
+#include <tuple>
 #include <stdexcept>
 #include "ocgapi.h"
 #include "ocgapi_constants.h"
@@ -168,7 +169,7 @@ std::string phase_name(uint32_t ph) {
 
 // ------------------------------------------------------------------ Content
 
-Content::Content(const std::string& scripts_dir, const std::vector<std::string>& db_paths, const std::string& enemies_dir) {
+Content::Content(const std::string& scripts_dir, const std::vector<std::string>& db_paths, const std::string& custom_dir) {
 	for(const auto& path : db_paths) {
 		sqlite3* db = nullptr;
 		if(sqlite3_open_v2(path.c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK) {
@@ -195,9 +196,9 @@ Content::Content(const std::string& scripts_dir, const std::vector<std::string>&
 			sqlite3_close(d);
 		fail("no .lua scripts found under " + scripts_dir);
 	}
-	if(!enemies_dir.empty()) {
+	if(!custom_dir.empty()) {
 		try {
-			load_enemies(enemies_dir);
+			load_custom(custom_dir);
 		} catch(...) {
 			for(auto* d : dbs_)
 				sqlite3_close(d);
@@ -206,29 +207,29 @@ Content::Content(const std::string& scripts_dir, const std::vector<std::string>&
 	}
 }
 
-// Reads s.ygopve_enemy from each c<code>.lua in a fresh Lua state that only has the base
+// Reads s.ygopve from each c<code>.lua in a fresh Lua state that only has the base
 // libraries and constant.lua, with GetID() stubbed. Function bodies (the card's effects) are
 // defined but never run here; the core runs them in its own state.
-void Content::load_enemies(const std::string& dir) {
+void Content::load_custom(const std::string& dir) {
 	if(!fs::is_directory(dir))
-		fail("enemy directory not found: " + dir);
+		fail("custom card directory not found: " + dir);
 	const auto* constants = script_path("constant.lua");
 	if(!constants)
-		fail("constant.lua not found; it is needed to read enemy definitions");
+		fail("constant.lua not found; it is needed to read custom card definitions");
 	// One folder per unit (its monster and its skill spells) or loose files; any depth.
 	for(const auto& entry : fs::recursive_directory_iterator(dir)) {
 		const auto file = entry.path().filename().string();
 		if(!entry.is_regular_file() || entry.path().extension() != ".lua")
 			continue;
 		if(scripts_.count(file))
-			fail("enemy script " + file + " has the same name as a card script");
+			fail("custom script " + file + " has the same name as another script");
 		scripts_[file] = entry.path().string();
 		const auto stem = entry.path().stem().string();
 		if(stem.size() < 2 || stem[0] != 'c' || stem.find_first_not_of("0123456789", 1) != std::string::npos)
-			continue; // helper scripts such as ygopve_enemy.lua
+			continue; // shared rule scripts such as ygopve_enemy.lua
 		const auto code = static_cast<uint32_t>(std::stoul(stem.substr(1)));
 		if(card(code).found)
-			fail("enemy " + file + ": code " + std::to_string(code) + " is already a card in the databases");
+			fail(file + ": code " + std::to_string(code) + " is already a card in the databases");
 		cache_.erase(code); // drop the "not found" entry card() just cached
 		std::unique_ptr<lua_State, void (*)(lua_State*)> state(luaL_newstate(), lua_close);
 		lua_State* L = state.get();
@@ -243,10 +244,10 @@ void Content::load_enemies(const std::string& dir) {
 		if(luaL_dostring(L, "Duel = {LoadScript = function() end}") != LUA_OK || luaL_dofile(L, constants->c_str()) != LUA_OK ||
 		   luaL_dostring(L, stub.c_str()) != LUA_OK ||
 		   luaL_dofile(L, entry.path().string().c_str()) != LUA_OK)
-			fail("enemy " + file + ": " + lua_tostring(L, -1));
+			fail(file + ": " + lua_tostring(L, -1));
 		lua_getglobal(L, "ygopve_s");
-		if(lua_getfield(L, -1, "ygopve_enemy") != LUA_TTABLE)
-			fail("enemy " + file + ": s.ygopve_enemy table missing");
+		if(lua_getfield(L, -1, "ygopve") != LUA_TTABLE)
+			fail(file + ": s.ygopve table missing");
 		auto integer = [&](const char* key, bool required) -> lua_Integer {
 			lua_getfield(L, -1, key);
 			int ok = 0;
@@ -254,7 +255,7 @@ void Content::load_enemies(const std::string& dir) {
 			const bool nil = lua_isnil(L, -1);
 			lua_pop(L, 1);
 			if(!ok && (required || !nil))
-				fail("enemy " + file + ": " + key + (required ? " (integer) is required" : " must be an integer"));
+				fail(file + ": " + key + (required ? " (integer) is required" : " must be an integer"));
 			return ok ? v : 0;
 		};
 		auto text = [&](const char* key, bool required) -> std::string {
@@ -263,7 +264,7 @@ void Content::load_enemies(const std::string& dir) {
 			const bool bad = lua_type(L, -1) != LUA_TSTRING && (required || !lua_isnil(L, -1));
 			lua_pop(L, 1);
 			if(bad)
-				fail("enemy " + file + ": " + key + (required ? " (string) is required" : " must be a string"));
+				fail(file + ": " + key + (required ? " (string) is required" : " must be a string"));
 			return v;
 		};
 		CardData cd;
@@ -284,7 +285,7 @@ void Content::load_enemies(const std::string& dir) {
 			const bool has_hp = !lua_isnil(L, -1);
 			lua_pop(L, 1);
 			if(has_hp && integer("hp", false) <= 0)
-				fail("enemy " + file + ": hp must be a positive integer");
+				fail(file + ": hp must be a positive integer");
 			// skills (optional): codes of this unit's skill spells, put into its side's hand at the start.
 			if(lua_getfield(L, -1, "skills") == LUA_TTABLE) {
 				auto& list = skills_[code];
@@ -293,12 +294,12 @@ void Content::load_enemies(const std::string& dir) {
 					const auto v = lua_tointegerx(L, -1, &ok);
 					lua_pop(L, 1);
 					if(!ok || v <= 0)
-						fail("enemy " + file + ": skills must be a list of card codes");
+						fail(file + ": skills must be a list of card codes");
 					list.push_back(static_cast<uint32_t>(v));
 				}
 				lua_pop(L, 1); // the nil that ended the list
 			} else if(!lua_isnil(L, -1)) {
-				fail("enemy " + file + ": skills must be a list of card codes");
+				fail(file + ": skills must be a list of card codes");
 			}
 			lua_pop(L, 1);
 		} else if(kind == "spell") {
@@ -307,21 +308,57 @@ void Content::load_enemies(const std::string& dir) {
 				{"", 0}, {"normal", 0}, {"quickplay", TYPE_QUICKPLAY}, {"continuous", TYPE_CONTINUOUS}};
 			const auto it = subtypes.find(sub);
 			if(it == subtypes.end())
-				fail("enemy " + file + ": spell must be normal, quickplay or continuous");
+				fail(file + ": spell must be normal, quickplay or continuous");
 			cd.type = TYPE_SPELL | it->second;
+		} else if(kind == "item" || kind == "equip") {
+			// Created in the owner's hand for the duel and taken out of it at the start
+			// (ygopve_support.lua), so the type only matters for that moment.
+			cd.type = TYPE_SPELL;
+			has_support_ = true;
+			if(kind == "equip" && lua_getfield(L, -1, "ap_free") == LUA_TTABLE) {
+				static const std::set<std::string> ap_kinds = {"summon", "spsummon", "set", "activate", "attack", "repos"};
+				auto& list = ap_free_[code];
+				for(lua_Integer i = 1; lua_geti(L, -1, i) != LUA_TNIL; ++i) {
+					const std::string v = lua_type(L, -1) == LUA_TSTRING ? lua_tostring(L, -1) : "";
+					lua_pop(L, 1);
+					if(!ap_kinds.count(v))
+						fail(file + ": ap_free entries must be AP action kinds (summon, spsummon, set, activate, attack, repos)");
+					list.push_back(v);
+				}
+				lua_pop(L, 2); // the ending nil and the list
+			} else {
+				if(kind == "equip" && !lua_isnil(L, -1))
+					fail(file + ": ap_free must be a list of AP action kinds");
+				if(kind == "equip")
+					lua_pop(L, 1);
+			}
 		} else {
-			fail("enemy " + file + ": kind must be monster or spell");
+			fail(file + ": kind must be monster, spell, item or equip");
 		}
+		kinds_[code] = kind.empty() ? "monster" : kind;
 		cd.setcodes.push_back(0);
 		cache_[code] = cd;
-		enemies_.insert(code);
+		if(is_enemy(code))
+			enemies_.insert(code);
 	}
 	if(!enemies_.empty() && !scripts_.count("ygopve_enemy.lua"))
 		fail("ygopve_enemy.lua (enemy rules) not found in " + dir);
+	if(has_support_ && !scripts_.count("ygopve_support.lua"))
+		fail("ygopve_support.lua (item and equipment rules) not found in " + dir);
 	for(const auto& [unit, list] : skills_)
 		for(auto skill : list)
 			if(!enemies_.count(skill) || !(cache_[skill].type & TYPE_SPELL))
 				fail("enemy " + std::to_string(unit) + ": skill " + std::to_string(skill) + " is not an enemy spell definition");
+}
+
+std::string Content::kind(uint32_t code) const {
+	auto it = kinds_.find(code);
+	return it == kinds_.end() ? "" : it->second;
+}
+
+const std::vector<std::string>* Content::ap_free(uint32_t code) const {
+	auto it = ap_free_.find(code);
+	return it == ap_free_.end() ? nullptr : &it->second;
 }
 
 const std::vector<uint32_t>* Content::skills(uint32_t code) const {
@@ -443,6 +480,8 @@ Duel::Duel(Content& content, const DuelConfig& config) : content_(content) {
 				fail(std::string("failed to load ") + name);
 		if(content_.has_enemies() && !on_script_request("ygopve_enemy.lua"))
 			fail("failed to load ygopve_enemy.lua");
+		if(content_.has_support() && !on_script_request("ygopve_support.lua"))
+			fail("failed to load ygopve_support.lua");
 		std::vector<std::pair<uint32_t, CardOrigin>> added; // creation order
 		auto add = [&](uint8_t player, uint32_t loc, uint32_t code, const std::string& what, CardOrigin origin,
 		               uint32_t seq = 0, uint32_t pos = 0) {
@@ -481,6 +520,23 @@ Duel::Duel(Content& content, const DuelConfig& config) : content_(content) {
 					add(pl.player & 1, LOCATION_HAND, skill, "skill of " + content_.label(pl.code),
 					    {static_cast<uint8_t>(pl.player & 1), Source::Placement, i});
 		}
+		// Items and equipment: one card each in the owner's hand, taken out of the duel at the start.
+		for(uint32_t i = 0; i < config.items.size(); ++i) {
+			const auto& it = config.items[i];
+			if(!content_.is_item(it.code))
+				fail("item " + std::to_string(i) + ": " + content_.label(it.code) + " is not an item definition");
+			for(uint32_t j = 0; j < i; ++j)
+				if(config.items[j].code == it.code && (config.items[j].player & 1) == (it.player & 1))
+					fail("item " + content_.label(it.code) + " is listed twice for p" + std::to_string(it.player & 1) + "; give one entry a count");
+			add(it.player & 1, LOCATION_HAND, it.code, "item", {static_cast<uint8_t>(it.player & 1), Source::Support, i});
+		}
+		for(uint32_t i = 0; i < config.equipment.size(); ++i) {
+			const auto& eq = config.equipment[i];
+			if(!content_.is_equip(eq.code))
+				fail("equipment " + std::to_string(i) + ": " + content_.label(eq.code) + " is not an equipment definition");
+			add(eq.player & 1, LOCATION_HAND, eq.code, "equipment",
+			    {static_cast<uint8_t>(eq.player & 1), Source::Support, static_cast<uint32_t>(config.items.size() + i)});
+		}
 		// Normal monsters legitimately have no script; anything else must have one.
 		for(const auto& [code, origin] : added) {
 			const auto& cd = content_.card(code);
@@ -503,6 +559,36 @@ Duel::Duel(Content& content, const DuelConfig& config) : content_(content) {
 			if(present[i].code != added[i].first)
 				fail("card instance ids do not follow creation order; cannot map instances to the deck config");
 			origins_[present[i].instance] = added[i].second;
+		}
+		for(const auto& [instance, o] : origins_)
+			if(o.source == Source::Support && o.index < config.items.size()) {
+				const auto& it = config.items[o.index];
+				ItemState st;
+				st.card.code = it.code;
+				st.card.instance = instance;
+				st.player = it.player & 1;
+				st.left = it.count;
+				items_.push_back(st);
+			}
+		// Bind each equipment card to its target instance; ygopve_support.lua installs the
+		// equipment's effects on that card when the duel starts. Loading only sets a Lua table.
+		for(uint32_t i = 0; i < config.equipment.size(); ++i) {
+			const auto& eq = config.equipment[i];
+			uint32_t target = 0, self = 0;
+			for(const auto& [instance, o] : origins_) {
+				if(o.player == (eq.player & 1) && o.source == eq.source && o.index == eq.index)
+					target = instance;
+				if(o.source == Source::Support && o.index == config.items.size() + i)
+					self = instance;
+			}
+			if(!target)
+				fail("equipment " + std::to_string(i) + " (" + content_.label(eq.code) + "): p" + std::to_string(eq.player & 1) +
+				     " has no card at that position");
+			const std::string bind = "YgoSupport.Bind(" + std::to_string(self) + "," + std::to_string(target) + ")";
+			if(!OCG_LoadScript(duel_, bind.data(), static_cast<uint32_t>(bind.size()), "ygopve_bind"))
+				fail("binding equipment failed");
+			if(const auto* kinds = content_.ap_free(eq.code))
+				ap_free_[target].insert(kinds->begin(), kinds->end());
 		}
 		if(status_ == Status::Error)
 			fail(error_);
@@ -551,6 +637,30 @@ int Duel::on_script_request(const char* name) {
 void Duel::on_log(const char* text, int type) {
 	if(type == OCG_LOG_TYPE_ERROR)
 		set_error(std::string("core/script error: ") + text);
+	// ygopve_support.lua reports item uses: "YGOPVE_ITEM <card id> <code> <result>".
+	char result[16] = {};
+	unsigned long item_id = 0, item_code = 0;
+	if(type == OCG_LOG_TYPE_FROM_SCRIPT && std::sscanf(text, "YGOPVE_ITEM %lu %lu %15s", &item_id, &item_code, result) == 3) {
+		static const std::map<std::string, ItemResult> results = {{"success", ItemResult::Success}, {"partial", ItemResult::Partial},
+		                                                          {"nochange", ItemResult::NoChange}, {"cancel", ItemResult::Cancel}};
+		auto it = results.find(result);
+		if(it == results.end()) {
+			set_error(std::string("item ") + std::to_string(item_code) + " reported an unknown result '" + result + "'");
+			return;
+		}
+		// A use that started is a use, whatever came of it; a cancelled pick is not.
+		if(it->second != ItemResult::Cancel)
+			for(auto& st : items_)
+				if(st.card.instance == item_id && st.left > 0)
+					--st.left;
+		Event e;
+		e.type = EventType::Item;
+		e.card.code = item_code;
+		e.card.instance = item_id;
+		e.value = static_cast<uint32_t>(it->second);
+		script_events_.push_back(e);
+		return;
+	}
 	// script_decide(): YgoEnemy.Decide answers with "YGOPVE_ANSWER <index>..." (0-based).
 	if(deciding_ && type == OCG_LOG_TYPE_FROM_SCRIPT && std::strncmp(text, "YGOPVE_ANSWER", 13) == 0) {
 		decided_ = true;
@@ -860,7 +970,8 @@ bool Duel::parse_message(uint8_t type, const uint8_t* data, size_t size) {
 			const auto card = read_short(r, true);
 			const auto desc = r.get<uint64_t>();
 			r.get<uint8_t>();
-			add("activate", card, bytes<int32_t>(i << 16), desc);
+			if(!content_.is_item(card.code)) // items: main phase command only
+				add("activate", card, bytes<int32_t>(i << 16), desc);
 		}
 		const auto attackers = r.get<uint32_t>();
 		for(int32_t i = 0; i < static_cast<int32_t>(attackers); ++i) {
@@ -899,7 +1010,18 @@ bool Duel::parse_message(uint8_t type, const uint8_t* data, size_t size) {
 		r.get<uint32_t>();
 		r.get<uint32_t>();
 		const auto n = r.get<uint32_t>();
-		if(n == 0 && !forced) {
+		// Items are offered by the core in chain windows too (they are continuous effects), but
+		// they may only be used from the main phase command.
+		std::vector<std::tuple<CardRef, uint64_t, int32_t>> chainable;
+		for(int32_t i = 0; i < static_cast<int32_t>(n); ++i) {
+			const auto code = r.get<uint32_t>();
+			const auto card = read_loc(r, code);
+			const auto desc = r.get<uint64_t>();
+			r.get<uint8_t>();
+			if(!content_.is_item(code))
+				chainable.emplace_back(card, desc, i);
+		}
+		if(chainable.empty() && !forced) {
 			// Passing is the only legal answer, so there is nothing to ask.
 			const int32_t pass = -1;
 			OCG_DuelSetResponse(duel_, &pass, sizeof(pass));
@@ -912,13 +1034,8 @@ bool Duel::parse_message(uint8_t type, const uint8_t* data, size_t size) {
 		prompt_.player = player;
 		prompt_.forced = forced;
 		encoded_.clear();
-		for(int32_t i = 0; i < static_cast<int32_t>(n); ++i) {
-			const auto code = r.get<uint32_t>();
-			const auto card = read_loc(r, code);
-			const auto desc = r.get<uint64_t>();
-			r.get<uint8_t>();
+		for(const auto& [card, desc, i] : chainable)
 			add("activate", card, bytes<int32_t>(i), desc);
-		}
 		if(!forced)
 			add("pass", {}, bytes<int32_t>(-1));
 		return true;
@@ -1085,10 +1202,21 @@ void Duel::price_options() {
 	// Back at a decision point without the confirming message: the action was cancelled.
 	if(decision && pending_.active && pending_.player == prompt_.player)
 		pending_.active = false;
+	// Item cards are outside the duel, so their options carry no instance: match by player and
+	// code (each item is listed once per player, see the constructor).
+	for(auto& o : prompt_.options)
+		for(const auto& st : items_)
+			if(st.player == prompt_.player && st.card.code == o.card.code && st.left == 0)
+				o.blocked = "no uses left";
 	if(!ap.rules.enabled)
 		return;
 	for(auto& o : prompt_.options) {
-		const auto kind = ap_kind(prompt_.type, prompt_.forced, o.action);
+		// Items cost no AP (TEST SETTING, not decided). Equipment can make a card's actions free;
+		// display, the check below and the charge after submit() all use this one price.
+		auto kind = content_.is_item(o.card.code) ? "" : ap_kind(prompt_.type, prompt_.forced, o.action);
+		auto free = ap_free_.find(o.card.instance);
+		if(!kind.empty() && free != ap_free_.end() && free->second.count(kind))
+			kind.clear();
 		auto it = ap.rules.costs.find(kind);
 		o.cost = kind.empty() || it == ap.rules.costs.end() ? 0 : it->second;
 		if(o.cost > ap.current)
@@ -1327,6 +1455,16 @@ std::pair<int, int> core_version() {
 	return {major, minor};
 }
 
+const char* to_string(ItemResult result) {
+	switch(result) {
+	case ItemResult::Success: return "success";
+	case ItemResult::Partial: return "partial";
+	case ItemResult::NoChange: return "nochange";
+	case ItemResult::Cancel: return "cancel";
+	}
+	return "?";
+}
+
 const char* to_string(PromptType type) {
 	switch(type) {
 	case PromptType::Idle: return "SELECT_IDLECMD";
@@ -1401,6 +1539,9 @@ std::string describe(Content& content, const Event& e) {
 	case EventType::Ap:
 		return e.reason ? "  " + p + " spends " + std::to_string(e.reason) + " AP (" + std::to_string(e.value) + " left)"
 		                : "  " + p + " AP refilled to " + std::to_string(e.value);
+	case EventType::Item:
+		return "  item " + content.label(e.card.code) + "#" + std::to_string(e.card.instance) + ": " +
+		       to_string(static_cast<ItemResult>(e.value));
 	case EventType::Hp:
 		return "  " + content.label(e.card.code) + "#" + std::to_string(e.card.instance) + " HP " + std::to_string(e.value) + "/" + std::to_string(e.reason);
 	}

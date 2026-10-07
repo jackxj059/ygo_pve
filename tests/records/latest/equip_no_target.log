@@ -1,0 +1,4 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\negative\equip_no_target.duel
+FAIL: equipment 0 (雙擊徽章(990000202)): p0 has no card at that position
+

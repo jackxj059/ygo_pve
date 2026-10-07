@@ -1,0 +1,48 @@
+# Equipment (validation 3), normal duel: 雙擊徽章 doubles the battle damage one specific monster
+# inflicts, through the core's EFFECT_CHANGE_BATTLE_DAMAGE (not by changing its ATK).
+#   equipped Celtic 1400 vs Elf 800      600 x2 = 1200
+#   plain Celtic (same name)             600
+#   equipped Elf 800 vs Elf 800          0 x2 = 0, both destroyed as usual
+#   equipped Susa Soldier (halves its own damage) vs Celtic 1400: 600, double and half cancel (core rule)
+#   equipped Warwolf revived from the GY (zone change: same card) vs Elf: 1200 x2 = 2400
+start_draw 0 0
+start_draw 1 0
+card 0 mzone 91152256       # placement 0: Celtic Guardian, equipped
+card 0 mzone 91152256       # 1: Celtic Guardian
+card 0 mzone 15025844       # 2: Mystical Elf, equipped
+card 0 mzone 40473581       # 3: Susa Soldier, equipped
+card 0 grave 69247929       # 4: Gene-Warped Warwolf, equipped
+card 0 hand 83764718        # 5: Monster Reborn
+card 0 deck 15025844 x10    # 6-15
+card 1 mzone 15025844       # 16-18: Mystical Elf x3
+card 1 mzone 15025844
+card 1 mzone 15025844
+card 1 mzone 91152256       # 19: Celtic Guardian
+card 1 mzone 15025844       # 20: Mystical Elf
+card 1 deck 15025844 x10
+equip 0 placement 0 990000202
+equip 0 placement 2 990000202
+equip 0 placement 3 990000202
+equip 0 placement 4 990000202
+
+0 idle activate 83764718
+0 select 69247929@grave
+0 idle end
+1 idle end
+0 idle battle
+0 battle attack 91152256@mzone[0]
+0 select 15025844
+expect lp 1 6800
+0 battle attack 91152256@mzone[1]
+0 select 15025844
+expect lp 1 6200
+0 battle attack 15025844
+0 select 15025844
+expect lp 1 6200
+0 battle attack 40473581
+0 select 91152256
+expect lp 1 5600
+0 battle attack 69247929
+0 select 15025844
+expect lp 1 3200
+stop

@@ -20,7 +20,7 @@
 ```lua
 local s,id=GetID()
 
-s.ygopve_enemy={          -- 由戰鬥模組讀取，當作核心的卡片資料
+s.ygopve={                -- 由戰鬥模組讀取，當作核心的卡片資料
 	name="岩殼守衛",       -- 必填
 	text="……",            -- 選填：卡片說明
 	atk=1200, def=2000,    -- 必填：原本攻擊力、守備力
@@ -46,8 +46,8 @@ end
   - 卡號已經存在於卡片資料庫時，載入會直接失敗。
   - 測試敵人目前使用 9 億號段，正式的號段還沒決定。
 - **卡片種類**：預設是效果怪獸；技能用 `kind="spell"` 寫成魔法卡，見下方「技能」。
-- **資料夾**：模組會讀取 `enemies_dir` 底下所有子資料夾裡的 `c<卡號>.lua`，所以檔案放在哪個單位資料夾都可以，資料夾只是為了整理。
-- **讀取 `s.ygopve_enemy` 時**：模組只載入 `constant.lua`，可以使用 `RACE_*`、`ATTRIBUTE_*` 等常數，但不能呼叫核心函式。
+- **資料夾**：模組會讀取自訂卡片資料夾（`custom_dir`，測試時是 `game/data`）底下所有子資料夾裡的 `c<卡號>.lua`，所以檔案放在哪個單位資料夾都可以，資料夾只是為了整理。道具與裝備也放在同一個資料夾底下，見 [items.md](items.md)。
+- **讀取 `s.ygopve` 時**：模組只載入 `constant.lua`，可以使用 `RACE_*`、`ATTRIBUTE_*` 等常數，但不能呼叫核心函式。
 - **`s.initial_effect`**：裡面的程式只有核心會執行，所以照一般卡片腳本的寫法即可。
 
 ## 技能
@@ -57,7 +57,7 @@ end
 ```lua
 -- rock_guardian/c990000102.lua
 local s,id=GetID()
-s.ygopve_enemy={ name="重壓結界", kind="spell", spell="continuous", text="……" }
+s.ygopve={ name="重壓結界", kind="spell", spell="continuous", text="……" }
 function s.initial_effect(c)
 	YgoEnemy.InitSkill(c)   -- 技能規則：用完不消耗
 	-- 其他照一般魔法卡腳本寫
@@ -83,7 +83,7 @@ end
 
 ```
 Content（建立時）
-  └─ 為每個 c<卡號>.lua 建立一個獨立的小型 Lua 環境，讀出 s.ygopve_enemy
+  └─ 為每個 c<卡號>.lua 建立一個獨立的小型 Lua 環境，讀出 s.ygopve
      → 變成 CardData，之後核心要求卡片資料時直接提供，不需要 .cdb
 Duel（建立時）
   └─ 載入 constant.lua、utility.lua，接著載入 ygopve_enemy.lua
@@ -171,9 +171,10 @@ Duel（建立時）
 | `initial_effect` 裡的效果 | — | 卡片的效果，可以被連鎖、被無效 |
 | HP 上限 | `ygopve_enemy.lua` 的表格，以卡片實例 ID 為索引；`Duel::hp()` | — |
 | 目前 HP | 同上，用 `Hp` 事件通知宿主 | — |
-| 守備時扣 HP、不會被戰鬥破壞 | — | 規則效果：`EFFECT_INDESTRUCTABLE_BATTLE`，有條件，加上 `EVENT_BATTLED` 時扣 HP |
+| 戰鬥時扣 HP、HP 沒歸零就不會被戰鬥破壞 | — | 規則效果：`EFFECT_INDESTRUCTABLE_BATTLE`，在傷害計算時讀取核心算出的敵方戰鬥傷害（`Duel.GetBattleDamage`），`EVENT_BATTLED` 時扣 HP |
+| 守備時被攻擊，扣攻擊力與守備力的差額 | — | 全域效果：攻擊守備表示敵人的怪獸擁有貫穿（`EFFECT_PIERCE`），讓核心把差額算成敵方的戰鬥傷害 |
 | 攻擊表示時被攻擊，不比較攻擊力 | — | 規則效果：`EFFECT_SET_ATTACK_FINAL`，只在這次戰鬥的傷害步驟中把攻擊力設為 0 |
-| 敵方沒有 LP | 敵方 LP 固定不變 | 全域效果：`EFFECT_CANNOT_LOSE_LP`、`EFFECT_AVOID_BATTLE_DAMAGE`，加上 `EVENT_DAMAGE` 時把 LP 設回原值 |
+| 敵方沒有 LP | 敵方 LP 固定不變 | 全域效果：`EFFECT_CANNOT_LOSE_LP`；`EFFECT_CHANGE_DAMAGE` 讓戰鬥傷害不會扣到 LP（但核心仍會算出這個數字）；效果傷害在 `EVENT_DAMAGE` 時把 LP 設回原值 |
 
 規則效果都帶有 `EFFECT_FLAG_CANNOT_DISABLE` 和 `EFFECT_FLAG_UNCOPYABLE`：無效敵人的效果時，HP 規則仍然有效，也不會被複製。
 
@@ -194,14 +195,15 @@ Duel（建立時）
 | 敵人攻擊攻擊表示的怪獸，敵人攻擊力較低 | 玩家的怪獸不被破壞；敵人扣差額 HP，HP 歸零才被戰鬥破壞 | 2026-10-06 決定 |
 | 敵人攻擊守備表示的怪獸，守備力比敵人攻擊力高 | 原規則是攻擊方受到差額傷害；敵方沒有 LP，所以目前不扣 HP | **未定案** |
 | 有多隻敵人時，效果傷害扣誰 | 扣場上序號最小（最左邊）的那隻 | **測試值** |
-| 貫穿傷害、直接攻擊敵方 | 戰鬥傷害一律變成 0；貫穿的部分已經算在扣 HP 的差額裡 | 原型的處理方式 |
+| 貫穿傷害、直接攻擊敵方 | 戰鬥傷害不會扣到敵方 LP；貫穿本來就是守備時扣 HP 的算法 | 原型的處理方式 |
+| 戰鬥傷害的倍率（2 倍、減半、固定值） | 照核心規則算出敵方的戰鬥傷害，HP 扣這個數字，所以只套用一次；例外是敵人主動攻擊、攻擊力相同時，扣的是規則值（對方攻擊力），不經過核心的傷害計算 | 2026-10-07 起 |
 
 ### 擊敗時使用的核心處理與觸發語意
 
 攻擊表示時被攻擊：傷害步驟中敵人的攻擊力是 0，所以核心比較的是「攻擊怪獸的攻擊力對 0」。之後的流程和守備時相同，HP 歸零一樣是真正的戰鬥破壞。副作用是：傷害步驟中，其他卡查到的敵人攻擊力也是 0。
 
 - **戰鬥中 HP 歸零**：
-  - 做法：在傷害計算時，核心會詢問「不會被戰鬥破壞」效果是否適用；這次傷害足以讓 HP 歸零時，這個效果就不適用。
+  - 做法：在傷害計算時，核心會詢問「不會被戰鬥破壞」效果是否適用；這時核心已經算好這次的戰鬥傷害，傷害足以讓 HP 歸零時，這個效果就不適用。
   - 結果：核心照一般的戰鬥破壞流程處理，原因是 `REASON_BATTLE | REASON_DESTROY`。
   - 會觸發的效果：「被戰鬥破壞時」、「戰鬥破壞對方怪獸時」、送墓、離場。
   - 只會結算一次：破壞由核心進行，HP 只在傷害計算結束後扣一次。
@@ -217,7 +219,7 @@ Duel（建立時）
 
 ## 測試
 
-`tests/duel/enemy/*.duel`，由 `scripts/test-duel.ps1` 執行，執行時會加上 `--enemies game/data/enemies`。
+`tests/duel/enemy/*.duel`，由 `scripts/test-duel.ps1` 執行，執行時會加上 `--custom game/data`。
 
 | 情境 | 驗證內容 |
 | --- | --- |

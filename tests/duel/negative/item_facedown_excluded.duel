@@ -1,0 +1,14 @@
+# expect-fail: (990000301) is not among the offered choices
+# Items: the banished-cards item only picks face-up cards (first version). After Pot of Desires
+# banishes 10 cards face-down there are 4 face-up banished cards, so it is not offered.
+start_draw 0 0
+start_draw 1 0
+item 0 990000301
+card 0 hand 35261759        # Pot of Desires: banish the top 10 cards face-down, draw 2
+card 0 removed 15025844 x4
+card 0 deck 15025844 x15
+card 1 deck 15025844 x10
+
+0 idle activate 35261759
+expect count 0 removed 14
+0 idle activate 990000301

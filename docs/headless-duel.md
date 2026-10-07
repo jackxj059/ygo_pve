@@ -41,7 +41,7 @@ powershell -ExecutionPolicy Bypass -File scripts/fetch-card-images.ps1 -Kind cro
 build/duel_harness.exe --scripts third_party/CardScripts --db third_party/BabelCDB/cards.cdb tests/duel/basic_chain_win.duel
 ```
 
-`--db` 可重複指定，找卡時先找到的資料庫優先。`--enemies DIR` 會載入敵人定義（`game/data/enemies`，見 [enemies.md](enemies.md)）；`test-duel.ps1` 每個情境都會加上這個參數。
+`--db` 可重複指定，找卡時先找到的資料庫優先。`--custom DIR` 會載入自訂卡片：敵人、技能、道具、裝備（`game/data`，見 [enemies.md](enemies.md)、[items.md](items.md)）；`test-duel.ps1` 每個情境都會加上這個參數。
 
 - bootstrap 遇到有本地修改的 checkout 只會警告或中止，不會 reset。
 - 若 checkout 停在鎖定以外的 commit 又有修改，會直接報錯。
@@ -67,11 +67,15 @@ build/duel_harness.exe --scripts third_party/CardScripts --db third_party/BabelC
 | `card P hand/deck/grave/removed/extra CODE [xN]` | 依指定順序放置卡片，不洗牌；用於固定開場的規則測試 |
 | `card P mzone/szone CODE [fu_atk/fu_def/fd_def/fd]` | 直接放到場上，由左而右依序放入空格；預設是表側攻擊 |
 | `draw_per_turn P n` | 只設定玩家 P 每回合的抽牌數，例如敵方沒有牌組時設為 0 |
+| `item P CODE [xN]` | 玩家 P 擁有這個道具 N 個（預設 1，見 [items.md](items.md)） |
+| `equip P main/extra/placement INDEX CODE` | 把裝備 CODE 綁到玩家 P 的某一張卡：`main`／`extra` 是 ydk 清單中的第幾張，`placement` 是所有 `card` 行依序的第幾張（都從 0 開始） |
 | `enemy_ai P` | 玩家 P 的所有提示都交給敵人腳本（`s.ai`）回答，紀錄中標成 `enemy script: ...`；情境裡不能再寫這位玩家的操作 |
 | `ap P MAX INITIAL` | 啟用玩家 P 的 AP（沒寫就不啟用，沿用原規則） |
 | `ap_cost P KIND N` | 動作費用：KIND 可以是 `summon`、`spsummon`、`set`、`activate`、`attack`、`repos` |
 
 操作行的開頭是玩家編號，依序對應核心送出的選擇提示。
+
+卡片可以寫成卡號，或寫成 `卡號@區域`、`卡號@區域[格子]` 來區分同名卡，例如 `83968380@hand`、`83968380@szone[1]`。操作與 `expect cost`／`expect blocked` 都可以這樣寫。
 
 | 操作 | 對應提示 |
 | --- | --- |
@@ -100,6 +104,8 @@ build/duel_harness.exe --scripts third_party/CardScripts --db third_party/BabelC
 | `expect ap P n` | 玩家 P 目前的 AP |
 | `expect cost ACTION CODE n` | 目前提示中，該選項的 AP 費用 |
 | `expect blocked ACTION CODE` | 目前提示中，該選項因為 AP 不足被擋下 |
+| `expect uses CODE n` | 該道具剩下的數量 |
+| `expect item CODE RESULT` | 該道具最近一次使用的結果：`success`、`partial`、`nochange`、`cancel` |
 | `expect hp CODE n [max]` | 該卡號的敵人目前的 HP（及上限）；指的是最後一次回報 HP 的那隻 |
 | `expect destroyed CODE battle/effect/not destroyed` | 該卡號最後一次移動是否為破壞，以及破壞原因是戰鬥還是效果 |
 | `expect retry` | 上一個回答被核心以 `MSG_RETRY` 拒絕，現在是同一個提示重問。沒寫這行時，核心拒絕回答一律視為失敗 |

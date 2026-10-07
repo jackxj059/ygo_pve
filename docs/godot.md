@@ -100,6 +100,15 @@ native/battle/               共用戰鬥模組（C++，不依賴 Godot）
   - 「P1 由你操作」：敵方由你手動操作。
 - 規則與限制見 [enemies.md](enemies.md)。
 
+## 道具與裝備
+
+- **載入**：`resources` 的 `custom_dir`（`res://data`）底下的道具與裝備定義會一併讀取。這個資料夾也包含敵人。
+- **設定**：戰鬥 config 可以帶 `items`、`equipment`。查詢與事件：
+  - `YgoDuel.items()`：剩餘數量。
+  - 事件 `"item"`：帶有 `result`。
+  - `YgoBattleSession.equipment_of(instance)`：用卡片的外部固定 ID 查出它裝了什麼。
+- **測試宿主**：牌組預覽可以戰外配置裝備；戰鬥中，道具顯示在主要階段的選項裡。詳見 [items.md](items.md)。
+
 ## 測試
 
 - **`game/tests/smoke_test.gd`**：無畫面執行，由 `test-duel.ps1` 呼叫。

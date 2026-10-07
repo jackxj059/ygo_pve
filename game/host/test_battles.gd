@@ -22,7 +22,7 @@ static func resources() -> Dictionary:
 			tp.path_join("BabelCDB/cards.cdb"),
 			tp.path_join("BabelCDB/release-betb.cdb"),
 		]),
-		"enemies_dir": ProjectSettings.globalize_path("res://data/enemies"),
+		"custom_dir": ProjectSettings.globalize_path("res://data"), # enemies, items, equipment
 		"images_dir": tp.path_join("card_images/full"),
 	}
 
@@ -55,7 +55,7 @@ static func basic_chain_win() -> Dictionary:
 ## Enemy prototype opening (test settings, not product rules): the enemy in face-up defense, P0's
 ## field empty and a hand to try things with. P1 is the enemy side: no deck, no draws.
 static func enemy_prototype() -> Dictionary:
-	var placements := [{"player": 1, "location": LOCATION_MZONE, "code": 990000001, "sequence": 0, "position": POS_FACEUP_DEFENSE}]
+	var placements := enemy_unit()
 	# 6 cards (the hand limit): Gene-Warped Warwolf, Celtic Guardian, Mystical Elf, Wasteland,
 	# Hinotama, Infinite Impermanence
 	for code in [69247929, 91152256, 15025844, 23424603, 46130346, 10045474]:
@@ -67,3 +67,8 @@ static func enemy_prototype() -> Dictionary:
 		"players": [{"start_draw": 0}, {"start_draw": 0, "draw_per_turn": 0}],
 		"placements": placements,
 	}
+
+
+## The enemy side of the test encounters: 岩殼守衛 in face-up defense (its skills come with it).
+static func enemy_unit() -> Array:
+	return [{"player": 1, "location": LOCATION_MZONE, "code": 990000001, "sequence": 0, "position": POS_FACEUP_DEFENSE}]

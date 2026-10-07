@@ -1,0 +1,33 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\negative\item_facedown_excluded.duel
+== duel created
+  move 回收之鈴(990000301) p0.hand[1] -> p0.-[0] reason=0x400
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] sset Pot of Desires(35261759)@p0.hand[0]#2 [1] activate Pot of Desires(35261759)@p0.hand[0]#2 [2] end
+  > 0 idle activate 35261759
+? p0 SELECT_PLACE pick 1-1: [0] zone p0.szone[0] [1] zone p0.szone[1] [2] zone p0.szone[2] [3] zone p0.szone[3] [4] zone p0.szone[4]
+  > default: first free zone
+  move Pot of Desires(35261759) p0.hand[0]#2 -> p0.szone[0]#2 reason=0x0
+  CHAIN LINK 1: Pot of Desires(35261759) from p0.szone[0]#2 (chosen by player)
+  move Mystical Elf(15025844) p0.deck[14]#21 -> p0.removed[4]#21 reason=0x80
+  move Mystical Elf(15025844) p0.deck[13]#20 -> p0.removed[5]#20 reason=0x80
+  move Mystical Elf(15025844) p0.deck[12]#19 -> p0.removed[6]#19 reason=0x80
+  move Mystical Elf(15025844) p0.deck[11]#18 -> p0.removed[7]#18 reason=0x80
+  move Mystical Elf(15025844) p0.deck[10]#17 -> p0.removed[8]#17 reason=0x80
+  move Mystical Elf(15025844) p0.deck[9]#16 -> p0.removed[9]#16 reason=0x80
+  move Mystical Elf(15025844) p0.deck[8]#15 -> p0.removed[10]#15 reason=0x80
+  move Mystical Elf(15025844) p0.deck[7]#14 -> p0.removed[11]#14 reason=0x80
+  move Mystical Elf(15025844) p0.deck[6]#13 -> p0.removed[12]#13 reason=0x80
+  move Mystical Elf(15025844) p0.deck[5]#12 -> p0.removed[13]#12 reason=0x80
+  resolve link 1: Pot of Desires(35261759)
+  p0 draws Mystical Elf(15025844) Mystical Elf(15025844)
+  move Pot of Desires(35261759) p0.szone[0]#2 -> p0.grave[0]#2 reason=0x400
+  chain end
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#11 [1] summon Mystical Elf(15025844)@p0.hand[1]#10 [2] mset Mystical Elf(15025844)@p0.hand[0]#11 [3] mset Mystical Elf(15025844)@p0.hand[1]#10 [4] end [5] shuffle
+  ok: expect count 0 removed 14
+FAIL: line 14: 回收之鈴(990000301) is not among the offered choices
+

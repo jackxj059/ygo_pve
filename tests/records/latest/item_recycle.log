@@ -1,0 +1,45 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\items\item_recycle.duel
+== duel created
+  move 回收之鈴(990000301) p0.hand[0] -> p0.-[0] reason=0x400
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] activate 回收之鈴(990000301) [1] end
+  > 0 idle activate 990000301
+? p0 SELECT_CARD pick 5-5: [0] card Flame Swordsman(45231177)@p0.removed[5]#7 [1] card Mystical Elf(15025844)@p0.removed[4]#6 [2] card Mystical Elf(15025844)@p0.removed[3]#5 [3] card Mystical Elf(15025844)@p0.removed[2]#4 [4] card Mystical Elf(15025844)@p0.removed[1]#3 [5] card Mystical Elf(15025844)@p0.removed[0]#2
+  > 0 select
+  item 回收之鈴(990000301)#23: cancel
+? p0 SELECT_IDLECMD: [0] activate 回收之鈴(990000301) [1] end
+  ok: expect item 990000301 cancel
+  ok: expect count 0 removed 6
+  ok: expect count 0 deck 5
+  ok: expect uses 990000301 1
+  > 0 idle activate 990000301
+? p0 SELECT_CARD pick 5-5: [0] card Flame Swordsman(45231177)@p0.removed[5]#7 [1] card Mystical Elf(15025844)@p0.removed[4]#6 [2] card Mystical Elf(15025844)@p0.removed[3]#5 [3] card Mystical Elf(15025844)@p0.removed[2]#4 [4] card Mystical Elf(15025844)@p0.removed[1]#3 [5] card Mystical Elf(15025844)@p0.removed[0]#2
+  > 0 select 45231177 15025844 15025844 15025844 15025844
+  move Flame Swordsman(45231177) p0.removed[5]#7 -> p0.extra[0]#7 reason=0x40
+  move Mystical Elf(15025844) p0.removed[4]#6 -> p0.deck[5]#6 reason=0x40
+  move Mystical Elf(15025844) p0.removed[3]#5 -> p0.deck[6]#5 reason=0x40
+  move Mystical Elf(15025844) p0.removed[2]#4 -> p0.deck[7]#4 reason=0x40
+  move Mystical Elf(15025844) p0.removed[1]#3 -> p0.deck[8]#3 reason=0x40
+  item 回收之鈴(990000301)#23: success
+? p0 SELECT_IDLECMD: [0] end
+  ok: expect item 990000301 success
+  ok: expect count 0 removed 1
+  ok: expect count 0 deck 9
+  ok: expect count 0 extra 1
+  ok: expect uses 990000301 0
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+== scenario stopped at: ? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#22 [1] mset Mystical Elf(15025844)@p1.hand[0]#22 [2] battle [3] end
+PASS
+

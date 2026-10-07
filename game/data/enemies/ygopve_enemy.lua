@@ -3,7 +3,7 @@
 --
 -- An enemy is a monster card with HP; the enemy side has no LP. Rules decided so far
 -- (docs/enemies.md):
---   * HP starts at s.ygopve_enemy.hp when the enemy defines it, otherwise at the printed ATK + DEF
+--   * HP starts at s.ygopve.hp when the enemy defines it, otherwise at the printed ATK + DEF
 --     (default decided 2026-10-06). Later ATK/DEF changes never change the cap.
 --   * Attacked in defense position, attacker ATK > DEF: the enemy loses the difference in HP
 --     instead of being destroyed; at HP 0 it is destroyed by battle (normal battle destruction).
@@ -34,7 +34,7 @@ local RULE = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_UNCOPYABLE
 local function ensure(c)
 	local id = c:GetCardID()
 	if not hp[id] then
-		local def = c:GetMetatable().ygopve_enemy
+		local def = c:GetMetatable().ygopve
 		maxhp[id] = def and def.hp or math.max(c:GetTextAttack(), 0) + math.max(c:GetTextDefense(), 0)
 		hp[id] = maxhp[id]
 	end
@@ -47,20 +47,22 @@ local function report(c)
 end
 
 -- Value of EFFECT_INDESTRUCTABLE_BATTLE, asked by the core at damage calculation with the card
--- battling the enemy. The loss is recorded here because this is the moment the core decides
--- destruction with these exact ATK/DEF values; it is applied after damage calculation.
+-- battling the enemy, right after it computed this battle's damage. The HP loss is the battle
+-- damage the core computed for the enemy side, so the core's own modifiers (double, half,
+-- fixed amounts, ...) apply exactly once; that damage never reaches the side's LP (see
+-- register_side). It is recorded here because this is the moment the core decides destruction,
+-- and applied after damage calculation.
 -- ponytail: a second check in the same damage step overwrites the record with the same values.
 function YgoEnemy.SurvivesBattle(e, opponent)
 	local c = e:GetHandler()
 	local id = ensure(c)
 	local loss
-	if Duel.GetAttacker() == c then -- the enemy attacked and would lose this battle
-		local diff = opponent:GetAttack() - c:GetAttack()
-		loss = opponent:IsAttackPos() and (diff > 0 and diff or opponent:GetAttack()) or 0
-	elseif c:IsDefensePos() then
-		loss = opponent:GetAttack() - c:GetDefense()
-	else -- attacked in attack position: its ATK counts as 0
-		loss = opponent:GetAttack()
+	if Duel.GetAttacker() == c and opponent:IsAttackPos() and opponent:GetAttack() == c:GetAttack() then
+		loss = opponent:GetAttack() -- equal ATK: a rule amount, not battle damage (no modifiers)
+	else
+		-- defense position: the attacker pierces (see Init); attacked in attack position: the
+		-- enemy's ATK is 0; the enemy attacked and lost: the difference
+		loss = Duel.GetBattleDamage(c:GetControler())
 	end
 	if loss <= 0 then return true end
 	pending[id] = loss
@@ -121,8 +123,14 @@ local function register_side(p)
 	e1:SetCode(EFFECT_CANNOT_LOSE_LP)
 	e1:SetTargetRange(1, 0)
 	Duel.RegisterEffect(e1, p)
-	local e2 = e1:Clone()
-	e2:SetCode(EFFECT_AVOID_BATTLE_DAMAGE) -- piercing and direct attacks: no LP to hit
+	-- Battle damage to this side is still computed by the core (an enemy's HP loss reads it at
+	-- damage calculation) but never applied to LP. Effect damage goes through: see effect_damage.
+	local e2 = Effect.GlobalEffect()
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET | RULE)
+	e2:SetCode(EFFECT_CHANGE_DAMAGE)
+	e2:SetTargetRange(1, 0)
+	e2:SetValue(function(e, re, val, r) return r & REASON_BATTLE ~= 0 and 0 or val end)
 	Duel.RegisterEffect(e2, p)
 	local e3 = Effect.GlobalEffect()
 	e3:SetType(EFFECT_TYPE_FIELD | EFFECT_TYPE_CONTINUOUS)
@@ -132,6 +140,19 @@ local function register_side(p)
 	e3:SetCondition(function(e, tp, eg, ep, ev, re, r) return ep == p and r & REASON_EFFECT ~= 0 end)
 	e3:SetOperation(effect_damage)
 	Duel.RegisterEffect(e3, p)
+	-- A monster attacking an enemy in defense position pierces, so the core computes the
+	-- ATK - DEF difference as battle damage to this side (read by SurvivesBattle). Registered for
+	-- the other player: the core sends piercing damage to the opponent of the effect's player.
+	local e4 = Effect.GlobalEffect()
+	e4:SetType(EFFECT_TYPE_FIELD)
+	e4:SetProperty(RULE)
+	e4:SetCode(EFFECT_PIERCE)
+	e4:SetTargetRange(LOCATION_MZONE, 0)
+	e4:SetTarget(function(e, tc)
+		local t = Duel.GetAttackTarget()
+		return tc == Duel.GetAttacker() and t and units[t] and t:IsDefensePos()
+	end)
+	Duel.RegisterEffect(e4, 1 - p)
 end
 
 local startup = Effect.GlobalEffect()
@@ -183,7 +204,7 @@ function YgoEnemy.Init(c)
 end
 
 -- Skills ------------------------------------------------------------------------------------
--- A unit's skills are spell cards listed in its s.ygopve_enemy.skills; the battle module puts one
+-- A unit's skills are spell cards listed in its s.ygopve.skills; the battle module puts one
 -- copy of each into the unit side's hand at the start, and only the enemy scripts use them.
 -- Skills are never used up (decided 2026-10-06): instead of going to the GY (after resolving, or
 -- when destroyed or discarded) or leaving the field in any other way, a skill returns to its

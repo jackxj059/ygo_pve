@@ -3,13 +3,17 @@
 #   build/battle_tests.exe      must print PASS
 #   tests/duel/*.duel           must print PASS
 #   tests/duel/prompts/*.duel   must print PASS (one real-card scenario per prompt type)
-#   tests/duel/enemy/*.duel     must print PASS (enemy prototype; enemies from game/data/enemies)
+#   tests/duel/enemy/*.duel     must print PASS (enemy prototype)
+#   tests/duel/items/*.duel, tests/duel/equipment/*.duel  must print PASS (items and equipment)
+#   (custom cards - enemies, items, equipment - come from game/data)
 #   tests/duel/negative/*.duel  must FAIL with the text given in its "# expect-fail:" line
 #   game/tests/smoke_test.gd    Godot (headless) loads the GDExtension and plays a duel: must print PASS
 # Exit code is non-zero if any scenario does not behave as expected.
 [CmdletBinding()]
 param([switch]$Build)
 $ErrorActionPreference = 'Stop'
+# The harness prints UTF-8 (card names); decode it as such, not with the system codepage.
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
 $root = Split-Path -Parent $PSScriptRoot
 if ($Build -or -not (Test-Path (Join-Path $root 'build/duel_harness.exe'))) {
     & (Join-Path $PSScriptRoot 'build.ps1')
@@ -33,11 +37,12 @@ try {
 
     $scenarios = @(Get-ChildItem tests/duel -Filter *.duel) + @(Get-ChildItem tests/duel/prompts -Filter *.duel) +
         @(Get-ChildItem tests/duel/ap -Filter *.duel) + @(Get-ChildItem tests/duel/enemy -Filter *.duel) +
+        @(Get-ChildItem tests/duel/items -Filter *.duel) + @(Get-ChildItem tests/duel/equipment -Filter *.duel) +
         @(Get-ChildItem tests/duel/negative -Filter *.duel)
     foreach ($s in $scenarios) {
         $rel = Resolve-Path -Relative $s.FullName
         $negative = $s.Directory.Name -eq 'negative'
-        $output = & $exe --scripts third_party/CardScripts --db third_party/BabelCDB/cards.cdb --enemies game/data/enemies $rel 2>&1 | Out-String
+        $output = & $exe --scripts third_party/CardScripts --db third_party/BabelCDB/cards.cdb --custom game/data $rel 2>&1 | Out-String
         $code = $LASTEXITCODE
         $output | Set-Content -Encoding utf8 (Join-Path $records ($s.BaseName + '.log'))
         if ($negative) {

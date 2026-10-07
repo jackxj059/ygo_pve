@@ -125,5 +125,40 @@ func _initialize() -> void:
 	check(session.duel.count(1, YgoDuel.LOCATION_SZONE) == 1 and session.duel.count(1, YgoDuel.LOCATION_HAND) == 1,
 		"重壓結界 on the field, 岩盤強化 back in the skill pool")
 
+	print("items and equipment through the GDExtension")
+	check(content.is_item(990000303) and content.is_equip(990000202), "item and equipment definitions read from Lua")
+	session = YgoBattleSession.new()
+	err = session.start(content, {"seed": 1, "players": [{"main": deck.main, "start_draw": 0}, {"main": deck.main}],
+		"items": [{"player": 0, "code": 990000303, "count": 1}],
+		"equipment": [{"player": 0, "source": "main", "index": 0, "code": 990000202}]})
+	check(err == "", "battle with an item and equipment starts: %s" % err)
+	var equipped := 0
+	for c: Dictionary in session.duel.cards(0, YgoDuel.LOCATION_DECK):
+		if session.equipment_of(c.instance) == 990000202:
+			equipped += 1
+	check(equipped == 1, "the equipment is on exactly one card (main deck index 0)")
+	var used := false
+	for i in 10:
+		session.step()
+		p = session.prompt()
+		if p.get("type") == "SELECT_IDLECMD":
+			for j in p.options.size():
+				if p.options[j].card.code == 990000303:
+					session.answer(p.id, PackedInt64Array([j]))
+					used = true
+			break
+		if not p.is_empty():
+			session.answer(p.id, PackedInt64Array([p.options.size() - 1])) # pass chain windows
+	var item_events := []
+	for i in 3:
+		item_events.append_array(session.step().filter(func(e: Dictionary) -> bool: return e.type == "item"))
+	check(used and session.duel.lp(0) == 9000, "the item was used from the main phase command (LP %d)" % session.duel.lp(0))
+	check(item_events.size() == 1 and item_events[0].result == "success", "item event with its result: %s" % [item_events])
+	check(session.duel.items()[0].left == 0, "the item is used up")
+	session = YgoBattleSession.new()
+	err = session.start(content, {"seed": 1, "players": [{"main": deck.main}, {"main": deck.main}],
+		"equipment": [{"player": 0, "source": "main", "index": 99, "code": 990000202}]})
+	check("no card at that position" in err, "equipment on a missing card is refused: %s" % err)
+
 	print("PASS" if failures == 0 else "FAIL: %d check(s)" % failures)
 	quit(0 if failures == 0 else 1)

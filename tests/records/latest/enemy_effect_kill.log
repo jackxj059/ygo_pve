@@ -3,7 +3,7 @@
 == duel created
 
 --- new turn (p0)
-  撗拇挺摰?(990000001)#16 HP 3200/3200
+  岩殼守衛(990000001)#16 HP 3200/3200
   phase draw
   phase standby
   phase main1
@@ -15,7 +15,7 @@
   CHAIN LINK 1: Ookazi(19523799) from p0.szone[0]#2 (chosen by player)
   resolve link 1: Ookazi(19523799)
   p1 takes damage 800
-  撗拇挺摰?(990000001)#16 HP 2400/3200
+  岩殼守衛(990000001)#16 HP 2400/3200
   move Ookazi(19523799) p0.szone[0]#2 -> p0.grave[0]#2 reason=0x400
   chain end
 ? p0 SELECT_IDLECMD: [0] sset Ookazi(19523799)@p0.hand[0]#3 [1] sset Ookazi(19523799)@p0.hand[1]#4 [2] sset Ookazi(19523799)@p0.hand[2]#5 [3] activate Ookazi(19523799)@p0.hand[0]#3 [4] activate Ookazi(19523799)@p0.hand[1]#4 [5] activate Ookazi(19523799)@p0.hand[2]#5 [6] end [7] shuffle
@@ -28,7 +28,7 @@
   CHAIN LINK 1: Ookazi(19523799) from p0.szone[0]#3 (chosen by player)
   resolve link 1: Ookazi(19523799)
   p1 takes damage 800
-  撗拇挺摰?(990000001)#16 HP 1600/3200
+  岩殼守衛(990000001)#16 HP 1600/3200
   move Ookazi(19523799) p0.szone[0]#3 -> p0.grave[1]#3 reason=0x400
   chain end
 ? p0 SELECT_IDLECMD: [0] sset Ookazi(19523799)@p0.hand[0]#4 [1] sset Ookazi(19523799)@p0.hand[1]#5 [2] activate Ookazi(19523799)@p0.hand[0]#4 [3] activate Ookazi(19523799)@p0.hand[1]#5 [4] end [5] shuffle
@@ -39,7 +39,7 @@
   CHAIN LINK 1: Ookazi(19523799) from p0.szone[0]#4 (chosen by player)
   resolve link 1: Ookazi(19523799)
   p1 takes damage 800
-  撗拇挺摰?(990000001)#16 HP 800/3200
+  岩殼守衛(990000001)#16 HP 800/3200
   move Ookazi(19523799) p0.szone[0]#4 -> p0.grave[2]#4 reason=0x400
   chain end
 ? p0 SELECT_IDLECMD: [0] sset Ookazi(19523799)@p0.hand[0]#5 [1] activate Ookazi(19523799)@p0.hand[0]#5 [2] end
@@ -51,8 +51,8 @@
   CHAIN LINK 1: Ookazi(19523799) from p0.szone[0]#5 (chosen by player)
   resolve link 1: Ookazi(19523799)
   p1 takes damage 800
-  撗拇挺摰?(990000001)#16 HP 0/3200
-  move 撗拇挺摰?(990000001) p1.mzone[0]#16 -> p1.grave[0]#16 reason=0x41
+  岩殼守衛(990000001)#16 HP 0/3200
+  move 岩殼守衛(990000001) p1.mzone[0]#16 -> p1.grave[0]#16 reason=0x41
   move Ookazi(19523799) p0.szone[0]#5 -> p0.grave[3]#5 reason=0x400
   chain end
   ok: expect hp 990000001 0

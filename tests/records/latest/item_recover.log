@@ -1,0 +1,45 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\items\item_recover.duel
+== duel created
+  move 回復藥(990000303) p0.hand[0] -> p0.-[0] reason=0x400
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Fire Princess(64752646)@p0.mzone[0]#2 [1] repos Aromage Jasmine(96789758)@p0.mzone[1]#3 [2] activate 回復藥(990000303) [3] end
+  > 0 idle activate 990000303
+  p0 recovers 1000
+  p1 takes damage 500
+  CHAIN LINK 1: Aromage Jasmine(96789758) from p0.mzone[1]#3 (activated without a player prompt)
+  item 回復藥(990000303)#24: success
+  resolve link 1: Aromage Jasmine(96789758)
+  p0 draws Mystical Elf(15025844)
+  chain end
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#13 [1] repos Fire Princess(64752646)@p0.mzone[0]#2 [2] repos Aromage Jasmine(96789758)@p0.mzone[1]#3 [3] mset Mystical Elf(15025844)@p0.hand[0]#13 [4] activate 回復藥(990000303) [5] end
+  ok: expect item 990000303 success
+  ok: expect lp 0 6000
+  ok: expect lp 1 7500
+  ok: expect chain 96789758
+  ok: expect count 0 hand 1
+  ok: expect uses 990000303 1
+  > 0 idle activate 990000303
+  p0 recovers 1000
+  p1 takes damage 500
+  item 回復藥(990000303)#24: success
+? p0 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p0.hand[0]#13 [1] repos Fire Princess(64752646)@p0.mzone[0]#2 [2] repos Aromage Jasmine(96789758)@p0.mzone[1]#3 [3] mset Mystical Elf(15025844)@p0.hand[0]#13 [4] activate 回復藥(990000303) {blocked: no uses left} [5] end
+  ok: expect lp 0 7000
+  ok: expect lp 1 7000
+  ok: expect uses 990000303 0
+  ok: expect blocked activate 990000303
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+== scenario stopped at: ? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#23 [1] mset Mystical Elf(15025844)@p1.hand[0]#23 [2] battle [3] end
+PASS
+

@@ -1,0 +1,19 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\negative\item_not_in_chain.duel
+== duel created
+  move 回復藥(990000303) p0.hand[0] -> p0.-[0] reason=0x400
+
+--- new turn (p0)
+  phase draw
+? p0 SELECT_CHAIN: [0] activate Jar of Greed(83968380)@p0.szone[0]#2 [1] activate Jar of Greed(83968380)@p0.szone[1]#3 [2] pass
+  > default: pass (not scripted)
+  phase standby
+? p0 SELECT_CHAIN: [0] activate Jar of Greed(83968380)@p0.szone[0]#2 [1] activate Jar of Greed(83968380)@p0.szone[1]#3 [2] pass
+  > default: pass (not scripted)
+  phase main1
+? p0 SELECT_IDLECMD: [0] activate 回復藥(990000303) [1] activate Jar of Greed(83968380)@p0.szone[0]#2 [2] activate Jar of Greed(83968380)@p0.szone[1]#3 [3] end
+  > 0 idle activate 83968380@szone[0]
+  CHAIN LINK 1: Jar of Greed(83968380) from p0.szone[0]#2 (chosen by player)
+? p0 SELECT_CHAIN: [0] activate Jar of Greed(83968380)@p0.szone[1]#3 [1] pass
+FAIL: line 12: 回復藥(990000303) is not among the offered choices
+

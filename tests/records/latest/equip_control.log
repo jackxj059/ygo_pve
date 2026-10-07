@@ -1,0 +1,43 @@
+﻿== ocgcore API 11.0
+== scenario .\tests\duel\equipment\equip_control.duel
+== duel created
+  move 雙擊徽章(990000202) p0.hand[0] -> p0.-[0] reason=0x400
+
+--- new turn (p0)
+  phase draw
+  phase standby
+  phase main1
+? p0 SELECT_IDLECMD: [0] repos Celtic Guardian(91152256)@p0.mzone[0]#2 [1] end
+  > 0 idle end
+  phase end
+
+--- new turn (p1)
+  phase draw
+  p1 draws Mystical Elf(15025844)
+  phase standby
+  phase main1
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[1]#23 [1] mset Mystical Elf(15025844)@p1.hand[1]#23 [2] sset Change of Heart(4031928)@p1.hand[0]#13 [3] activate Change of Heart(4031928)@p1.hand[0]#13 [4] battle [5] end [6] shuffle
+  > 1 idle activate 4031928
+? p1 SELECT_PLACE pick 1-1: [0] zone p1.szone[0] [1] zone p1.szone[1] [2] zone p1.szone[2] [3] zone p1.szone[3] [4] zone p1.szone[4]
+  > default: first free zone
+  move Change of Heart(4031928) p1.hand[0]#13 -> p1.szone[0]#13 reason=0x0
+  CHAIN LINK 1: Change of Heart(4031928) from p1.szone[0]#13 (chosen by player)
+? p1 SELECT_CARD pick 1-1: [0] card Celtic Guardian(91152256)@p0.mzone[0]#2
+  > 1 select 91152256
+  resolve link 1: Change of Heart(4031928)
+? p1 SELECT_PLACE pick 1-1: [0] zone p1.mzone[0] [1] zone p1.mzone[1] [2] zone p1.mzone[2] [3] zone p1.mzone[3] [4] zone p1.mzone[4]
+  > default: first free zone
+  move Celtic Guardian(91152256) p0.mzone[0]#2 -> p1.mzone[0]#2 reason=0x0
+  move Change of Heart(4031928) p1.szone[0]#13 -> p1.grave[0]#13 reason=0x400
+  chain end
+? p1 SELECT_IDLECMD: [0] summon Mystical Elf(15025844)@p1.hand[0]#23 [1] repos Celtic Guardian(91152256)@p1.mzone[0]#2 [2] mset Mystical Elf(15025844)@p1.hand[0]#23 [3] battle [4] end
+  > 1 idle battle
+  phase battle-start
+? p1 SELECT_BATTLECMD: [0] attack Celtic Guardian(91152256)@p1.mzone[0]#2 [1] main2 [2] end
+  > 1 battle attack 91152256
+  attack p1.mzone[0]#2 -> direct
+  p0 takes damage 2800
+  ok: expect lp 0 5200
+== scenario stopped at: ? p1 SELECT_BATTLECMD: [0] main2 [1] end
+PASS
+

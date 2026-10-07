@@ -3,7 +3,7 @@
 -- 單位死亡後繼續留在場上。
 local s,id=GetID()
 
-s.ygopve_enemy={
+s.ygopve={
 	name="重壓結界", kind="spell", spell="continuous",
 	text="【技能】只要這張卡在魔法與陷阱區域存在，對手不能發動陷阱卡。",
 }
